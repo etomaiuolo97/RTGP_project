@@ -51,7 +51,7 @@ void PrintCurrentShader(int shader);
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
 
-GLfloat orientationY = 0.0f;
+GLfloat orientationY = 0.5f;
 
 // Initialize an array of booleans for each keyboard key
 bool keys[1024];
@@ -176,7 +176,7 @@ int main () {
         GLuint index = glGetSubroutineIndex(illumination_shader.Program, GL_FRAGMENT_SHADER, "BlinnPhong_ML");
         glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &index);
 
-        // Determine the position in the Shader Program of the uniform variables
+        // // Determine the position in the Shader Program of the uniform variables
         GLint matDiffuseLocation = glGetUniformLocation(illumination_shader.Program, "diffuseColor");
         GLint matAmbientLocation = glGetUniformLocation(illumination_shader.Program, "ambientColor");
         GLint matSpecularLocation = glGetUniformLocation(illumination_shader.Program, "specularColor");
@@ -185,17 +185,17 @@ int main () {
         GLint ksLocation = glGetUniformLocation(illumination_shader.Program, "Ks");
         GLint shineLocation = glGetUniformLocation(illumination_shader.Program, "shininess");
 
-        // Uniform variables
+        // // Uniform variables
         glUniform3fv(matAmbientLocation, 1, ambientColor);
         glUniform3fv(matSpecularLocation, 1, specularColor);
         glUniform1f(shineLocation, shininess);
 
-        // Specular component
+        // // Specular component
         glUniform1f(kaLocation, 0.0f);
         glUniform1f(kdLocation, 0.6f);
         glUniform1f(ksLocation, 0.0f);
 
-        // Projection and view matrices to Shader Program
+        // // Projection and view matrices to Shader Program
         glUniformMatrix4fv(glGetUniformLocation(illumination_shader.Program, "projectionMatrix"), 1, GL_FALSE, glm::value_ptr(projection));
         glUniformMatrix4fv(glGetUniformLocation(illumination_shader.Program, "viewMatrix"), 1, GL_FALSE, glm::value_ptr(view));
 
@@ -230,10 +230,10 @@ int main () {
 
         fountainModMatrix = glm::mat4(1.0f);
         fountainNorMatrix = glm::mat3(1.0f);
-        fountainModMatrix = glm::translate(fountainModMatrix, glm::vec3(3.0f, 0.0f, 0.0f));
-        fountainModMatrix = glm::rotate(fountainModMatrix, glm::radians(orientationY), glm::vec3(0.0f, 1.0f, 0.0f));
+        fountainModMatrix = glm::translate(fountainModMatrix, glm::vec3(0.0f, 0.0f, 0.0f));
+        fountainModMatrix = glm::rotate(fountainModMatrix, glm::radians(orientationY), glm::vec3(1.0f, 0.0f, 0.0f));
         fountainModMatrix = glm::scale(fountainModMatrix, glm::vec3(0.3f, 0.3f, 0.3f));
-        fountainNorMatrix = glm::inverseTranspose(glm::mat3(view*fountainModMatrix));
+        fountainNorMatrix = glm::inverseTranspose(glm::mat3(view * fountainModMatrix));
         glUniformMatrix4fv(glGetUniformLocation(illumination_shader.Program, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(fountainModMatrix));
         glUniformMatrix3fv(glGetUniformLocation(illumination_shader.Program, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(fountainNorMatrix));
 
@@ -329,5 +329,5 @@ void mouse_callback (GLFWwindow* window, double xpos, double ypos) {
     lastX = xpos;
     lastY = ypos;
 
-    camera.ProcessMouseMovement(xoffset, yoffset);
+    // camera.ProcessMouseMovement(xoffset, yoffset);
 }
