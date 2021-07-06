@@ -1,0 +1,23 @@
+{
+	"folders": [
+		{
+			"name": "include",
+			"path": "./include"
+		},
+		{
+			"name": "meshes",
+			"path": "./meshes"
+		},
+		{
+			"name": "src",
+			"path": "./src"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"string": "cpp",
+			"iosfwd": "cpp",
+			"ostream": "cpp"
+		}
+	}
+}
