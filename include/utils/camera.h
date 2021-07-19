@@ -23,7 +23,11 @@ enum Camera_Movement {
     FORWARD,
     BACKWARD,
     LEFT,
-    RIGHT
+    RIGHT,
+    FORWARD_CENTERED,
+    BACKWARD_CENTERED,
+    LEFT_CENTERED,
+    RIGHT_CENTERED
 };
 
 // Default camera settings
@@ -70,6 +74,7 @@ public:
     // it returns the current view matrix
     glm::mat4 GetViewMatrix()
     {
+        // return glm::lookAt(this->Position, this->Front, this->WorldUp);
         return glm::lookAt(this->Position, this->Position + this->Front, this->Up);
     }
 
@@ -84,8 +89,21 @@ public:
             this->Position -= (this->onGround ? this->WorldFront : this->Front) * velocity;
         if (direction == LEFT)
             this->Position -= this->Right * velocity;
+            // this->Position -= glm::normalize(glm::cross(glm::normalize(this->Front), this->Up)) * velocity;
         if (direction == RIGHT)
             this->Position += this->Right * velocity;
+            // this->Position += glm::normalize(glm::cross(this->Front, this->Up)) * velocity;
+
+
+        // if (direction == FORWARD_CENTERED)
+        //     this->Position += (this->onGround ? this->WorldFront : this->Front) * velocity;
+        // if (direction == BACKWARD_CENTERED)
+        //     this->Position -= (this->onGround ? this->WorldFront : this->Front) * velocity;
+        // if (direction == LEFT_CENTERED)
+        //     this->Position.x -= (this->Right.x * velocity);
+        //     this->Position.z += (this->onGround ? this->WorldFront.z : this->Front.z) * velocity;
+        // if (direction == RIGHT_CENTERED)
+        //     this->Position.x += (this->Right.x) * velocity;
     }
 
     //////////////////////////////////////////

@@ -25,8 +25,8 @@
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-// number of lights in the scene
-#define NR_LIGHTS 3
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image/stb_image.h>
 
 //Window dimensions
 GLuint screenWidth = 800, screenHeight = 600;
@@ -41,17 +41,15 @@ void apply_camera_movements();
 // Setup of Shader Programs for the shader used in the application
 void SetupShaders(int program);
 
-// Delete Shader Programs when application ends
-// void DeleteShaders();
-
 // Print on console the name of the current shader
 void PrintCurrentShader(int shader);
+
+// Load the 6 images from disk and create the OpenGL cubemap
+GLint LoadTextureCube(string path);
 
 // Parameters for time calculation (for animations)
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
-
-GLfloat orientationY = 0.5f;
 
 // Initialize an array of booleans for each keyboard key
 bool keys[1024];
@@ -63,7 +61,7 @@ GLfloat lastX, lastY;
 bool firstMouse = true;
 
 // Index of the currente shader (= 0  in the beginning)
-GLuint current_program = 0;
+GLuint current_subroutine = 0;
 
 // Vector for all the Shader Programs used and swapped in the application
 vector<std::string> shaders;
@@ -76,15 +74,14 @@ GLboolean wireframe = GL_FALSE;
 Camera camera(glm::vec3(0.0f, 0.0f, 7.0f), GL_TRUE);
 
 // Uniforms to pass to shaders
-GLfloat planeMaterial[] = {0.0f, 0.5f, 0.0f};
+GLuint textureCube;
 
-glm::vec3 lightPositions [] = {
-    glm::vec3(5.0f, 10.0f, 10.0f),
-    glm::vec3(-5.0f, 10.0f, 10.0f),
-    glm::vec3(5.0f, 10.0f, -10.0f)
-};
+glm::vec3 lightPos = glm::vec3(0.0f, 0.0f, 10.0f);
 
-GLfloat diffuseColor [] = {1.0f, 0.0f, 0.0f};
+GLfloat Eta = 1.0f/1.52f;
+GLfloat mFresnelPower = 5.0f;
+
+GLfloat diffuseColor [] = {1.0f, 1.0f, 1.0f};
 GLfloat specularColor [] = {1.0f, 1.0f, 1.0f};
 GLfloat ambientColor [] = {0.1f, 0.1f, 0.1f};
 
@@ -133,12 +130,19 @@ int main () {
     // The clear color for the frame buffer
     glClearColor(0.26f, 0.46f, 0.98f, 1.0f);
 
-    Shader illumination_shader = Shader("illumination_model.vert", "illumination_model.frag");
-    SetupShaders(illumination_shader.Program);
-    PrintCurrentShader(current_program);
+    Shader reflection_shader = Shader("reflection.vert", "reflection.frag");
+    SetupShaders(reflection_shader.Program);
+    PrintCurrentShader(current_subroutine);
+
+    // Shader illumination_shader = Shader("illumination_model.vert", "illumination_model.frag");
+    // SetupShaders(illumination_shader.Program);
+    // PrintCurrentShader(current_program);
+
+    Shader background_shader("background.vert", "background.frag");
+    textureCube = LoadTextureCube("../textures/skybox/");
 
     Model fountainModel("../meshes/ball_fountain.obj");
-    Model planeModel("../meshes/plane.obj");
+    Model bgModel("../meshes/cube.obj");
     
     // Projection matrix
     glm::mat4 projection = glm::perspective(45.0f, (float)screenWidth/(float)screenHeight, 0.1f, 100000.0f);
@@ -149,9 +153,7 @@ int main () {
     // Model and Normal transformation matrices for the objects in the scene
     glm::mat4 fountainModMatrix = glm::mat4(1.0f);
     glm::mat3 fountainNorMatrix = glm::mat3(1.0f);
-    glm::mat4 planeModMatrix = glm::mat4(1.0f);
-    glm::mat3 planeNorMatrix = glm::mat3(1.0f);
-
+    
     while(!glfwWindowShouldClose(window)) {
         GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -172,77 +174,64 @@ int main () {
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         
         // Plane render
-        illumination_shader.Use();
-        GLuint index = glGetSubroutineIndex(illumination_shader.Program, GL_FRAGMENT_SHADER, "BlinnPhong_ML");
+        reflection_shader.Use();
+        GLuint index = glGetSubroutineIndex(reflection_shader.Program, GL_FRAGMENT_SHADER, shaders[current_subroutine].c_str());
         glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &index);
+        
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, textureCube);
 
-        // // Determine the position in the Shader Program of the uniform variables
-        GLint matDiffuseLocation = glGetUniformLocation(illumination_shader.Program, "diffuseColor");
-        GLint matAmbientLocation = glGetUniformLocation(illumination_shader.Program, "ambientColor");
-        GLint matSpecularLocation = glGetUniformLocation(illumination_shader.Program, "specularColor");
-        GLint kaLocation = glGetUniformLocation(illumination_shader.Program, "Ka");
-        GLint kdLocation = glGetUniformLocation(illumination_shader.Program, "Kd");
-        GLint ksLocation = glGetUniformLocation(illumination_shader.Program, "Ks");
-        GLint shineLocation = glGetUniformLocation(illumination_shader.Program, "shininess");
+        GLint textureCubeLocation = glGetUniformLocation(reflection_shader.Program, "tCube");
+        GLint cameraLocation = glGetUniformLocation(reflection_shader.Program, "cameraPosition");
+        GLint etaLocation = glGetUniformLocation(reflection_shader.Program, "Eta");
+        GLint powerLocation = glGetUniformLocation(reflection_shader.Program, "mFresnelPower");
+        GLint pointLightLocation = glGetUniformLocation(reflection_shader.Program, "pointLightPosition");
 
-        // // Uniform variables
-        glUniform3fv(matAmbientLocation, 1, ambientColor);
-        glUniform3fv(matSpecularLocation, 1, specularColor);
-        glUniform1f(shineLocation, shininess);
+        glUniform1i(textureCubeLocation, 0);
+        glUniform3fv(cameraLocation, 2, glm::value_ptr(camera.Position));
+        glUniform1f(etaLocation, Eta);
+        glUniform1f(powerLocation, mFresnelPower);
+        glUniform3fv(pointLightLocation, 1, glm::value_ptr(lightPos));
 
-        // // Specular component
-        glUniform1f(kaLocation, 0.0f);
-        glUniform1f(kdLocation, 0.6f);
-        glUniform1f(ksLocation, 0.0f);
-
-        // // Projection and view matrices to Shader Program
-        glUniformMatrix4fv(glGetUniformLocation(illumination_shader.Program, "projectionMatrix"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUniformMatrix4fv(glGetUniformLocation(illumination_shader.Program, "viewMatrix"), 1, GL_FALSE, glm::value_ptr(view));
-
-        for (GLuint i = 0; i < NR_LIGHTS; i++) {
-            string number = to_string(i);
-            glUniform3fv(glGetUniformLocation(illumination_shader.Program, ("lights[" + number + "]").c_str()), 1, glm::value_ptr(lightPositions[i]));
-        }
-
-        glUniform3fv(matDiffuseLocation, 1, planeMaterial);
-
-        planeModMatrix = glm::mat4(1.0f);
-        planeNorMatrix = glm::mat3(1.0f);
-
-        planeModMatrix = glm::translate(planeModMatrix, glm::vec3(0.0f, -1.0f, 0.0f));
-        planeModMatrix = glm::scale(planeModMatrix, glm::vec3(10.0f, 1.0f, 10.0f));
-
-        planeNorMatrix = glm::inverseTranspose(glm::mat3(view * planeModMatrix));
-
-        glUniformMatrix4fv(glGetUniformLocation(illumination_shader.Program, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(planeModMatrix));
-        glUniformMatrix3fv(glGetUniformLocation(illumination_shader.Program, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(planeNorMatrix));
-
-        planeModel.Draw();
-
-        // Fountain
-        index = glGetSubroutineIndex(illumination_shader.Program, GL_FRAGMENT_SHADER, shaders[current_program].c_str());
-        glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &index);
-
-        glUniform3fv(matDiffuseLocation, 1, diffuseColor);
-        glUniform1f(ksLocation, Ka);
-        glUniform1f(ksLocation, Kd);
-        glUniform1f(ksLocation, Ks);
+        glUniformMatrix4fv(glGetUniformLocation(reflection_shader.Program, "projectionMatrix"), 1, GL_FALSE, glm::value_ptr(projection));
+        glUniformMatrix4fv(glGetUniformLocation(reflection_shader.Program, "viewMatrix"), 1, GL_FALSE, glm::value_ptr(view));
 
         fountainModMatrix = glm::mat4(1.0f);
         fountainNorMatrix = glm::mat3(1.0f);
-        fountainModMatrix = glm::translate(fountainModMatrix, glm::vec3(0.0f, 0.0f, 0.0f));
-        fountainModMatrix = glm::rotate(fountainModMatrix, glm::radians(orientationY), glm::vec3(1.0f, 0.0f, 0.0f));
-        fountainModMatrix = glm::scale(fountainModMatrix, glm::vec3(0.3f, 0.3f, 0.3f));
-        fountainNorMatrix = glm::inverseTranspose(glm::mat3(view * fountainModMatrix));
-        glUniformMatrix4fv(glGetUniformLocation(illumination_shader.Program, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(fountainModMatrix));
-        glUniformMatrix3fv(glGetUniformLocation(illumination_shader.Program, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(fountainNorMatrix));
 
+        fountainModMatrix = glm::translate(fountainModMatrix, glm::vec3(0.0f, -2.0f, 0.0f));
+        fountainModMatrix = glm::rotate(fountainModMatrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        fountainModMatrix = glm::scale(fountainModMatrix, glm::vec3(0.8f, 0.8f, 0.8f));
+        fountainNorMatrix = glm::inverseTranspose(glm::mat3(view*fountainModMatrix));
+        glUniformMatrix4fv(glGetUniformLocation(reflection_shader.Program, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(fountainModMatrix));
+        glUniformMatrix3fv(glGetUniformLocation(reflection_shader.Program, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(fountainNorMatrix));
+
+        // we render the obj
         fountainModel.Draw();
+
+        glDepthFunc(GL_LEQUAL);
+        background_shader.Use();
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, textureCube);
+
+        glUniformMatrix4fv(glGetUniformLocation(background_shader.Program, "projectionMatrix"), 1, GL_FALSE, glm::value_ptr(projection));
+        view = glm::mat4(glm::mat3(view));
+        glUniformMatrix4fv(glGetUniformLocation(background_shader.Program, "viewMatrix"), 1, GL_FALSE, glm::value_ptr(view));
+
+        textureCubeLocation = glGetUniformLocation(background_shader.Program, "tSky");
+
+        glUniform1i(textureCubeLocation, 0);
+
+        bgModel.Draw();
+
+        glDepthFunc(GL_LESS);
 
         glfwSwapBuffers(window);
     }
 
-    illumination_shader.Delete();
+    reflection_shader.Delete();
+    background_shader.Delete();
     glfwTerminate();
     return 0;
 }
@@ -303,16 +292,16 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 }
 
 void apply_camera_movements () {
-    if (keys[GLFW_KEY_W])
+    if (keys[GLFW_KEY_UP])
         camera.ProcessKeyboard(FORWARD, deltaTime);
     
-    if (keys[GLFW_KEY_S])
+    if (keys[GLFW_KEY_DOWN])
         camera.ProcessKeyboard(BACKWARD, deltaTime);
 
-    if (keys[GLFW_KEY_A])
+    if (keys[GLFW_KEY_LEFT])
         camera.ProcessKeyboard(LEFT, deltaTime);
 
-    if (keys[GLFW_KEY_D])
+    if (keys[GLFW_KEY_RIGHT])
         camera.ProcessKeyboard(RIGHT, deltaTime);
 }
 
@@ -331,3 +320,43 @@ void mouse_callback (GLFWwindow* window, double xpos, double ypos) {
 
     // camera.ProcessMouseMovement(xoffset, yoffset);
 }
+
+void LoadTextureCubeSide (string path, string side_img, GLuint side_name) {
+    int w, h;
+    unsigned char * image;
+    string fullname = path + side_img;
+
+    image = stbi_load(fullname.c_str(), &w, &h, 0, STBI_rgb);
+    if (image == nullptr)
+        std::cout << "Failed to load texture!" << std::endl;
+    
+    glTexImage2D(side_name, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+    stbi_image_free(image);
+}
+
+GLint LoadTextureCube (string path) {
+    GLuint textureImage;
+
+    glGenTextures(1, &textureImage);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureImage);
+
+    LoadTextureCubeSide(path, std::string("posx.jpg"), GL_TEXTURE_CUBE_MAP_POSITIVE_X);
+    LoadTextureCubeSide(path, std::string("negx.jpg"), GL_TEXTURE_CUBE_MAP_NEGATIVE_X);
+    LoadTextureCubeSide(path, std::string("posy.jpg"), GL_TEXTURE_CUBE_MAP_POSITIVE_Y);
+    LoadTextureCubeSide(path, std::string("negy.jpg"), GL_TEXTURE_CUBE_MAP_NEGATIVE_Y);
+    LoadTextureCubeSide(path, std::string("posz.jpg"), GL_TEXTURE_CUBE_MAP_POSITIVE_Z);
+    LoadTextureCubeSide(path, std::string("negz.jpg"), GL_TEXTURE_CUBE_MAP_NEGATIVE_Z);
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+    return textureImage;
+}
+
