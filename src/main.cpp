@@ -28,6 +28,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image/stb_image.h>
 
+#define NR_LIGHTS 1
+
 //Window dimensions
 GLuint screenWidth = 800, screenHeight = 600;
 
@@ -76,7 +78,7 @@ Camera camera(glm::vec3(0.0f, 0.0f, 7.0f), GL_TRUE);
 // Uniforms to pass to shaders
 GLuint textureCube;
 
-glm::vec3 lightPos = glm::vec3(0.0f, 0.0f, 10.0f);
+glm::vec3 lightPos[] = {glm::vec3(0.0f, 0.0f, 10.0f)};
 
 GLfloat Eta = 1.0f/1.52f;
 GLfloat mFresnelPower = 5.0f;
@@ -90,6 +92,8 @@ GLfloat Ks = 0.4f;
 GLfloat Ka = 0.1f;
 
 GLfloat shininess = 25.0f;
+GLfloat alpha = 0.2f;
+GLfloat F0 = 0.9f;
 
 int main () {
     std::cout << "Starting GLFW context" << std::endl;
@@ -130,14 +134,12 @@ int main () {
     // The clear color for the frame buffer
     glClearColor(0.26f, 0.46f, 0.98f, 1.0f);
 
-    Shader reflection_shader = Shader("reflection.vert", "reflection.frag");
-    SetupShaders(reflection_shader.Program);
+    Shader illumination_shader("illumination.vert", "illumination.frag");
+
+    SetupShaders(illumination_shader.Program);
     PrintCurrentShader(current_subroutine);
 
-    // Shader illumination_shader = Shader("illumination_model.vert", "illumination_model.frag");
-    // SetupShaders(illumination_shader.Program);
-    // PrintCurrentShader(current_program);
-
+    Shader reflection_shader("reflection.vert", "reflection.frag");
     Shader background_shader("background.vert", "background.frag");
     textureCube = LoadTextureCube("../textures/skybox/");
 
@@ -173,28 +175,64 @@ int main () {
         else
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         
-        // Plane render
-        reflection_shader.Use();
-        GLuint index = glGetSubroutineIndex(reflection_shader.Program, GL_FRAGMENT_SHADER, shaders[current_subroutine].c_str());
+        illumination_shader.Use();
+        GLuint index = glGetSubroutineIndex(illumination_shader.Program, GL_FRAGMENT_SHADER, shaders[current_subroutine].c_str());
         glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &index);
+        
+        // glActiveTexture(GL_TEXTURE0);
+        // glBindTexture(GL_TEXTURE_CUBE_MAP, textureCube);
+
+        GLint matDiffuseLocation = glGetUniformLocation(illumination_shader.Program, "diffuseColor");
+        GLint matAmbientLocation = glGetUniformLocation(illumination_shader.Program, "ambientColor");
+        GLint matSpecularLocation = glGetUniformLocation(illumination_shader.Program, "specularColor");
+        GLint kaLocation = glGetUniformLocation(illumination_shader.Program, "Ka");
+        GLint kdLocation = glGetUniformLocation(illumination_shader.Program, "Kd");
+        GLint ksLocation = glGetUniformLocation(illumination_shader.Program, "Ks");
+        GLint shineLocation = glGetUniformLocation(illumination_shader.Program, "shininess");
+        GLint alphaLocation = glGetUniformLocation(illumination_shader.Program, "alpha");
+        GLint f0Location = glGetUniformLocation(illumination_shader.Program, "F0");
+
+        glUniform3fv(matAmbientLocation, 1, ambientColor);
+        glUniform3fv(matSpecularLocation, 1, specularColor);
+        glUniform1f(shineLocation, shininess);
+        glUniform1f(alphaLocation, alpha);
+        glUniform1f(f0Location, F0);
+
+        glUniform1f(kaLocation, 0.0f);
+        glUniform1f(kdLocation, 0.6f);
+        glUniform1f(ksLocation, 0.0f);
+
+        glUniformMatrix4fv(glGetUniformLocation(illumination_shader.Program, "projectionMatrix"), 1, GL_FALSE, glm::value_ptr(projection));
+        glUniformMatrix4fv(glGetUniformLocation(illumination_shader.Program, "viewMatrix"), 1, GL_FALSE, glm::value_ptr(view));
+
+        for (GLuint i = 0; i < NR_LIGHTS; i++) {
+            string number = to_string(i);
+            glUniform3fv(glGetUniformLocation(illumination_shader.Program, ("lights[" + number + "]").c_str()), 1, glm::value_ptr(lightPos[i]));
+        }
+        GLfloat diff [] = {0.5f, 0.5f, 0.5f};
+        glUniform3fv(matDiffuseLocation, 1, diff);
+
+        // reflection_shader.Use();
+        // GLuint index = glGetSubroutineIndex(reflection_shader.Program, GL_FRAGMENT_SHADER, shaders[current_subroutine].c_str());
+        // glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &index);
         
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, textureCube);
 
-        GLint textureCubeLocation = glGetUniformLocation(reflection_shader.Program, "tCube");
-        GLint cameraLocation = glGetUniformLocation(reflection_shader.Program, "cameraPosition");
-        GLint etaLocation = glGetUniformLocation(reflection_shader.Program, "Eta");
-        GLint powerLocation = glGetUniformLocation(reflection_shader.Program, "mFresnelPower");
-        GLint pointLightLocation = glGetUniformLocation(reflection_shader.Program, "pointLightPosition");
+        // GLint textureCubeLocation = glGetUniformLocation(reflection_shader.Program, "tCube");
+        // GLint cameraLocation = glGetUniformLocation(reflection_shader.Program, "cameraPosition");
+        // GLint etaLocation = glGetUniformLocation(reflection_shader.Program, "Eta");
+        // GLint powerLocation = glGetUniformLocation(reflection_shader.Program, "mFresnelPower");
+        // GLint pointLightLocation = glGetUniformLocation(reflection_shader.Program, "pointLightPosition");
 
-        glUniform1i(textureCubeLocation, 0);
-        glUniform3fv(cameraLocation, 2, glm::value_ptr(camera.Position));
-        glUniform1f(etaLocation, Eta);
-        glUniform1f(powerLocation, mFresnelPower);
-        glUniform3fv(pointLightLocation, 1, glm::value_ptr(lightPos));
+        // glUniform1i(textureCubeLocation, 0);
+        // glUniform3fv(cameraLocation, 2, glm::value_ptr(camera.Position));
+        // glUniform1f(etaLocation, Eta);
+        // glUniform1f(powerLocation, mFresnelPower);
+        // glUniform3fv(pointLightLocation, 1, glm::value_ptr(lightPos));
 
-        glUniformMatrix4fv(glGetUniformLocation(reflection_shader.Program, "projectionMatrix"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUniformMatrix4fv(glGetUniformLocation(reflection_shader.Program, "viewMatrix"), 1, GL_FALSE, glm::value_ptr(view));
+        // glUniformMatrix4fv(glGetUniformLocation(reflection_shader.Program, "projectionMatrix"), 1, GL_FALSE, glm::value_ptr(projection));
+        // glUniformMatrix4fv(glGetUniformLocation(reflection_shader.Program, "viewMatrix"), 1, GL_FALSE, glm::value_ptr(view));
 
         fountainModMatrix = glm::mat4(1.0f);
         fountainNorMatrix = glm::mat3(1.0f);
@@ -203,10 +241,9 @@ int main () {
         fountainModMatrix = glm::rotate(fountainModMatrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         fountainModMatrix = glm::scale(fountainModMatrix, glm::vec3(0.8f, 0.8f, 0.8f));
         fountainNorMatrix = glm::inverseTranspose(glm::mat3(view*fountainModMatrix));
-        glUniformMatrix4fv(glGetUniformLocation(reflection_shader.Program, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(fountainModMatrix));
-        glUniformMatrix3fv(glGetUniformLocation(reflection_shader.Program, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(fountainNorMatrix));
+        glUniformMatrix4fv(glGetUniformLocation(illumination_shader.Program, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(fountainModMatrix));
+        glUniformMatrix3fv(glGetUniformLocation(illumination_shader.Program, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(fountainNorMatrix));
 
-        // we render the obj
         fountainModel.Draw();
 
         glDepthFunc(GL_LEQUAL);
@@ -219,7 +256,7 @@ int main () {
         view = glm::mat4(glm::mat3(view));
         glUniformMatrix4fv(glGetUniformLocation(background_shader.Program, "viewMatrix"), 1, GL_FALSE, glm::value_ptr(view));
 
-        textureCubeLocation = glGetUniformLocation(background_shader.Program, "tSky");
+        GLint textureCubeLocation = glGetUniformLocation(background_shader.Program, "tSky");
 
         glUniform1i(textureCubeLocation, 0);
 
@@ -230,6 +267,7 @@ int main () {
         glfwSwapBuffers(window);
     }
 
+    illumination_shader.Delete();
     reflection_shader.Delete();
     background_shader.Delete();
     glfwTerminate();

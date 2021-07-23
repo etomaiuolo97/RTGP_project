@@ -1,0 +1,24 @@
+{
+	"folders": [
+		{
+			"path": "..\\include"
+		},
+		{
+			"path": "..\\libs"
+		},
+		{
+			"path": "..\\meshes"
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "..\\textures"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"cmath": "cpp"
+		}
+	}
+}
