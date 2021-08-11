@@ -18,6 +18,8 @@ Universita' degli Studi di Milano
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#define PI 3.141592653
+
 // possible camera movements
 enum Camera_Movement {
     FORWARD,
@@ -50,9 +52,13 @@ public:
     glm::vec3 Up; // camera local UP vector
     glm::vec3 Right;
     glm::vec3 WorldUp; //  camera world UP vector -> needed for the initial computation of Right vector
+    
+    GLfloat near = 0.5;
+    GLfloat far = 100.0;
+
     GLboolean onGround; // it defines if the camera is "anchored" to the ground, or if it strictly follows the current Front direction (even if this means that the camera "flies" in the scene)
-    // N.B.) this version works only for flat terrains
-    // Eular Angles
+    
+    // Euler Angles
     GLfloat Yaw;
     GLfloat Pitch;
     // Camera options
@@ -83,27 +89,16 @@ public:
     void ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime)
     {
         GLfloat velocity = this->MovementSpeed * deltaTime;
+
         if (direction == FORWARD)
             this->Position += (this->onGround ? this->WorldFront : this->Front) * velocity;
         if (direction == BACKWARD)
             this->Position -= (this->onGround ? this->WorldFront : this->Front) * velocity;
         if (direction == LEFT)
             this->Position -= this->Right * velocity;
-            // this->Position -= glm::normalize(glm::cross(glm::normalize(this->Front), this->Up)) * velocity;
         if (direction == RIGHT)
             this->Position += this->Right * velocity;
-            // this->Position += glm::normalize(glm::cross(this->Front, this->Up)) * velocity;
-
-
-        // if (direction == FORWARD_CENTERED)
-        //     this->Position += (this->onGround ? this->WorldFront : this->Front) * velocity;
-        // if (direction == BACKWARD_CENTERED)
-        //     this->Position -= (this->onGround ? this->WorldFront : this->Front) * velocity;
-        // if (direction == LEFT_CENTERED)
-        //     this->Position.x -= (this->Right.x * velocity);
-        //     this->Position.z += (this->onGround ? this->WorldFront.z : this->Front.z) * velocity;
-        // if (direction == RIGHT_CENTERED)
-        //     this->Position.x += (this->Right.x) * velocity;
+            
     }
 
     //////////////////////////////////////////
@@ -151,4 +146,6 @@ private:
         // we calculate the camera local Up vector as cross product between Front and Right vectors
         this->Up    = glm::normalize(glm::cross(this->Right, this->Front));
     }
+
+    
 };

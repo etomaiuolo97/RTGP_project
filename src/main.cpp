@@ -18,7 +18,7 @@
 
 #include <utils/shader.h>
 #include <utils/model.h>
-#include <utils/camera.h>
+#include <utils/my_camera.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -73,7 +73,8 @@ GLboolean wireframe = GL_FALSE;
 
 // Camera with an initial position
 // GL_TRUE = camera fixed to the ground
-Camera camera(glm::vec3(0.0f, 0.0f, 7.0f), GL_TRUE);
+// Camera camera(glm::vec3(0.0f, 0.0f, 7.0f), GL_TRUE);
+Camera camera(glm::vec3(0.0f, 0.0f, 7.0f));
 
 // Uniforms to pass to shaders
 GLuint textureCube;
@@ -147,7 +148,7 @@ int main () {
     Model bgModel("../meshes/cube.obj");
     
     // Projection matrix
-    glm::mat4 projection = glm::perspective(45.0f, (float)screenWidth/(float)screenHeight, 0.1f, 100000.0f);
+    glm::mat4 projection = glm::perspective(45.0f, (float)screenWidth/(float)screenHeight, 0.1f, 10000.0f);
     
     // View matrix
     glm::mat4 view = glm::mat4(1.0f);
@@ -175,13 +176,29 @@ int main () {
         else
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         
+        // reflection_shader.Use();
+        // GLuint index = glGetSubroutineIndex(reflection_shader.Program, GL_FRAGMENT_SHADER, shaders[current_subroutine].c_str());
+        // glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &index);
+        
+        // GLint textureCubeLocation = glGetUniformLocation(reflection_shader.Program, "tCube");
+        // GLint cameraLocation = glGetUniformLocation(reflection_shader.Program, "cameraPosition");
+        // GLint etaLocation = glGetUniformLocation(reflection_shader.Program, "Eta");
+        // GLint powerLocation = glGetUniformLocation(reflection_shader.Program, "mFresnelPower");
+        // GLint pointLightLocation = glGetUniformLocation(reflection_shader.Program, "pointLightPosition");
+
+        // glUniform1i(textureCubeLocation, 0);
+        // glUniform3fv(cameraLocation, 2, glm::value_ptr(camera.Position));
+        // glUniform1f(etaLocation, Eta);
+        // glUniform1f(powerLocation, mFresnelPower);
+        // glUniform3fv(pointLightLocation, 1, glm::value_ptr(lightPos[0]));
+
+        // glUniformMatrix4fv(glGetUniformLocation(reflection_shader.Program, "projectionMatrix"), 1, GL_FALSE, glm::value_ptr(projection));
+        // glUniformMatrix4fv(glGetUniformLocation(reflection_shader.Program, "viewMatrix"), 1, GL_FALSE, glm::value_ptr(view));
+
         illumination_shader.Use();
         GLuint index = glGetSubroutineIndex(illumination_shader.Program, GL_FRAGMENT_SHADER, shaders[current_subroutine].c_str());
         glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &index);
         
-        // glActiveTexture(GL_TEXTURE0);
-        // glBindTexture(GL_TEXTURE_CUBE_MAP, textureCube);
-
         GLint matDiffuseLocation = glGetUniformLocation(illumination_shader.Program, "diffuseColor");
         GLint matAmbientLocation = glGetUniformLocation(illumination_shader.Program, "ambientColor");
         GLint matSpecularLocation = glGetUniformLocation(illumination_shader.Program, "specularColor");
@@ -212,32 +229,14 @@ int main () {
         GLfloat diff [] = {0.5f, 0.5f, 0.5f};
         glUniform3fv(matDiffuseLocation, 1, diff);
 
-        // reflection_shader.Use();
-        // GLuint index = glGetSubroutineIndex(reflection_shader.Program, GL_FRAGMENT_SHADER, shaders[current_subroutine].c_str());
-        // glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &index);
-        
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, textureCube);
 
-        // GLint textureCubeLocation = glGetUniformLocation(reflection_shader.Program, "tCube");
-        // GLint cameraLocation = glGetUniformLocation(reflection_shader.Program, "cameraPosition");
-        // GLint etaLocation = glGetUniformLocation(reflection_shader.Program, "Eta");
-        // GLint powerLocation = glGetUniformLocation(reflection_shader.Program, "mFresnelPower");
-        // GLint pointLightLocation = glGetUniformLocation(reflection_shader.Program, "pointLightPosition");
-
-        // glUniform1i(textureCubeLocation, 0);
-        // glUniform3fv(cameraLocation, 2, glm::value_ptr(camera.Position));
-        // glUniform1f(etaLocation, Eta);
-        // glUniform1f(powerLocation, mFresnelPower);
-        // glUniform3fv(pointLightLocation, 1, glm::value_ptr(lightPos));
-
-        // glUniformMatrix4fv(glGetUniformLocation(reflection_shader.Program, "projectionMatrix"), 1, GL_FALSE, glm::value_ptr(projection));
-        // glUniformMatrix4fv(glGetUniformLocation(reflection_shader.Program, "viewMatrix"), 1, GL_FALSE, glm::value_ptr(view));
 
         fountainModMatrix = glm::mat4(1.0f);
         fountainNorMatrix = glm::mat3(1.0f);
 
-        fountainModMatrix = glm::translate(fountainModMatrix, glm::vec3(0.0f, -2.0f, 0.0f));
+        fountainModMatrix = glm::translate(fountainModMatrix, glm::vec3(0.0f, -3.0f, -5.0f));
         fountainModMatrix = glm::rotate(fountainModMatrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         fountainModMatrix = glm::scale(fountainModMatrix, glm::vec3(0.8f, 0.8f, 0.8f));
         fountainNorMatrix = glm::inverseTranspose(glm::mat3(view*fountainModMatrix));
@@ -253,11 +252,11 @@ int main () {
         glBindTexture(GL_TEXTURE_CUBE_MAP, textureCube);
 
         glUniformMatrix4fv(glGetUniformLocation(background_shader.Program, "projectionMatrix"), 1, GL_FALSE, glm::value_ptr(projection));
+
         view = glm::mat4(glm::mat3(view));
         glUniformMatrix4fv(glGetUniformLocation(background_shader.Program, "viewMatrix"), 1, GL_FALSE, glm::value_ptr(view));
 
-        GLint textureCubeLocation = glGetUniformLocation(background_shader.Program, "tSky");
-
+        GLint textureCubeLocation = glGetUniformLocation(background_shader.Program, "tCube");
         glUniform1i(textureCubeLocation, 0);
 
         bgModel.Draw();
@@ -331,16 +330,22 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 void apply_camera_movements () {
     if (keys[GLFW_KEY_UP])
-        camera.ProcessKeyboard(FORWARD, deltaTime);
+        camera.ProcessKeyboard(UP, deltaTime);
     
     if (keys[GLFW_KEY_DOWN])
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
+        camera.ProcessKeyboard(DOWN, deltaTime);
 
     if (keys[GLFW_KEY_LEFT])
         camera.ProcessKeyboard(LEFT, deltaTime);
 
     if (keys[GLFW_KEY_RIGHT])
         camera.ProcessKeyboard(RIGHT, deltaTime);
+    
+    if (keys[GLFW_KEY_W])
+        camera.ProcessKeyboard(FORWARD, deltaTime);
+
+    if (keys[GLFW_KEY_S])
+        camera.ProcessKeyboard(BACKWARD, deltaTime);
 }
 
 void mouse_callback (GLFWwindow* window, double xpos, double ypos) {
@@ -377,7 +382,7 @@ GLint LoadTextureCube (string path) {
 
     glGenTextures(1, &textureImage);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureImage);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, textureImage);
 
     LoadTextureCubeSide(path, std::string("posx.jpg"), GL_TEXTURE_CUBE_MAP_POSITIVE_X);
     LoadTextureCubeSide(path, std::string("negx.jpg"), GL_TEXTURE_CUBE_MAP_NEGATIVE_X);
