@@ -24,6 +24,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "particle_model.h"
 
 // number of lights in the scene
 #define NR_LIGHTS 3
@@ -94,6 +95,10 @@ GLfloat Ka = 0.1f;
 
 GLfloat shininess = 25.0f;
 
+particleProps m_Particle;
+particle_model m_ParticleSystem;
+float ts=0.1f;
+
 int main () {
     std::cout << "Starting GLFW context" << std::endl;
 
@@ -151,6 +156,16 @@ int main () {
     glm::mat3 fountainNorMatrix = glm::mat3(1.0f);
     glm::mat4 planeModMatrix = glm::mat4(1.0f);
     glm::mat3 planeNorMatrix = glm::mat3(1.0f);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	//Init particle
+	m_Particle.color = { 254 / 255.0f, 212 / 255.0f, 123 / 255.0f, 1.0f };
+	m_Particle.size = 0.5f;
+	m_Particle.lifeTime = 1.0f;
+	m_Particle.velocity = { 0.0f, 0.0f };
+	m_Particle.position = { 0.0f, 0.0f };
 
     while(!glfwWindowShouldClose(window)) {
         GLfloat currentFrame = glfwGetTime();
@@ -238,6 +253,12 @@ int main () {
         glUniformMatrix3fv(glGetUniformLocation(illumination_shader.Program, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(fountainNorMatrix));
 
         fountainModel.Draw();
+
+        for (int i = 0; i < 5; i++)
+			m_ParticleSystem.Emit(m_Particle);
+
+        m_ParticleSystem.Update(ts);
+	    m_ParticleSystem.Render();
 
         glfwSwapBuffers(window);
     }
