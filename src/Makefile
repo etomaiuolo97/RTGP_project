@@ -1,20 +1,20 @@
 # Makefile for RTGP Project - MacOS environment
-# author: Elena Tomaiuolo, Brigitte 
+# author: Elena Tomaiuolo, Briggith 
 # Real-Time Graphics Programming - a.a. 2020/2021
 # Master degree in Computer Science
 # Universita' degli Studi di Milano
 
 #name of the file
-FILENAME = main
+FILENAME = ./src/main
 
 # Xcode compiler
 CXX = clang++
 
 # Include path
-IDIR = ../include
+IDIR = ./include
 
 # Libraries path
-LDIR = ../libs/mac
+LDIR = ./libs/mac
 
 # MacOS frameworks
 MACFW = -framework OpenGL -framework IOKit -framework Cocoa -framework CoreVideo
@@ -25,7 +25,7 @@ CXXFLAGS  = -g -O0 -Wall -Wno-invalid-offsetof -std=c++11 -I$(IDIR)
 # linker flags:
 LDFLAGS = -L$(LDIR) -lglfw3 -lassimp -lz -lIrrXML $(MACFW)
 
-SOURCES = ../include/glad/glad.c $(FILENAME).cpp
+SOURCES = ./include/glad/glad.c $(FILENAME).cpp
 
 
 TARGET = $(FILENAME).out

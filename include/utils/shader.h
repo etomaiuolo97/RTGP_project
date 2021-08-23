@@ -46,10 +46,12 @@ public:
             // Open files
             vShaderFile.open(vertexPath);
             fShaderFile.open(fragmentPath);
+
             stringstream vShaderStream, fShaderStream;
             // Read file's buffer contents into streams
             vShaderStream << vShaderFile.rdbuf();
             fShaderStream << fShaderFile.rdbuf();
+
             // close file handlers
             vShaderFile.close();
             fShaderFile.close();

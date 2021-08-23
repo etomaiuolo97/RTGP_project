@@ -1,19 +1,78 @@
-#include "particle_model.h"
-#include <glm/gtc/matrix_transform.hpp>
+#pragma once
+
+#ifndef PARTICLE_GENERATOR_H
+#define PARTICLE_GENERATOR_H
+
+#include <vector>
+
 #include <glm/glm.hpp>
+#include <glad/glad.h>
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/constants.hpp>
-#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/compatibility.hpp>
+
+#include <utils/shader.h>
+
+// Represents a single particle and its state
+struct particleProps
+{
+	glm::vec2 position,velocity;
+	glm::vec4 color;
+	float lifeTime = 1.0;
+	float size;
+    particleProps() : position(0.0f), velocity(0.0f), color(1.0f), lifeTime(0.0f) { }
+};
+
+// particle_model acts as a container for rendering a large number of 
+// particles by repeatedly spawning and updating particles and killing 
+// them after a given amount of time.
+class particle_model{
+public:
+    // constructor
+    particle_model();
+    // update all particles
+    void Update(float dt);
+    // render all particles
+    void Render();
+    // emit particles
+    void Emit(const particleProps& particle_props);
+
+private:
+	struct Particle
+	{
+		glm::vec2 position;
+		glm::vec2 velocity;
+		glm::vec4 color;
+
+		float lifeTime = 1.0f;
+		float lifeRemaining = 0.0f;
+		float rotation = 0.0f;
+		float size;
+
+		bool active = false;
+	};
+
+    std::vector<Particle> m_particlePool;
+	uint32_t m_PoolIndex = 999;
+
+	GLuint m_QuadVA = 0;
+	Shader m_ParticleShader = Shader("src/particle_model.vert","src/particle_model.frag");
+	GLint m_ParticleShaderViewProj, m_ParticleShaderTransform, m_ParticleShaderColor;
+};
+
+#endif
+
+// #define GLM_ENABLE_EXPERIMENTAL
 
 particle_model::particle_model()
 {
-	m_particlePool.resize(1000);
+	this->m_particlePool.resize(1000);
 }
 
 void particle_model::Update(float ts)
 {
-	for (auto& particle : m_particlePool)
+	for (auto& particle : this->m_particlePool)
 	{
 		if (!particle.active)
 			continue;
@@ -59,8 +118,6 @@ void particle_model::Render()
 		glCreateBuffers(1, &quadIB);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadIB);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-		m_ParticleShader = Shader("particle_model.vert","particle_model.frag");
     	
 		m_ParticleShaderViewProj = glGetUniformLocation(m_ParticleShaderViewProj, "u_ViewProj");
 		m_ParticleShaderTransform = glGetUniformLocation(m_ParticleShaderTransform, "u_Transform");
@@ -96,7 +153,7 @@ void particle_model::Emit(const particleProps& particleProps)
 	Particle& particle = m_particlePool[m_PoolIndex];
 	particle.active = true;
 	particle.position = particleProps.position;
-	particle.rotation = (float)random() * 2.0f * glm::pi<float>();
+	particle.rotation = (float)rand() * 2.0f * glm::pi<float>();
 
 	// Velocity
 	particle.velocity = particleProps.velocity;

@@ -20,11 +20,12 @@
 #include <utils/model.h>
 #include <utils/camera.h>
 
+#include <utils/particle_model.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "particle_model.h"
 
 // number of lights in the scene
 #define NR_LIGHTS 3
@@ -95,8 +96,6 @@ GLfloat Ka = 0.1f;
 
 GLfloat shininess = 25.0f;
 
-particleProps m_Particle;
-particle_model m_ParticleSystem;
 float ts=0.1f;
 
 int main () {
@@ -138,12 +137,15 @@ int main () {
     // The clear color for the frame buffer
     glClearColor(0.26f, 0.46f, 0.98f, 1.0f);
 
-    Shader illumination_shader = Shader("illumination_model.vert", "illumination_model.frag");
+    Shader illumination_shader = Shader("src/illumination_model.vert", "src/illumination_model.frag");
     SetupShaders(illumination_shader.Program);
     PrintCurrentShader(current_program);
 
-    Model fountainModel("../meshes/ball_fountain.obj");
-    Model planeModel("../meshes/plane.obj");
+    particleProps m_Particle;
+    particle_model m_ParticleSystem;
+
+    Model fountainModel("meshes/ball_fountain.obj");
+    Model planeModel("meshes/plane.obj");
     
     // Projection matrix
     glm::mat4 projection = glm::perspective(45.0f, (float)screenWidth/(float)screenHeight, 0.1f, 100000.0f);
