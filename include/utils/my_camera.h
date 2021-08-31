@@ -19,8 +19,28 @@ const GLfloat SPEED = 4.0f;
 class Camera {
 
 public:
-    Camera(glm::vec3);
+    glm::vec3 position = glm::vec3(0.0f, 0.0f, 7.0f);
+    glm::vec3 FountainRot = glm::vec3(0.0f, 0.0f, 0.0f);
+    GLfloat pitch = 30;
+    GLfloat yaw = 0;
+    GLfloat roll;
+
+    Camera () {};
+
+    Camera (glm::vec3);
+
     ~Camera();
+
+    void move (bool keys [], GLfloat deltaTime){
+        if (keys[GLFW_KEY_LEFT])
+            this->position.x -= SPEED;
+        if (keys[GLFW_KEY_RIGHT])
+            this->position.x += SPEED;
+        if (keys[GLFW_KEY_UP])
+            this->position.z -= SPEED;
+        if (keys[GLFW_KEY_DOWN])
+            this->position.z += SPEED;
+    }
 
     void ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime) {
         GLfloat change = deltaTime * SPEED;
@@ -59,18 +79,12 @@ public:
         this->calculateCameraPos(hDis, vDis);
         this->yaw = 180 - (this->FountainRot.y + this->angleAroundFountain);
 
-        return glm::lookAt(this->Position, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        return glm::lookAt(this->position, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     }
 
 private:
     GLfloat disFromFountain = 20;
     GLfloat angleAroundFountain = 0;
-
-    glm::vec3 Position = glm::vec3(0.0f, 0.0f, 7.0f);
-    glm::vec3 FountainRot = glm::vec3(0.0f, 0.0f, 0.0f);
-    GLfloat pitch = 30;
-    GLfloat yaw = 0;
-    GLfloat roll;
 
     GLfloat calculateHorizontalDistance() {
         return (GLfloat) (this->disFromFountain * cos(glm::radians(pitch)));
@@ -86,14 +100,14 @@ private:
         GLfloat offsetZ = (GLfloat)(hDis * cos(glm::radians(this->angleAroundFountain)));
         
     
-        this->Position.x = offsetX;
-        this->Position.z = offsetZ;
-        this->Position.y = vDis;
+        this->position.x = offsetX;
+        this->position.z = offsetZ;
+        this->position.y = vDis;
     }
 };
 
 Camera::Camera(glm::vec3 position) {
-    this->Position = position;
+    this->position = position;
 }
 
 Camera::~Camera() {
