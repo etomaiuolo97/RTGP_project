@@ -7,7 +7,7 @@ using namespace std;
 #include <sstream>
 #include <iostream>
 
-#include <utils/my_shader.h>
+#include <utils/shader.h>
 // #include <utils/utils.h>
 
 #include <glad/glad.h>
@@ -31,12 +31,15 @@ private:
     GLint viewMatrixLocation;
     GLint modelMatrixLocation;
     GLint normalMatrixLocation;
+    GLint repeatLocation;
+    GLint texLocation;
     vector<GLint> lightPosLocation;
 
 public:
     void bindAttributes () {
         Shader::bindAttribute(0, "position");
         Shader::bindAttribute(1, "normal");
+        Shader::bindAttribute(2, "UV");
     }
     
     void getAllUniformLocations () {
@@ -53,11 +56,21 @@ public:
         this->viewMatrixLocation = Shader::getUniformLocation("viewMatrix");
         this->modelMatrixLocation = Shader::getUniformLocation("modelMatrix");
         this->normalMatrixLocation = Shader::getUniformLocation("normalMatrix");
+        this->repeatLocation = Shader::getUniformLocation("repeat");
+        this->texLocation = Shader::getUniformLocation("tex");
         
         for (GLuint i = 0; i < this->NR_LIGHTS; i++) {
             string number = to_string(i);
             this->lightPosLocation.push_back(Shader::getUniformLocation(("lights[" + number + "]").c_str()));
         }
+    }
+
+    void loadRepeat (GLfloat repeat) {
+        glUniform1f(this->repeatLocation, repeat);
+    }
+
+    void loadTex (GLint tex) {
+        glUniform1i(this->texLocation, tex);
     }
 
     void loadDiffuseColor (GLfloat diffColor []) {

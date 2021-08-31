@@ -7,101 +7,110 @@ using namespace std;
 #include <sstream>
 #include <iostream>
 
-class Shader
-{
-    public:
-        GLuint Program;
+#include <glad/glad.h>
 
-        Shader(const GLchar* vertexPath, const GLchar* fragmentPath)
-        {
-            string vertexCode;
-            string fragmentCode;
-            ifstream vShaderFile;
-            ifstream fShaderFile;
+class Shader {
+protected:
+    
+    void checkCompileErrors (GLuint shader, string type) {
+        GLint success;
+        GLchar infoLog[1024];
 
-            vShaderFile.exceptions(ifstream::failbit | ifstream::badbit);
-            fShaderFile.exceptions(ifstream::failbit | ifstream::badbit);
-            try{
-                vShaderFile.open(vertexPath);
-                fShaderFile.open(fragmentPath);
-
-                stringstream vShaderStream, fShaderStream;
-
-                vShaderStream << vShaderFile.rdbuf();
-                fShaderStream << fShaderFile.rdbuf();
-
-                vShaderFile.close();
-                fShaderFile.close();
-
-                vertexCode = vShaderStream.str();
-                fragmentCode = fShaderStream.str();
+        if (type != "PROGRAM") {
+            glGetShaderiv (shader, GL_COMPILE_STATUS, &success);
+            if (!success) {
+                glGetShaderInfoLog(shader, 1024, NULL, infoLog);
+                std::cout << "ERROR::SHADER::"<< type <<"::COMPILATION_FAILED\n" << infoLog << std::endl;
             }
-            catch (ifstream::failure e) {
-                cout << "ERROR!" << endl;
+        }
+        else {
+            glGetProgramiv(shader, GL_LINK_STATUS, &success);
+            if (!success) {
+                glGetProgramInfoLog(shader, 1024, NULL, infoLog);
+                std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
             }
-
-            const GLchar* vShaderCode = vertexCode.c_str();
-            const GLchar* fShaderCode = fragmentCode.c_str();
-
-            GLuint vertex, fragment;
-
-            // Vertex shader = label representing the obj
-            vertex = glCreateShader(GL_VERTEX_SHADER);
-            glShaderSource(vertex, 1, &vShaderCode, NULL);
-            glCompileShader(vertex);
-            checkCompileErrors(vertex, "VERTEX");
-
-            // Fragment shader
-            fragment = glCreateShader(GL_FRAGMENT_SHADER);
-            glShaderSource(fragment, 1, &fShaderCode, NULL);
-            glCompileShader(fragment);
-            checkCompileErrors(fragment, "FRAGMENT");
-
-            // Link shaders
-            this->Program = glCreateProgram();
-            glAttachShader(this->Program, vertex);
-            glAttachShader(this->Program, fragment);
-            glLinkProgram(this->Program);
-            checkCompileErrors(this->Program, "PROGRAM");
-            
-            glDeleteShader(vertex);
-            glDeleteShader(fragment);
-        }
-
-        void Use()
-        {
-            glUseProgram(this->Program);
-        }
-
-        void Delete()
-        {
-            glDeleteProgram(this->Program);
         }
         
-    private:
-        void checkCompileErrors(GLuint shader, string type)
-        {
-            GLint success;
-            GLchar infoLog[512];
+    }
+
+private:
+    GLuint vertexShader;
+    GLuint fragmentShader;
+
+    GLuint loadShader (const GLchar* file, GLint type){
+        string code;
+        ifstream shaderFile;
+
+        shaderFile.exceptions(ifstream::failbit | ifstream::badbit);
+        
+        try{
+            shaderFile.open(file);
             
-            if(type != "PROGRAM")
-            {
-                glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-                if (!success)
-                {
-                    glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-                    std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-                }
-            }
-            else
-            {
-                glGetProgramiv(shader, GL_LINK_STATUS, &success);
-                if (!success) {
-                    glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-                    std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-                }
-            }
-            
+            stringstream shaderStream;
+
+            shaderStream << shaderFile.rdbuf();
+
+            shaderFile.close();
+
+            code = shaderStream.str();
         }
-     
+        catch (ifstream::failure e) {
+            cout << "ERROR :: SHADER :: FILE_NOT_SUCCESSFULLY_READ" << endl;
+        }
+
+        const GLchar* shaderCode = code.c_str();
+
+        GLuint shader;
+
+        shader = glCreateShader(type);
+        glShaderSource(shader, 1, &shaderCode, NULL);
+        glCompileShader(shader);
+        checkCompileErrors(shader, type == GL_VERTEX_SHADER? "VERTEX": "FRAGMENT");
+
+        return shader;
+    }
+
+public:
+
+    GLuint program;
+
+    void getAllUniformLocations(){};
+
+    GLint getUniformLocation(const GLchar* uniformName){
+        return glGetUniformLocation(this->program, uniformName);
+    }
+
+    void bindAttributes (){};
+
+    void bindAttribute (GLuint attribute, GLchar* varName) {
+        glBindAttribLocation(this->program, attribute, varName);
+    }
+
+    Shader (const GLchar* vertexFile, const GLchar* fragmentFile) {
+        this->vertexShader = loadShader(vertexFile, GL_VERTEX_SHADER);
+        this->fragmentShader = loadShader(fragmentFile, GL_FRAGMENT_SHADER);
+
+        this->program = glCreateProgram();
+
+        glAttachShader(this->program, this->vertexShader);
+        glAttachShader(this->program, this->fragmentShader);
+    }
+
+    void start () {
+        glUseProgram(this->program);
+    }
+
+    void stop (){
+        glUseProgram(0);
+    }
+
+    void cleanUp () {
+        stop();
+        glDetachShader(this->program, this->vertexShader);
+        glDetachShader(this->program, this->fragmentShader);
+        glDeleteShader(this->vertexShader);
+        glDeleteShader(this->fragmentShader);
+        glDeleteProgram(this->program);
+    }
+
 };

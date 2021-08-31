@@ -2,7 +2,7 @@
 
 using namespace std;
 
-#include <utils/my_shader.h>
+#include <utils/shader.h>
 
 class BackgroundShader: public Shader {
 private:

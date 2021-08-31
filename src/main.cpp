@@ -26,7 +26,7 @@
 
 // #include <utils/shader.h>
 #include <utils/model.h>
-#include <utils/my_camera.h>
+#include <utils/camera.h>
 #include <utils/utils.h>
 #include <utils/display.h>
 #include <utils/illumination_shader.h>
@@ -44,7 +44,6 @@ GLuint current_subroutine = 0;
 
 // Vector for all the Shader Programs used and swapped in the application
 vector<std::string> shaders;
-
 
 int main () {
     std::cout << "Starting GLFW context" << std::endl;
@@ -68,6 +67,7 @@ int main () {
 
     Model fountainModel("meshes/ball_fountain.obj");
     Model bgModel("meshes/cube.obj");
+    textures.push_back(LoadTexture("textures/terrain.png"));
     
     // Projection matrix
     glm::mat4 projection = glm::perspective(45.0f, (float)WIDTH/(float)HEIGHT, 0.1f, 10000.0f);
@@ -110,13 +110,17 @@ int main () {
         illumination_shader.loadProjectionMatrix(projection);
         illumination_shader.loadViewMatrix(view);
         illumination_shader.loadLights(lightPos);
+        
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, textures[0]);
+        
+        illumination_shader.loadRepeat(1.0f);
+        illumination_shader.loadTex(0);
 
         GLfloat diff [] = {0.5f, 0.5f, 0.5f};
         illumination_shader.loadDiffuseColor(diff);
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, textureCube);
-
+        
         fountainModMatrix = createTransformationMatrix(glm::vec3(0.0f, -3.0f, -5.0f), -90.0f, 0.0f, 0.0f, 0.8f);
         fountainNorMatrix = createNormalMatrix(view, fountainModMatrix);
 
