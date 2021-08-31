@@ -45,25 +45,6 @@ GLuint current_subroutine = 0;
 // Vector for all the Shader Programs used and swapped in the application
 vector<std::string> shaders;
 
-// Uniforms to pass to shaders
-GLuint textureCube;
-
-glm::vec3 lightPos[] = {glm::vec3(0.0f, 0.0f, 10.0f)};
-
-GLfloat Eta = 1.0f/1.52f;
-GLfloat mFresnelPower = 5.0f;
-
-GLfloat diffuseColor [] = {1.0f, 1.0f, 1.0f};
-GLfloat specularColor [] = {1.0f, 1.0f, 1.0f};
-GLfloat ambientColor [] = {0.1f, 0.1f, 0.1f};
-
-GLfloat Kd = 0.5f;
-GLfloat Ks = 0.4f;
-GLfloat Ka = 0.1f;
-
-GLfloat shininess = 25.0f;
-GLfloat alpha = 0.2f;
-GLfloat F0 = 0.9f;
 
 int main () {
     std::cout << "Starting GLFW context" << std::endl;
@@ -136,13 +117,8 @@ int main () {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, textureCube);
 
-        fountainModMatrix = glm::mat4(1.0f);
-        fountainNorMatrix = glm::mat3(1.0f);
-
-        fountainModMatrix = glm::translate(fountainModMatrix, glm::vec3(0.0f, -3.0f, -5.0f));
-        fountainModMatrix = glm::rotate(fountainModMatrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        fountainModMatrix = glm::scale(fountainModMatrix, glm::vec3(0.8f, 0.8f, 0.8f));
-        fountainNorMatrix = glm::inverseTranspose(glm::mat3(view*fountainModMatrix));
+        fountainModMatrix = createTransformationMatrix(glm::vec3(0.0f, -3.0f, -5.0f), -90.0f, 0.0f, 0.0f, 0.8f);
+        fountainNorMatrix = createNormalMatrix(view, fountainModMatrix);
 
         illumination_shader.loadModelMatrix(fountainModMatrix);
         illumination_shader.loadNormalMatrix(fountainNorMatrix);

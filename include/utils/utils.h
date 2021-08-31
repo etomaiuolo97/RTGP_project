@@ -1,3 +1,28 @@
+GLuint textureCube;
+
+glm::vec3 lightPos[] = {glm::vec3(0.0f, 0.0f, 10.0f)};
+
+GLfloat Eta = 1.0f/1.52f;
+GLfloat mFresnelPower = 5.0f;
+
+GLfloat diffuseColor [] = {1.0f, 1.0f, 1.0f};
+GLfloat specularColor [] = {1.0f, 1.0f, 1.0f};
+GLfloat ambientColor [] = {0.1f, 0.1f, 0.1f};
+
+GLfloat Kd = 0.5f;
+GLfloat Ks = 0.4f;
+GLfloat Ka = 0.1f;
+
+GLfloat shininess = 25.0f;
+GLfloat alpha = 0.2f;
+GLfloat F0 = 0.9f;
+
+glm::mat3 createNormalMatrix (glm::mat4 view, glm::mat4 modelMatrix) {
+    glm::mat3 matrix = glm::mat3(1.0f);
+    glm::inverseTranspose(glm::mat3(view * modelMatrix));
+    return matrix;
+}
+
 glm::mat4 createTransformationMatrix(glm::vec3 translation, GLfloat rx, GLfloat ry, GLfloat rz, GLfloat scale) {
     glm::mat4 matrix = glm::mat4(1.0f);
     matrix = glm::translate(matrix, translation);
