@@ -29,9 +29,9 @@
 #include <utils/camera.h>
 #include <utils/utils.h>
 #include <utils/display.h>
+#include <utils/waterframe_buffers.h>
 #include <utils/illumination_shader.h>
 #include <utils/background_shader.h>
-
 
 // Setup of Shader Programs for the shader used in the application
 void SetupShaders(int program);
@@ -79,6 +79,8 @@ int main () {
     glm::mat4 fountainModMatrix = glm::mat4(1.0f);
     glm::mat3 fountainNorMatrix = glm::mat3(1.0f);
     
+    WaterFrameBuffers fbos (WIDTH, HEIGHT);
+
     while(!glfwWindowShouldClose(window)) {
         GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -150,6 +152,7 @@ int main () {
         glfwSwapBuffers(window);
     }
 
+    fbos.cleanUp();
     illumination_shader.cleanUp();
     // reflection_shader.Delete();
     background_shader.cleanUp();
