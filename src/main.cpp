@@ -16,132 +16,61 @@
     #error windows.h was included!
 #endif
 
-#include <utils/shader.h>
-#include <utils/model.h>
-#include <utils/camera.h>
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-// number of lights in the scene
-#define NR_LIGHTS 3
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image/stb_image.h>
 
-//Window dimensions
-GLuint screenWidth = 800, screenHeight = 600;
+// #include <utils/shader.h>
+#include <utils/model.h>
+#include <utils/camera.h>
+#include <utils/utils.h>
+#include <utils/display.h>
+#include <utils/illumination_shader.h>
+#include <utils/background_shader.h>
 
-// Callback functions for keyboard events
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-
-// If one of the WASD keys is pressed, we call the corresponding method of the Camera class
-void apply_camera_movements();
 
 // Setup of Shader Programs for the shader used in the application
 void SetupShaders(int program);
 
-// Delete Shader Programs when application ends
-// void DeleteShaders();
-
 // Print on console the name of the current shader
 void PrintCurrentShader(int shader);
 
-// Parameters for time calculation (for animations)
-GLfloat deltaTime = 0.0f;
-GLfloat lastFrame = 0.0f;
-
-GLfloat orientationY = 0.5f;
-
-// Initialize an array of booleans for each keyboard key
-bool keys[1024];
-
-// Previous mouse position
-GLfloat lastX, lastY;
-
-// To manage the mouse position in the first frame
-bool firstMouse = true;
-
 // Index of the currente shader (= 0  in the beginning)
-GLuint current_program = 0;
+GLuint current_subroutine = 0;
 
 // Vector for all the Shader Programs used and swapped in the application
 vector<std::string> shaders;
 
-// Activate/deactivate wireframe rendering
-GLboolean wireframe = GL_FALSE;
-
-// Camera with an initial position
-// GL_TRUE = camera fixed to the ground
-Camera camera(glm::vec3(0.0f, 0.0f, 7.0f), GL_TRUE);
-
-// Uniforms to pass to shaders
-GLfloat planeMaterial[] = {0.0f, 0.5f, 0.0f};
-
-glm::vec3 lightPositions [] = {
-    glm::vec3(5.0f, 10.0f, 10.0f),
-    glm::vec3(-5.0f, 10.0f, 10.0f),
-    glm::vec3(5.0f, 10.0f, -10.0f)
-};
-
-GLfloat diffuseColor [] = {1.0f, 0.0f, 0.0f};
-GLfloat specularColor [] = {1.0f, 1.0f, 1.0f};
-GLfloat ambientColor [] = {0.1f, 0.1f, 0.1f};
-
-GLfloat Kd = 0.5f;
-GLfloat Ks = 0.4f;
-GLfloat Ka = 0.1f;
-
-GLfloat shininess = 25.0f;
-
 int main () {
     std::cout << "Starting GLFW context" << std::endl;
 
-    // Init GLFW
-    glfwInit();
-    // Set all the required options for GLFW
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-    
-    GLFWwindow* window = glfwCreateWindow(screenWidth, screenHeight, "Project", nullptr, nullptr);
-    if (!window) {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(window);
+    GLFWwindow* window = createDisplay();
 
-    glfwSetKeyCallback(window, key_callback);
-    glfwSetCursorPosCallback(window, mouse_callback);
-
-    if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
-        std::cout << "Failed to initialize OpenGL context" << std::endl;
-        return -1;
-    }
-
-    // Define the viewport dimensions
-    int width, height;
-    glfwGetFramebufferSize(window, &width, &height);
-    glViewport(0, 0, width, height);
-
-    // Enable Z test
+    // // Enable Z test
     glEnable(GL_DEPTH_TEST);
 
     // The clear color for the frame buffer
     glClearColor(0.26f, 0.46f, 0.98f, 1.0f);
 
-    Shader illumination_shader = Shader("illumination_model.vert", "illumination_model.frag");
-    SetupShaders(illumination_shader.Program);
-    PrintCurrentShader(current_program);
+    IlluminationShader illumination_shader;
 
-    Model fountainModel("../meshes/ball_fountain.obj");
-    Model planeModel("../meshes/plane.obj");
+    SetupShaders(illumination_shader.program);
+    PrintCurrentShader(current_subroutine);
+
+    // Shader reflection_shader("src/reflection.vert", "src/reflection.frag");
+    BackgroundShader background_shader;
+    textureCube = LoadTextureCube("textures/skybox/");
+
+    Model fountainModel("meshes/ball_fountain.obj");
+    Model bgModel("meshes/cube.obj");
+    textures.push_back(LoadTexture("textures/terrain.png"));
     
     // Projection matrix
-    glm::mat4 projection = glm::perspective(45.0f, (float)screenWidth/(float)screenHeight, 0.1f, 100000.0f);
+    glm::mat4 projection = glm::perspective(45.0f, (float)WIDTH/(float)HEIGHT, 0.1f, 10000.0f);
     
     // View matrix
     glm::mat4 view = glm::mat4(1.0f);
@@ -149,100 +78,81 @@ int main () {
     // Model and Normal transformation matrices for the objects in the scene
     glm::mat4 fountainModMatrix = glm::mat4(1.0f);
     glm::mat3 fountainNorMatrix = glm::mat3(1.0f);
-    glm::mat4 planeModMatrix = glm::mat4(1.0f);
-    glm::mat3 planeNorMatrix = glm::mat3(1.0f);
-
+    
     while(!glfwWindowShouldClose(window)) {
         GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        // Check I/O events
-        glfwPollEvents();
+        prepareDisplay(wireframe);
         
         // Apply FPS camera movements
         apply_camera_movements();
         view = camera.GetViewMatrix();
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        if (wireframe)
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        else
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         
-        // Plane render
-        illumination_shader.Use();
-        GLuint index = glGetSubroutineIndex(illumination_shader.Program, GL_FRAGMENT_SHADER, "BlinnPhong_ML");
+        illumination_shader.start();
+
+        GLuint index = glGetSubroutineIndex(illumination_shader.program, GL_FRAGMENT_SHADER, shaders[current_subroutine].c_str());
         glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &index);
 
-        // // Determine the position in the Shader Program of the uniform variables
-        GLint matDiffuseLocation = glGetUniformLocation(illumination_shader.Program, "diffuseColor");
-        GLint matAmbientLocation = glGetUniformLocation(illumination_shader.Program, "ambientColor");
-        GLint matSpecularLocation = glGetUniformLocation(illumination_shader.Program, "specularColor");
-        GLint kaLocation = glGetUniformLocation(illumination_shader.Program, "Ka");
-        GLint kdLocation = glGetUniformLocation(illumination_shader.Program, "Kd");
-        GLint ksLocation = glGetUniformLocation(illumination_shader.Program, "Ks");
-        GLint shineLocation = glGetUniformLocation(illumination_shader.Program, "shininess");
+        illumination_shader.loadAmbientColor(ambientColor);
+        illumination_shader.loadSpecularColor(specularColor);
+        illumination_shader.loadShine(shininess);
+        illumination_shader.loadAlpha(alpha);
+        illumination_shader.loadF0(F0);
 
-        // // Uniform variables
-        glUniform3fv(matAmbientLocation, 1, ambientColor);
-        glUniform3fv(matSpecularLocation, 1, specularColor);
-        glUniform1f(shineLocation, shininess);
+        illumination_shader.loadKa(0.0f);
+        illumination_shader.loadKd(0.6f);
+        illumination_shader.loadKs(0.0f);
 
-        // // Specular component
-        glUniform1f(kaLocation, 0.0f);
-        glUniform1f(kdLocation, 0.6f);
-        glUniform1f(ksLocation, 0.0f);
+        illumination_shader.loadProjectionMatrix(projection);
+        illumination_shader.loadViewMatrix(view);
+        illumination_shader.loadLights(lightPos);
+        
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, textures[0]);
+        
+        illumination_shader.loadRepeat(1.0f);
+        illumination_shader.loadTex(0);
 
-        // // Projection and view matrices to Shader Program
-        glUniformMatrix4fv(glGetUniformLocation(illumination_shader.Program, "projectionMatrix"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUniformMatrix4fv(glGetUniformLocation(illumination_shader.Program, "viewMatrix"), 1, GL_FALSE, glm::value_ptr(view));
+        GLfloat diff [] = {0.5f, 0.5f, 0.5f};
+        illumination_shader.loadDiffuseColor(diff);
 
-        for (GLuint i = 0; i < NR_LIGHTS; i++) {
-            string number = to_string(i);
-            glUniform3fv(glGetUniformLocation(illumination_shader.Program, ("lights[" + number + "]").c_str()), 1, glm::value_ptr(lightPositions[i]));
-        }
+        
+        fountainModMatrix = createTransformationMatrix(glm::vec3(0.0f, -3.0f, -5.0f), -90.0f, 0.0f, 0.0f, 0.8f);
+        fountainNorMatrix = createNormalMatrix(view, fountainModMatrix);
 
-        glUniform3fv(matDiffuseLocation, 1, planeMaterial);
-
-        planeModMatrix = glm::mat4(1.0f);
-        planeNorMatrix = glm::mat3(1.0f);
-
-        planeModMatrix = glm::translate(planeModMatrix, glm::vec3(0.0f, -1.0f, 0.0f));
-        planeModMatrix = glm::scale(planeModMatrix, glm::vec3(10.0f, 1.0f, 10.0f));
-
-        planeNorMatrix = glm::inverseTranspose(glm::mat3(view * planeModMatrix));
-
-        glUniformMatrix4fv(glGetUniformLocation(illumination_shader.Program, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(planeModMatrix));
-        glUniformMatrix3fv(glGetUniformLocation(illumination_shader.Program, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(planeNorMatrix));
-
-        planeModel.Draw();
-
-        // Fountain
-        index = glGetSubroutineIndex(illumination_shader.Program, GL_FRAGMENT_SHADER, shaders[current_program].c_str());
-        glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &index);
-
-        glUniform3fv(matDiffuseLocation, 1, diffuseColor);
-        glUniform1f(ksLocation, Ka);
-        glUniform1f(ksLocation, Kd);
-        glUniform1f(ksLocation, Ks);
-
-        fountainModMatrix = glm::mat4(1.0f);
-        fountainNorMatrix = glm::mat3(1.0f);
-        fountainModMatrix = glm::translate(fountainModMatrix, glm::vec3(0.0f, 0.0f, 0.0f));
-        fountainModMatrix = glm::rotate(fountainModMatrix, glm::radians(orientationY), glm::vec3(1.0f, 0.0f, 0.0f));
-        fountainModMatrix = glm::scale(fountainModMatrix, glm::vec3(0.3f, 0.3f, 0.3f));
-        fountainNorMatrix = glm::inverseTranspose(glm::mat3(view * fountainModMatrix));
-        glUniformMatrix4fv(glGetUniformLocation(illumination_shader.Program, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(fountainModMatrix));
-        glUniformMatrix3fv(glGetUniformLocation(illumination_shader.Program, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(fountainNorMatrix));
-
+        illumination_shader.loadModelMatrix(fountainModMatrix);
+        illumination_shader.loadNormalMatrix(fountainNorMatrix);
         fountainModel.Draw();
+
+        glDepthFunc(GL_LEQUAL);
+
+        background_shader.start();
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, textureCube);
+
+        background_shader.loadProjectionMatrix(projection);
+        
+        view = glm::mat4(glm::mat3(view));
+        background_shader.loadViewMatrix(view);
+        
+        background_shader.loadtCube(0);
+
+        bgModel.Draw();
+        background_shader.stop();
+
+        glDepthFunc(GL_LESS);
 
         glfwSwapBuffers(window);
     }
 
-    illumination_shader.Delete();
+    illumination_shader.cleanUp();
+    // reflection_shader.Delete();
+    background_shader.cleanUp();
     glfwTerminate();
     return 0;
 }
@@ -288,46 +198,7 @@ void PrintCurrentShader(int subroutine){
     std::cout << "Current shader subrouting: " << shaders[subroutine] << std::endl;
 }
 
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
-    GLuint new_subroutine;
 
-    // If ESC is pressed, we close the application
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GL_TRUE);
-    
-    // Keep trace of the pressed keys
-    if (action == GLFW_PRESS)
-        keys[key] = true;
-    else if (action == GLFW_RELEASE)
-        keys[key] = false;
-}
 
-void apply_camera_movements () {
-    if (keys[GLFW_KEY_W])
-        camera.ProcessKeyboard(FORWARD, deltaTime);
-    
-    if (keys[GLFW_KEY_S])
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
 
-    if (keys[GLFW_KEY_A])
-        camera.ProcessKeyboard(LEFT, deltaTime);
 
-    if (keys[GLFW_KEY_D])
-        camera.ProcessKeyboard(RIGHT, deltaTime);
-}
-
-void mouse_callback (GLFWwindow* window, double xpos, double ypos) {
-    if (firstMouse) {
-        lastX = xpos;
-        lastY = ypos;
-        firstMouse = false;
-    }
-
-    GLfloat xoffset = xpos - lastX;
-    GLfloat yoffset = lastY - ypos;
-
-    lastX = xpos;
-    lastY = ypos;
-
-    // camera.ProcessMouseMovement(xoffset, yoffset);
-}
