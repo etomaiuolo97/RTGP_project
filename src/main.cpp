@@ -31,7 +31,9 @@
 #include <utils/display.h>
 #include <utils/illumination_shader.h>
 #include <utils/background_shader.h>
-
+#include <utils/particleMaster.h>
+#include <utils/particle.h>
+#include <utils/particleSystem.h>
 
 // Setup of Shader Programs for the shader used in the application
 void SetupShaders(int program);
@@ -78,6 +80,11 @@ int main () {
     // Model and Normal transformation matrices for the objects in the scene
     glm::mat4 fountainModMatrix = glm::mat4(1.0f);
     glm::mat3 fountainNorMatrix = glm::mat3(1.0f);
+
+    // init particle
+    particleMaster particleMaster;
+    particleMaster.init(projection);
+    particleSystem system= particleSystem(50,25,0.3f,4);
     
     while(!glfwWindowShouldClose(window)) {
         GLfloat currentFrame = glfwGetTime();
@@ -89,6 +96,13 @@ int main () {
         // Apply FPS camera movements
         apply_camera_movements();
         view = camera.GetViewMatrix();
+
+        // generate particle and give the position of center of fountain
+        system.generateParticles(glm::vec3(0.0f,0.0f,0.0f));
+        //if(GLFW_KEY_Y){
+          //  Particle(glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,30.0f,0.0f),1.0f,4.0f,0.0f,1.0f);
+        //}
+        particleMaster.update();
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
@@ -145,6 +159,9 @@ int main () {
         bgModel.Draw();
         background_shader.stop();
 
+        // render particles
+        particleMaster.renderParticles(camera);
+
         glDepthFunc(GL_LESS);
 
         glfwSwapBuffers(window);
@@ -153,6 +170,8 @@ int main () {
     illumination_shader.cleanUp();
     // reflection_shader.Delete();
     background_shader.cleanUp();
+    // delete particles
+    particleMaster.cleanUp();
     glfwTerminate();
     return 0;
 }
