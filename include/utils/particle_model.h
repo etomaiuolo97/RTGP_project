@@ -13,15 +13,16 @@
 #include <glm/gtx/compatibility.hpp>
 
 #include <utils/shader.h>
+#include <utils/camera.h>
 
 // Represents a single particle and its state
 struct particleProps
 {
-	glm::vec2 position,velocity;
+	glm::vec2 position,velocity,velocityVariation;
 	glm::vec4 color;
 	float lifeTime = 1.0;
 	float size;
-    particleProps() : position(0.0f), velocity(0.0f), color(1.0f), lifeTime(0.0f) { }
+    //particleProps() : position(0.0f), velocity(0.0f), color(1.0), lifeTime(1.0f), size(0.5f) { }
 };
 
 // particle_model acts as a container for rendering a large number of 
@@ -34,7 +35,7 @@ public:
     // update all particles
     void Update(float dt);
     // render all particles
-    void Render();
+    void Render(Camera camera);
     // emit particles
     void Emit(const particleProps& particle_props);
 
@@ -49,21 +50,23 @@ private:
 		float lifeRemaining = 0.0f;
 		float rotation = 0.0f;
 		float size;
+		float gravityEffect;
 
 		bool active = false;
 	};
 
     std::vector<Particle> m_particlePool;
 	uint32_t m_PoolIndex = 999;
+	float GRAVITY = -50;
 
 	GLuint m_QuadVA = 0;
-	Shader m_ParticleShader = Shader("src/particle_model.vert","src/particle_model.frag");
+	Shader m_ParticleShader = Shader("particle_model.vert","particle_model.frag");
 	GLint m_ParticleShaderViewProj, m_ParticleShaderTransform, m_ParticleShaderColor;
 };
 
 #endif
 
-// #define GLM_ENABLE_EXPERIMENTAL
+#define GLM_ENABLE_EXPERIMENTAL
 
 particle_model::particle_model()
 {
@@ -72,7 +75,7 @@ particle_model::particle_model()
 
 void particle_model::Update(float ts)
 {
-	for (auto& particle : this->m_particlePool)
+	for (Particle& particle : m_particlePool)
 	{
 		if (!particle.active)
 			continue;
@@ -88,9 +91,8 @@ void particle_model::Update(float ts)
 	}
 }
 
-void particle_model::Render()
+void particle_model::Render(Camera camera)
 {
-	
     if (!m_QuadVA)
 	{
 		float vertices[] = {
@@ -112,7 +114,8 @@ void particle_model::Render()
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
 
 		uint32_t indices[] = {
-			0, 1, 2, 2, 3, 0
+			0, 1, 2,
+			2, 3, 0
 		};
 
 		glCreateBuffers(1, &quadIB);
@@ -124,16 +127,18 @@ void particle_model::Render()
 		m_ParticleShaderColor = glGetUniformLocation(m_ParticleShaderColor, "u_Color");
 	}
 
+	//glUseProgram(m_ParticleShader.GetRendererID());
 	m_ParticleShader.Use();
+	glUniformMatrix4fv(m_ParticleShaderViewProj, 1, GL_FALSE, glm::value_ptr(camera.GetViewMatrix()));
 
-	for (auto& particle : m_particlePool)
+	for (Particle& particle : this->m_particlePool)
 	{
 		if (!particle.active)
 			continue;
 
 		// Fade away particles
 		float life = particle.lifeRemaining / particle.lifeTime;
-		glm::vec4 color = color * life;
+		glm::vec4 color = particle.color * life;
 
 		float size = particle.size;
 		
@@ -150,6 +155,7 @@ void particle_model::Render()
 
 void particle_model::Emit(const particleProps& particleProps)
 {
+	std::cout << glGetError() << std::endl;
 	Particle& particle = m_particlePool[m_PoolIndex];
 	particle.active = true;
 	particle.position = particleProps.position;
@@ -157,6 +163,8 @@ void particle_model::Emit(const particleProps& particleProps)
 
 	// Velocity
 	particle.velocity = particleProps.velocity;
+	particle.velocity.x += particleProps.velocityVariation.x * GRAVITY;
+	particle.velocity.y += particleProps.velocityVariation.y * GRAVITY;
 
 	// Color
 	particle.color = particleProps.color;

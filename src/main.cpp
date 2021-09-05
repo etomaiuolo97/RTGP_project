@@ -20,7 +20,10 @@
 #include <utils/model.h>
 #include <utils/camera.h>
 
-#include <utils/particle_model.h>
+//#include <utils/particle_model.h>
+#include <utils/particleMaster.h>
+#include <utils/particle.h>
+#include <utils/particleSystem.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -96,7 +99,7 @@ GLfloat Ka = 0.1f;
 
 GLfloat shininess = 25.0f;
 
-float ts=0.1f;
+//float ts=0.1f;
 
 int main () {
     std::cout << "Starting GLFW context" << std::endl;
@@ -137,15 +140,17 @@ int main () {
     // The clear color for the frame buffer
     glClearColor(0.26f, 0.46f, 0.98f, 1.0f);
 
-    Shader illumination_shader = Shader("src/illumination_model.vert", "src/illumination_model.frag");
+    Shader illumination_shader = Shader("illumination_model.vert", "illumination_model.frag");
     SetupShaders(illumination_shader.Program);
     PrintCurrentShader(current_program);
 
-    particleProps m_Particle;
-    particle_model m_ParticleSystem;
+    //particleProps m_Particle;
+    //particle_model m_ParticleSystem;
 
-    Model fountainModel("meshes/ball_fountain.obj");
-    Model planeModel("meshes/plane.obj");
+    particleMaster particleMaster;
+
+    Model fountainModel("../meshes/ball_fountain.obj");
+    Model planeModel("../meshes/plane.obj");
     
     // Projection matrix
     glm::mat4 projection = glm::perspective(45.0f, (float)screenWidth/(float)screenHeight, 0.1f, 100000.0f);
@@ -162,12 +167,16 @@ int main () {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    particleMaster.init(projection);
+    particleSystem system= particleSystem(50,25,0.3f,4);
+
 	//Init particle
-	m_Particle.color = { 254 / 255.0f, 212 / 255.0f, 123 / 255.0f, 1.0f };
-	m_Particle.size = 0.5f;
-	m_Particle.lifeTime = 1.0f;
-	m_Particle.velocity = { 0.0f, 0.0f };
-	m_Particle.position = { 0.0f, 0.0f };
+	//m_Particle.color = { 0.0f, 0.0f, 0.0f, 1.0f };
+	//m_Particle.size = 0.5f;
+	//m_Particle.lifeTime = 1.0f;
+	//m_Particle.velocity = { 1.0f, 1.0f};
+    //m_Particle.velocityVariation = {3.0f, 1.0f};
+	//m_Particle.position = { 1.0f, 1.0f};
 
     while(!glfwWindowShouldClose(window)) {
         GLfloat currentFrame = glfwGetTime();
@@ -180,6 +189,12 @@ int main () {
         // Apply FPS camera movements
         apply_camera_movements();
         view = camera.GetViewMatrix();
+        
+        system.generateParticles(glm::vec3(0.0f,0.0f,0.0f));
+        //if(GLFW_KEY_Y){
+          //  Particle(glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,30.0f,0.0f),1.0f,4.0f,0.0f,1.0f);
+        //}
+        particleMaster.update();
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -248,23 +263,26 @@ int main () {
         fountainModMatrix = glm::mat4(1.0f);
         fountainNorMatrix = glm::mat3(1.0f);
         fountainModMatrix = glm::translate(fountainModMatrix, glm::vec3(0.0f, 0.0f, 0.0f));
-        fountainModMatrix = glm::rotate(fountainModMatrix, glm::radians(orientationY), glm::vec3(1.0f, 0.0f, 0.0f));
+        fountainModMatrix = glm::rotate(fountainModMatrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         fountainModMatrix = glm::scale(fountainModMatrix, glm::vec3(0.3f, 0.3f, 0.3f));
         fountainNorMatrix = glm::inverseTranspose(glm::mat3(view * fountainModMatrix));
         glUniformMatrix4fv(glGetUniformLocation(illumination_shader.Program, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(fountainModMatrix));
         glUniformMatrix3fv(glGetUniformLocation(illumination_shader.Program, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(fountainNorMatrix));
 
+
         fountainModel.Draw();
 
-        for (int i = 0; i < 5; i++)
-			m_ParticleSystem.Emit(m_Particle);
+        //for (int i = 0; i < 5; i++)
+		//	m_ParticleSystem.Emit(m_Particle);
 
-        m_ParticleSystem.Update(ts);
-	    m_ParticleSystem.Render();
+        //m_ParticleSystem.Update(ts);
+	    //m_ParticleSystem.Render(camera);
 
+        particleMaster.renderParticles(camera);
         glfwSwapBuffers(window);
     }
 
+    particleMaster.cleanUp();
     illumination_shader.Delete();
     glfwTerminate();
     return 0;
