@@ -1,10 +1,11 @@
 #pragma once
 #include <glad/glad.h>
-#include <utils/particleShader.h>
+#include <utils/background_shader.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <utils/camera.h>
 #include <utils/particle.h>
 #include <list>
+#include <utils/utils.h>
 
 class particleRenderer
 {
@@ -37,7 +38,7 @@ private:
 
 public:
     GLuint quad;
-    particleShader shader;
+    BackgroundShader shader;
     
     ~particleRenderer();
 
@@ -71,7 +72,6 @@ public:
     }
 
     void render(std::vector<Particle> particles, Camera camera){
-        // createViewMatrix from utils.h
         glm::mat4 viewMatrix = createViewMatrix(camera);
         prepare();        
         for(Particle particle: particles){
@@ -99,7 +99,7 @@ public:
         modelMatrix = glm::rotate(modelMatrix,glm::radians(rotation),glm::vec3(0,0,1));
         modelMatrix = glm::scale(modelMatrix,glm::vec3(scale,scale,scale));
         glm::mat4 modelViewMatrix= viewMatrix*modelMatrix;
-        shader.loadModelViewMatrix(modelViewMatrix);
+        shader.loadViewMatrix(modelViewMatrix);
     }
 
 };
