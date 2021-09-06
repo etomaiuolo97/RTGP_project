@@ -91,6 +91,8 @@ public:
         return *this;
     }
 
+    Mesh(){};
+
     // destructor
     ~Mesh() noexcept
     {

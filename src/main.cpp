@@ -79,8 +79,6 @@ int main () {
     glm::mat4 fountainModMatrix = glm::mat4(1.0f);
     glm::mat3 fountainNorMatrix = glm::mat3(1.0f);
     
-    WaterFrameBuffers fbos (WIDTH, HEIGHT);
-
     while(!glfwWindowShouldClose(window)) {
         GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -152,7 +150,6 @@ int main () {
         glfwSwapBuffers(window);
     }
 
-    fbos.cleanUp();
     illumination_shader.cleanUp();
     // reflection_shader.Delete();
     background_shader.cleanUp();
