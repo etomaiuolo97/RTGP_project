@@ -31,8 +31,9 @@
 #include <utils/display.h>
 #include <utils/illumination_shader.h>
 #include <utils/background_shader.h>
-#include <utils/particleMaster.h>
+
 #include <utils/particle.h>
+#include <utils/particleMaster.h>
 #include <utils/particleSystem.h>
 
 // Setup of Shader Programs for the shader used in the application

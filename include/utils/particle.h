@@ -1,6 +1,6 @@
 #pragma once
+
 #include <glfw/glfw3.h>
-#include <utils/particleMaster.h>
 
 #define GRAVITY -50
 
@@ -25,8 +25,8 @@ class Particle {
             this->rotation=rot;
             this->scale=scale;
             particleMaster pMaster;
-            // TODO: Add particles to the particleMaster class
-            pMaster.addParticle(this);
+            // Add particles to the particleMaster class
+            pMaster.addParticle(*this);
         }
 
         glm::vec3 getPosition(){
@@ -45,7 +45,6 @@ class Particle {
             velocity.y += GRAVITY * gravityEffect * glfwGetTime();
             glm::vec3 change = glm::vec3(velocity);
             //change.scale(glfwGetTime());
-            //glm::vec3.add(change,position,position);
             position+=change;
             elapsedTime += glfwGetTime();
 
