@@ -21,6 +21,10 @@ Universita' degli Studi di Milano
 
 
 #pragma once
+
+#ifndef MODEL
+#define MODEL
+
 using namespace std;
 
 // we use GLM data structures to convert data in the Assimp data structures in a data structures suited for VBO, VAO and EBO buffers
@@ -168,3 +172,5 @@ private:
         return Mesh(vertices, indices);
     }
 };
+
+#endif

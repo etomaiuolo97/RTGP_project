@@ -1,3 +1,6 @@
+#ifndef DISPLAY
+#define DISPLAY
+
 const GLuint WIDTH = 800;
 const GLuint HEIGHT = 600;
 
@@ -105,5 +108,9 @@ void prepareDisplay(GLboolean wireframe){
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     else
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 }
 
+#endif

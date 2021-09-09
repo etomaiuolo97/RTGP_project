@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef ILLUMINATION_SHADER
+#define ILLUMINATION_SHADER
+
 using namespace std;
 
 #include <string>
@@ -8,7 +11,6 @@ using namespace std;
 #include <iostream>
 
 #include <utils/shader.h>
-// #include <utils/utils.h>
 
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -36,6 +38,20 @@ private:
     vector<GLint> lightPosLocation;
 
 public:
+
+    IlluminationShader()
+    :Shader("shaders/illumination.vert", "shaders/illumination.frag"){
+        bindAttributes();
+
+        glCall(glLinkProgram(getProgram()));
+        glCall(glValidateProgram(getProgram()));
+
+        getAllUniformLocations();
+
+        Shader::checkCompileErrors(getProgram(), "PROGRAM");
+    }
+
+
     void bindAttributes () {
         Shader::bindAttribute(0, "position");
         Shader::bindAttribute(1, "normal");
@@ -66,82 +82,70 @@ public:
     }
 
     void loadRepeat (GLfloat repeat) {
-        glUniform1f(this->repeatLocation, repeat);
+        glCall(glUniform1f(this->repeatLocation, repeat));
     }
 
     void loadTex (GLint tex) {
-        glUniform1i(this->texLocation, tex);
+        glCall(glUniform1i(this->texLocation, tex));
     }
 
     void loadDiffuseColor (GLfloat diffColor []) {
-        glUniform3fv(this->matDiffuseLocation, 1, diffColor);
+        glCall(glUniform3fv(this->matDiffuseLocation, 1, diffColor));
     }
 
     void loadAmbientColor (GLfloat ambientColor []) {
-        glUniform3fv(this->matAmbientLocation, 1, ambientColor);
+        glCall(glUniform3fv(this->matAmbientLocation, 1, ambientColor));
     }
 
     void loadSpecularColor (GLfloat specColor []) {
-        glUniform3fv(this->matSpecularLocation, 1, specColor);
+        glCall(glUniform3fv(this->matSpecularLocation, 1, specColor));
     }
 
     void loadShine (GLfloat shininess) {
-        glUniform1f(this->shineLocation, shininess);
+        glCall(glUniform1f(this->shineLocation, shininess));
     }
 
     void loadAlpha (GLfloat alpha) {
-        glUniform1f(this->alphaLocation, alpha);
+        glCall(glUniform1f(this->alphaLocation, alpha));
     }
 
     void loadF0 (GLfloat F0) {
-        glUniform1f(this->f0Location, F0);
+        glCall(glUniform1f(this->f0Location, F0));
     }
 
     void loadKa (GLfloat ka) {
-        glUniform1f(this->kaLocation, ka);
+        glCall(glUniform1f(this->kaLocation, ka));
     }
     
     void loadKd (GLfloat kd) {
-        glUniform1f(this->kdLocation, kd);
+        glCall(glUniform1f(this->kdLocation, kd));
     }
     
     void loadKs (GLfloat ks) {
-        glUniform1f(this->ksLocation, ks);
+        glCall(glUniform1f(this->ksLocation, ks));
     }
 
     void loadLights (glm::vec3 lightPos []) {
         for (GLuint i = 0; i < NR_LIGHTS; i++) {
-            glUniform3fv(this->lightPosLocation[i], 1, glm::value_ptr(lightPos[i]));
+            glCall(glUniform3fv(this->lightPosLocation[i], 1, glm::value_ptr(lightPos[i])));
         }
     }
 
     void loadModelMatrix (glm::mat4 matrix) {
-        glUniformMatrix4fv(this->modelMatrixLocation, 1, GL_FALSE, glm::value_ptr(matrix));
+        glCall(glUniformMatrix4fv(this->modelMatrixLocation, 1, GL_FALSE, glm::value_ptr(matrix)));
     }
 
     void loadNormalMatrix (glm::mat3 matrix) {
-        glUniformMatrix3fv(this->normalMatrixLocation, 1, GL_FALSE, glm::value_ptr(matrix));
+        glCall(glUniformMatrix3fv(this->normalMatrixLocation, 1, GL_FALSE, glm::value_ptr(matrix)));
     }
 
     void loadProjectionMatrix (glm::mat4 matrix){
-        glUniformMatrix4fv(this->projectionMatLocation, 1, GL_FALSE, glm::value_ptr(matrix));
+        glCall(glUniformMatrix4fv(this->projectionMatLocation, 1, GL_FALSE, glm::value_ptr(matrix)));
     }
 
     void loadViewMatrix(glm::mat4 matrix){
-        glUniformMatrix4fv(this->viewMatrixLocation, 1, GL_FALSE, glm::value_ptr(matrix));
-    }
-
-    IlluminationShader():
-    Shader("shaders/illumination.vert", "shaders/illumination.frag"){
-        bindAttributes();
-
-        glLinkProgram(this->program);
-        glValidateProgram(this->program);
-
-        getAllUniformLocations();
-
-        Shader::checkCompileErrors(this->program, "PROGRAM");
-    }
-
-    
+        glCall(glUniformMatrix4fv(this->viewMatrixLocation, 1, GL_FALSE, glm::value_ptr(matrix)));
+    }  
 };
+
+#endif

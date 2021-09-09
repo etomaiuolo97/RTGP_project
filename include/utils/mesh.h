@@ -1,9 +1,14 @@
 #pragma once
 
+#ifndef MESH
+#define MESH
+
 using namespace std;
 
 // Std. Includes
 #include <vector>
+
+#include <utils/utils.h>
 
 // data structure for vertices
 struct Vertex {
@@ -106,11 +111,11 @@ public:
     void Draw()
     {
         // VAO is made "active"
-        glBindVertexArray(this->VAO);
+        glCall(glBindVertexArray(this->VAO));
         // rendering of data in the VAO
-        glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
+        glCall(glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0));
         // VAO is "detached"
-        glBindVertexArray(0);
+        glCall(glBindVertexArray(0));
     }
 
 private:
@@ -127,38 +132,38 @@ private:
     void setupMesh()
     {
         // we create the buffers
-        glGenVertexArrays(1, &this->VAO);
-        glGenBuffers(1, &this->VBO);
-        glGenBuffers(1, &this->EBO);
+        glCall(glGenVertexArrays(1, &this->VAO));
+        glCall(glGenBuffers(1, &this->VBO));
+        glCall(glGenBuffers(1, &this->EBO));
 
         // VAO is made "active"
-        glBindVertexArray(this->VAO);
+        glCall(glBindVertexArray(this->VAO));
         // we copy data in the VBO - we must set the data dimension, and the pointer to the structure cointaining the data
-        glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
-        glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex), &this->vertices[0], GL_STATIC_DRAW);
+        glCall(glBindBuffer(GL_ARRAY_BUFFER, this->VBO));
+        glCall(glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex), &this->vertices[0], GL_STATIC_DRAW));
         // we copy data in the EBO - we must set the data dimension, and the pointer to the structure cointaining the data
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indices.size() * sizeof(GLuint), &this->indices[0], GL_STATIC_DRAW);
+        glCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->EBO));
+        glCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indices.size() * sizeof(GLuint), &this->indices[0], GL_STATIC_DRAW));
 
         // we set in the VAO the pointers to the different vertex attributes (with the relative offsets inside the data structure)
         // vertex positions
         // these will be the positions to use in the layout qualifiers in the shaders ("layout (location = ...)"")
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
+        glCall(glEnableVertexAttribArray(0));
+        glCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0));
         // Normals
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, Normal));
+        glCall(glEnableVertexAttribArray(1));
+        glCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, Normal)));
         // Texture Coordinates
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, TexCoords));
+        glCall(glEnableVertexAttribArray(2));
+        glCall(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, TexCoords)));
         // Tangent
-        glEnableVertexAttribArray(3);
-        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, Tangent));
+        glCall(glEnableVertexAttribArray(3));
+        glCall(glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, Tangent)));
         // Bitangent
-        glEnableVertexAttribArray(4);
-        glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, Bitangent));
+        glCall(glEnableVertexAttribArray(4));
+        glCall(glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, Bitangent)));
 
-        glBindVertexArray(0);
+        glCall(glBindVertexArray(0));
     }
 
     //////////////////////////////////////////
@@ -169,9 +174,11 @@ private:
         // so there's no need for deleting.
         if (VAO)
         {
-            glDeleteVertexArrays(1, &this->VAO);
-            glDeleteBuffers(1, &this->VBO);
-            glDeleteBuffers(1, &this->EBO);
+            glCall(glDeleteVertexArrays(1, &this->VAO));
+            glCall(glDeleteBuffers(1, &this->VBO));
+            glCall(glDeleteBuffers(1, &this->EBO));
         }
     }
 };
+
+#endif
