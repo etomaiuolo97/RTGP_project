@@ -26,9 +26,11 @@ using namespace std;
 #include <utils/camera.h>
 #include <utils/display.h>
 #include <utils/waterframe_buffers.h>
+#include <utils/gui_texture.h>
 #include <utils/renderer/illumination_renderer.h>
 #include <utils/renderer/background_renderer.h>
 #include <utils/renderer/water_renderer.h>
+#include <utils/renderer/gui_renderer.h>
 
 int main () {
     std::cout << "Starting GLFW context" << std::endl;
@@ -50,12 +52,14 @@ int main () {
     IlluminationRenderer illumination_renderer (projection);
     BackgroundRenderer background_renderer (projection);
     WaterRenderer water_renderer (projection);
+    GuiRenderer gui_renderer;
 
     Model fountainModel("meshes/ball_fountain.obj");
     Model bgModel("meshes/cube.obj");
 
+    vector<GuiTexture> guis = {GuiTexture(LoadTexture("textures/terrain.png"), glm::vec2(0.5f, 0.5f), glm::vec2(0.1f, 0.1f))};
     vector<WaterTile> waters = {WaterTile(0, -4.8, -0.5)};
-    WaterFrameBuffers fbos (WIDTH, HEIGHT);
+    // WaterFrameBuffers fbos (WIDTH, HEIGHT);
 
     textureCube = LoadTextureCube("textures/skybox/");
     textures.push_back(LoadTexture("textures/terrain.png"));
@@ -70,14 +74,14 @@ int main () {
         // Apply FPS camera movements
         apply_camera_movements();
 
-        fbos.bindReflectionFrameBuffer();
-        fbos.bindRefractionFrameBuffer();
-
+        // fbos.bindReflectionFrameBuffer();
         glCall(illumination_renderer.render(fountainModel, textures[0], camera));
-
         glCall(background_renderer.render(bgModel, textureCube, camera));
+        // fbos.unbindCurrentFrameBuffer();
 
         glCall(water_renderer.render(waters, camera));
+
+        glCall(gui_renderer.render(guis));
 
         glfwSwapBuffers(window);
     }
@@ -85,7 +89,8 @@ int main () {
     illumination_renderer.cleanUp();
     background_renderer.cleanUp();
     water_renderer.cleanUp();
-    fbos.cleanUp();
+    gui_renderer.cleanUp();
+    // fbos.cleanUp();
 
     glfwTerminate();
     return 0;
