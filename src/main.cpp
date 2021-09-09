@@ -28,6 +28,7 @@ using namespace std;
 #include <utils/waterframe_buffers.h>
 #include <utils/renderer/illumination_renderer.h>
 #include <utils/renderer/background_renderer.h>
+#include <utils/renderer/water_renderer.h>
 
 int main () {
     std::cout << "Starting GLFW context" << std::endl;
@@ -48,11 +49,15 @@ int main () {
 
     IlluminationRenderer illumination_renderer (projection);
     BackgroundRenderer background_renderer (projection);
-
-    textureCube = LoadTextureCube("textures/skybox/");
+    WaterRenderer water_renderer (projection);
 
     Model fountainModel("meshes/ball_fountain.obj");
     Model bgModel("meshes/cube.obj");
+
+    vector<WaterTile> waters = {WaterTile(0, -4.8, -0.5)};
+    WaterFrameBuffers fbos (WIDTH, HEIGHT);
+
+    textureCube = LoadTextureCube("textures/skybox/");
     textures.push_back(LoadTexture("textures/terrain.png"));
     
     while(!glfwWindowShouldClose(window)) {
@@ -65,16 +70,23 @@ int main () {
         // Apply FPS camera movements
         apply_camera_movements();
 
+        fbos.bindReflectionFrameBuffer();
+        fbos.bindRefractionFrameBuffer();
+
         glCall(illumination_renderer.render(fountainModel, textures[0], camera));
 
         glCall(background_renderer.render(bgModel, textureCube, camera));
+
+        glCall(water_renderer.render(waters, camera));
 
         glfwSwapBuffers(window);
     }
 
     illumination_renderer.cleanUp();
     background_renderer.cleanUp();
-    // reflection_shader.Delete();
+    water_renderer.cleanUp();
+    fbos.cleanUp();
+
     glfwTerminate();
     return 0;
 }

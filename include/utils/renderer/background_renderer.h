@@ -10,23 +10,6 @@ class BackgroundRenderer : public Renderer{
 private:
     BackgroundShader shader;
 
-    glm::vec3 lightPos [1] = {glm::vec3(0.0f, 0.0f, 10.0f)};
-
-    GLfloat Eta = 1.0f/1.52f;
-    GLfloat mFresnelPower = 5.0f;
-
-    GLfloat diffuseColor [3] = {1.0f, 1.0f, 1.0f};
-    GLfloat specularColor [3] = {1.0f, 1.0f, 1.0f};
-    GLfloat ambientColor [3] = {0.1f, 0.1f, 0.1f};
-
-    GLfloat Kd = 0.5f;
-    GLfloat Ks = 0.4f;
-    GLfloat Ka = 0.1f;
-
-    GLfloat shininess = 25.0f;
-    GLfloat alpha = 0.2f;
-    GLfloat F0 = 0.9f;
-
 public:
 
     BackgroundRenderer (glm::mat4 projection)

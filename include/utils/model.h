@@ -68,6 +68,8 @@ public:
     Model& operator=(Model&& move) noexcept = default;
     Model(Model&& model) = default; //internally does a memberwise std::move
     
+    Model(){}
+
     // constructor
     // to notice that Model class is not strictly following the Rules of 5 
     // https://en.cppreference.com/w/cpp/language/rule_of_three
@@ -155,7 +157,7 @@ private:
             }
             else{
                 vertex.TexCoords = glm::vec2(0.0f, 0.0f);
-                cout << "WARNING::ASSIMP:: MODEL WITHOUT UV COORDINATES -> TANGENT AND BITANGENT ARE = 0" << endl;
+                // cout << "WARNING::ASSIMP:: MODEL WITHOUT UV COORDINATES -> TANGENT AND BITANGENT ARE = 0" << endl;
             }
             // we add the vertex to the list
             vertices.push_back(vertex);
