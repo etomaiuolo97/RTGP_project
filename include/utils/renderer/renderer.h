@@ -105,15 +105,14 @@ protected:
         std::cout << "Current shader subrouting: " << shaders[subroutine] << std::endl;
     }
 
-    void render(Model& model, GLuint texture, GLuint program){ 
+    void render(GLuint program){ 
         GLuint index = glGetSubroutineIndex(program, GL_FRAGMENT_SHADER, shaders[current_subroutine].c_str());
         glCall(glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &index));
     }
 
 
 public:
-    Renderer(Camera& camera, glm::mat4 projection) {
-        this->camera = camera;
+    Renderer(glm::mat4 projection) {
         this->projection = projection;
     }
     

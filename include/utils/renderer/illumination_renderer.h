@@ -29,8 +29,8 @@ private:
 
 public:
 
-    IlluminationRenderer (Camera& camera, glm::mat4 projection)
-        :Renderer(camera, projection){
+    IlluminationRenderer (glm::mat4 projection)
+        :Renderer(projection){
             Renderer::SetupShaders(shader.getProgram());
     }
 
@@ -39,7 +39,7 @@ public:
 
         shader.start();
 
-        Renderer::render(model, texture, shader.getProgram());
+        Renderer::render(shader.getProgram());
 
         shader.loadAmbientColor(ambientColor);
         shader.loadSpecularColor(specularColor);

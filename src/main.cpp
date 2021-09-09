@@ -26,8 +26,8 @@ using namespace std;
 #include <utils/camera.h>
 #include <utils/display.h>
 #include <utils/waterframe_buffers.h>
-#include <utils/background_shader.h>
 #include <utils/renderer/illumination_renderer.h>
+#include <utils/renderer/background_renderer.h>
 
 int main () {
     std::cout << "Starting GLFW context" << std::endl;
@@ -46,8 +46,8 @@ int main () {
     // View matrix
     glm::mat4 view = glm::mat4(1.0f);
 
-    IlluminationRenderer illumination_renderer (camera, projection);
-    BackgroundShader background_shader;
+    IlluminationRenderer illumination_renderer (projection);
+    BackgroundRenderer background_renderer (projection);
 
     textureCube = LoadTextureCube("textures/skybox/");
 
@@ -67,31 +67,14 @@ int main () {
 
         glCall(illumination_renderer.render(fountainModel, textures[0], camera));
 
-        glDepthFunc(GL_LEQUAL);
-
-        background_shader.start();
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, textureCube);
-
-        background_shader.loadProjectionMatrix(projection);
-        
-        view = glm::mat4(glm::mat3(view));
-        background_shader.loadViewMatrix(view);
-        
-        background_shader.loadtCube(0);
-
-        bgModel.Draw();
-        background_shader.stop();
-
-        glDepthFunc(GL_LESS);
+        glCall(background_renderer.render(bgModel, textureCube, camera));
 
         glfwSwapBuffers(window);
     }
 
     illumination_renderer.cleanUp();
+    background_renderer.cleanUp();
     // reflection_shader.Delete();
-    background_shader.cleanUp();
     glfwTerminate();
     return 0;
 }
