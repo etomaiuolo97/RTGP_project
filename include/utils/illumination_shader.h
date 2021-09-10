@@ -35,6 +35,7 @@ private:
     GLint normalMatrixLocation;
     GLint repeatLocation;
     GLint texLocation;
+    GLint planeLocation;
     vector<GLint> lightPosLocation;
 
 public:
@@ -74,6 +75,7 @@ public:
         this->normalMatrixLocation = Shader::getUniformLocation("normalMatrix");
         this->repeatLocation = Shader::getUniformLocation("repeat");
         this->texLocation = Shader::getUniformLocation("tex");
+        this->planeLocation = Shader::getUniformLocation("plane");
         
         for (GLuint i = 0; i < this->NR_LIGHTS; i++) {
             string number = to_string(i);
@@ -89,16 +91,16 @@ public:
         glCall(glUniform1i(this->texLocation, tex));
     }
 
-    void loadDiffuseColor (GLfloat diffColor []) {
-        glCall(glUniform3fv(this->matDiffuseLocation, 1, diffColor));
+    void loadDiffuseColor (vector<GLfloat> diffColor) {
+        glCall(glUniform3fv(this->matDiffuseLocation, 1, diffColor.data()));
     }
 
-    void loadAmbientColor (GLfloat ambientColor []) {
-        glCall(glUniform3fv(this->matAmbientLocation, 1, ambientColor));
+    void loadAmbientColor (vector<GLfloat> ambientColor) {
+        glCall(glUniform3fv(this->matAmbientLocation, 1, ambientColor.data()));
     }
 
-    void loadSpecularColor (GLfloat specColor []) {
-        glCall(glUniform3fv(this->matSpecularLocation, 1, specColor));
+    void loadSpecularColor (vector<GLfloat> specColor) {
+        glCall(glUniform3fv(this->matSpecularLocation, 1, specColor.data()));
     }
 
     void loadShine (GLfloat shininess) {
@@ -125,10 +127,14 @@ public:
         glCall(glUniform1f(this->ksLocation, ks));
     }
 
-    void loadLights (glm::vec3 lightPos []) {
+    void loadLights (vector<glm::vec3> lightPos) {
         for (GLuint i = 0; i < NR_LIGHTS; i++) {
             glCall(glUniform3fv(this->lightPosLocation[i], 1, glm::value_ptr(lightPos[i])));
         }
+    }
+
+    void loadPlane (glm::vec4 plane) {
+        glCall(glUniform4f(this->planeLocation, plane.x, plane.y, plane.z, plane.w));
     }
 
     void loadModelMatrix (glm::mat4 matrix) {

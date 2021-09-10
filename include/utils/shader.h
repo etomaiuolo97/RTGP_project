@@ -45,6 +45,7 @@ private:
     GLuint program;
 
     GLuint loadShader (const GLchar* file, GLint type){
+        std::cout << file << std::endl;
         string code;
         ifstream shaderFile;
 

@@ -10,14 +10,14 @@ class IlluminationRenderer : public Renderer{
 private:
     IlluminationShader shader;
 
-    glm::vec3 lightPos [1] = {glm::vec3(0.0f, 0.0f, 10.0f)};
+    vector<glm::vec3> lightPos = {glm::vec3(0.0f, 0.0f, 10.0f)};
 
     GLfloat Eta = 1.0f/1.52f;
     GLfloat mFresnelPower = 5.0f;
 
-    GLfloat diffuseColor [3] = {1.0f, 1.0f, 1.0f};
-    GLfloat specularColor [3] = {1.0f, 1.0f, 1.0f};
-    GLfloat ambientColor [3] = {0.1f, 0.1f, 0.1f};
+    vector<GLfloat> diffuseColor = {1.0f, 1.0f, 1.0f};
+    vector<GLfloat> specularColor = {1.0f, 1.0f, 1.0f};
+    vector<GLfloat> ambientColor = {0.1f, 0.1f, 0.1f};
 
     GLfloat Kd = 0.5f;
     GLfloat Ks = 0.4f;
@@ -34,13 +34,14 @@ public:
             Renderer::SetupShaders(shader.getProgram());
     }
 
-    void render(Model& model, GLuint texture, Camera camera) {
+    void render(Model& model, GLuint texture, Camera camera, glm::vec4 clipPlane) {
         glm::mat4 view = camera.GetViewMatrix();
 
         shader.start();
 
         Renderer::render(shader.getProgram());
 
+        shader.loadPlane(clipPlane);
         shader.loadAmbientColor(ambientColor);
         shader.loadSpecularColor(specularColor);
         shader.loadShine(shininess);
@@ -78,6 +79,15 @@ public:
     void cleanUp(){
         shader.cleanUp();
     }
+
+    vector<glm::vec3> getLightPos () {
+        return this->lightPos;
+    }
+
+    vector<GLfloat> getLightColor () {
+        return this->ambientColor;
+    }
+
 };
 
 #endif

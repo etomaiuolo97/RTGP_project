@@ -14,6 +14,14 @@ private:
     GLint viewMatrixLocation;
     GLint modelMatrixLocation;
     GLint projectionMatLocation;
+    GLint reflectionTextureLocation;
+    GLint refractionTextureLocation;
+    GLint dudvMapLocation;
+    GLint moveFactorLocation;
+    GLint cameraPositionLocation;
+    GLint normalMapLocation;
+    GLint lightColourLocation;
+    GLint lightPositionLocation;
 
 public:
 
@@ -38,6 +46,34 @@ public:
         this->projectionMatLocation = Shader::getUniformLocation("projectionMatrix");
         this->viewMatrixLocation = Shader::getUniformLocation("viewMatrix");
         this->modelMatrixLocation = Shader::getUniformLocation("modelMatrix");
+        this->reflectionTextureLocation = Shader::getUniformLocation("reflectionTexture");
+        this->refractionTextureLocation = Shader::getUniformLocation("refractionTexture");
+        this->dudvMapLocation = Shader::getUniformLocation("dudvMap");
+        this->moveFactorLocation = Shader::getUniformLocation("moveFactor");
+        this->cameraPositionLocation = Shader::getUniformLocation("cameraPosition");
+        this->normalMapLocation = Shader::getUniformLocation("normalMap");
+        this->lightColourLocation = Shader::getUniformLocation("lightColour");
+        this->lightPositionLocation = Shader::getUniformLocation("lightPosition");
+    }
+
+    void connectTextureUnits () {
+        glCall(glUniform1i(this->reflectionTextureLocation, 0));
+        glCall(glUniform1i(this->refractionTextureLocation, 1));
+        glCall(glUniform1i(this->dudvMapLocation, 2));
+        glCall(glUniform1i(this->normalMapLocation, 3));
+    }
+
+    void loadLight (glm::vec3 lightPosition, glm::vec3 lightColour){
+        glCall(glUniform3fv(this->lightPositionLocation, 1, glm::value_ptr(lightPosition)));
+        glCall(glUniform3fv(this->lightColourLocation, 1, glm::value_ptr(lightColour)));
+    }
+
+    void loadCameraPosition (glm::vec3 cameraPos){
+        glCall(glUniform3fv(this->cameraPositionLocation, 1, glm::value_ptr(cameraPos)));
+    }
+
+    void loadMoveFactor (GLfloat factor) {
+        glCall(glUniform1f(this->moveFactorLocation, factor));
     }
 
     void loadModelMatrix (glm::mat4 matrix) {
