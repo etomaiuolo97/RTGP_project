@@ -33,9 +33,13 @@ out vec3 vViewPosition;
 // the output variable for UV coordinates
 out vec2 interp_UV;
 
+uniform vec4 plane;
 
 void main(){
-    vec4 mvPosition = viewMatrix * modelMatrix * vec4( position, 1.0 );
+    vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
+    vec4 mvPosition = viewMatrix * worldPosition;
+
+    gl_ClipDistance[0] = dot(worldPosition, plane);
 
     vViewPosition = -mvPosition.xyz;
 

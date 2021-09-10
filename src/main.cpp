@@ -77,7 +77,7 @@ int main () {
         GLfloat distance = 2 * (camera.position.y + 0.5);
         camera.position.y -= distance;
         camera.pitch = -camera.pitch;
-        glCall(illumination_renderer.render(fountainModel, textures[0], camera, glm::vec4(0, 1, 0, 0.5)));
+        glCall(illumination_renderer.render(fountainModel, textures[0], camera, glm::vec4(0, 1, 0, 0.5 + 1)));
         glCall(background_renderer.render(bgModel, textureCube, camera));
         camera.position.y += distance;
         camera.pitch = -camera.pitch;

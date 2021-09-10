@@ -22,6 +22,7 @@ private:
     GLint normalMapLocation;
     GLint lightColourLocation;
     GLint lightPositionLocation;
+    GLint depthMapLocation;
 
 public:
 
@@ -54,6 +55,7 @@ public:
         this->normalMapLocation = Shader::getUniformLocation("normalMap");
         this->lightColourLocation = Shader::getUniformLocation("lightColour");
         this->lightPositionLocation = Shader::getUniformLocation("lightPosition");
+        this->depthMapLocation = Shader::getUniformLocation("depthMap");
     }
 
     void connectTextureUnits () {
@@ -61,6 +63,7 @@ public:
         glCall(glUniform1i(this->refractionTextureLocation, 1));
         glCall(glUniform1i(this->dudvMapLocation, 2));
         glCall(glUniform1i(this->normalMapLocation, 3));
+        glCall(glUniform1i(this->depthMapLocation, 4));
     }
 
     void loadLight (glm::vec3 lightPosition, glm::vec3 lightColour){
