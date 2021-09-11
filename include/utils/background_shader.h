@@ -36,12 +36,12 @@ public:
     BackgroundShader():Shader("shaders/background.vert", "shaders/background.frag"){
         bindAttributes();
 
-        glLinkProgram(this->program);
-        glValidateProgram(this->program);
+        glLinkProgram(getProgram());
+        glValidateProgram(getProgram());
 
         getAllUniformLocations();
 
-        Shader::checkCompileErrors(this->program, "PROGRAM");
+        Shader::checkCompileErrors(getProgram(), "PROGRAM");
     }
 
     

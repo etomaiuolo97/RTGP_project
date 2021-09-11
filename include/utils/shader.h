@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef SHADER
+#define SHADER
+
 using namespace std;
 
 #include <string>
@@ -9,6 +12,8 @@ using namespace std;
 
 #include <glad/glad.h>
 
+#include "utils/utils.h"
+
 class Shader {
 protected:
     
@@ -17,16 +22,16 @@ protected:
         GLchar infoLog[1024];
 
         if (type != "PROGRAM") {
-            glGetShaderiv (shader, GL_COMPILE_STATUS, &success);
+            glCall(glGetShaderiv (shader, GL_COMPILE_STATUS, &success));
             if (!success) {
-                glGetShaderInfoLog(shader, 1024, NULL, infoLog);
+                glCall(glGetShaderInfoLog(shader, 1024, NULL, infoLog));
                 std::cout << "ERROR::SHADER::"<< type <<"::COMPILATION_FAILED\n" << infoLog << std::endl;
             }
         }
         else {
-            glGetProgramiv(shader, GL_LINK_STATUS, &success);
+            glCall(glGetProgramiv(shader, GL_LINK_STATUS, &success));
             if (!success) {
-                glGetProgramInfoLog(shader, 1024, NULL, infoLog);
+                glCall(glGetProgramInfoLog(shader, 1024, NULL, infoLog));
                 std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
             }
         }
@@ -37,7 +42,10 @@ private:
     GLuint vertexShader;
     GLuint fragmentShader;
 
+    GLuint program;
+
     GLuint loadShader (const GLchar* file, GLint type){
+        std::cout << file << std::endl;
         string code;
         ifstream shaderFile;
 
@@ -63,16 +71,24 @@ private:
         GLuint shader;
 
         shader = glCreateShader(type);
-        glShaderSource(shader, 1, &shaderCode, NULL);
-        glCompileShader(shader);
+        glCall(glShaderSource(shader, 1, &shaderCode, NULL));
+        glCall(glCompileShader(shader));
         checkCompileErrors(shader, type == GL_VERTEX_SHADER? "VERTEX": "FRAGMENT");
 
         return shader;
     }
 
-public:
+public:    
 
-    GLuint program;
+    // Delete copy constructor and copy assignment
+    Shader(const Shader& shader) = delete;
+    Shader& operator=(const Shader& move) {
+        return *(this);
+    };
+
+    // Default move constructor and move assignment
+    Shader& operator=(Shader&& move) noexcept = default;
+    Shader(Shader&& shader) = default;
 
     void getAllUniformLocations(){};
 
@@ -83,7 +99,7 @@ public:
     void bindAttributes (){};
 
     void bindAttribute (GLuint attribute, GLchar* varName) {
-        glBindAttribLocation(this->program, attribute, varName);
+        glCall(glBindAttribLocation(this->program, attribute, varName));
     }
 
     Shader (const GLchar* vertexFile, const GLchar* fragmentFile) {
@@ -92,25 +108,35 @@ public:
 
         this->program = glCreateProgram();
 
-        glAttachShader(this->program, this->vertexShader);
-        glAttachShader(this->program, this->fragmentShader);
+        glCall(glAttachShader(this->program, this->vertexShader));
+        glCall(glAttachShader(this->program, this->fragmentShader));
+    }
+
+    GLuint getProgram(){
+        return this->program;
+    }
+
+    void setProgram (GLuint program)  {
+        this->program = program;
     }
 
     void start () {
-        glUseProgram(this->program);
+        glCall(glUseProgram(this->program));
     }
 
     void stop (){
-        glUseProgram(0);
+        glCall(glUseProgram(0));
     }
 
     void cleanUp () {
         stop();
-        glDetachShader(this->program, this->vertexShader);
-        glDetachShader(this->program, this->fragmentShader);
-        glDeleteShader(this->vertexShader);
-        glDeleteShader(this->fragmentShader);
-        glDeleteProgram(this->program);
+        glCall(glDetachShader(this->program, this->vertexShader));
+        glCall(glDetachShader(this->program, this->fragmentShader));
+        glCall(glDeleteShader(this->vertexShader));
+        glCall(glDeleteShader(this->fragmentShader));
+        glCall(glDeleteProgram(this->program));
     }
 
 };
+
+#endif

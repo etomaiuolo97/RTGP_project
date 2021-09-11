@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef CAMERA
+#define CAMERA
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -44,7 +47,7 @@ public:
 
     void ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime) {
         GLfloat change = deltaTime * SPEED;
-
+        
         switch(direction){
             case UP:
                 this->pitch += change;
@@ -113,3 +116,4 @@ Camera::Camera(glm::vec3 position) {
 Camera::~Camera() {
 }
 
+#endif
