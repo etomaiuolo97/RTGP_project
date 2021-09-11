@@ -31,26 +31,26 @@ public:
     }
 
     void bindAttributes() {
-        bindAttribute(0, "position");
+        glCall(bindAttribute(0, "position"));
     }
 
     void loadViewMatrix(glm::mat4 modelView) {
-        glUniformMatrix4fv(this->viewMatrixLocation, 1, GL_FALSE, glm::value_ptr(modelView));
+        glCall(glUniformMatrix4fv(this->viewMatrixLocation, 1, GL_FALSE, glm::value_ptr(modelView)));
     }
 
     void loadProjectionMatrix(glm::mat4 projectionMatrix) {
-        glUniformMatrix4fv(this->projectionMatLocation, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+       glCall(glUniformMatrix4fv(this->projectionMatLocation, 1, GL_FALSE, glm::value_ptr(projectionMatrix)));
     }
 
-    particleShader():Shader("shaders/particle.vert", "shaders/particle.frag"){
+    particleShader():Shader("../shaders/particle.vert", "../shaders/particle.frag"){
         bindAttributes();
 
-        glLinkProgram(this->program);
-        glValidateProgram(this->program);
+        glLinkProgram(getProgram());
+        glValidateProgram(getProgram());
 
         getAllUniformLocations();
 
-        Shader::checkCompileErrors(this->program, "PROGRAM");
+        Shader::checkCompileErrors(getProgram(), "PROGRAM");
     }
 
 };

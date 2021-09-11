@@ -56,14 +56,14 @@ public:
     WaterRenderer (glm::mat4 projection, GLuint width, GLuint height)
         :Renderer(projection){   
         this->fbos = WaterFrameBuffers(width, height);
-        this->dudvTexture = LoadTexture("textures/water/DuDv.png");
-        this->normalMapTexture = LoadTexture("textures/water/normalMap.png");
+        this->dudvTexture = LoadTexture("../textures/water/DuDv.png");
+        this->normalMapTexture = LoadTexture("../textures/water/normalMap.png");
 
         shader.start();
         shader.connectTextureUnits();
         shader.loadProjectionMatrix(projection);
         shader.stop();
-        quad = Model("meshes/circle.obj");
+        quad = Model("../meshes/circle.obj");
     }
 
     WaterFrameBuffers getFbos(){

@@ -33,7 +33,7 @@ public:
         glUniformMatrix4fv(this->viewMatrixLocation, 1, GL_FALSE, glm::value_ptr(matrix));
     }
 
-    BackgroundShader():Shader("shaders/background.vert", "shaders/background.frag"){
+    BackgroundShader():Shader("../shaders/background.vert", "../shaders/background.frag"){
         bindAttributes();
 
         glLinkProgram(getProgram());

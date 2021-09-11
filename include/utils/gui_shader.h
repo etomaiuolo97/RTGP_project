@@ -16,7 +16,7 @@ private:
 public:
 
     GuiShader()
-    :Shader("shaders/gui.vert", "shaders/gui.frag"){
+    :Shader("../shaders/gui.vert", "../shaders/gui.frag"){
         bindAttributes();
 
         glCall(glLinkProgram(getProgram()));

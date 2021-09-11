@@ -8,7 +8,7 @@
     },
     "windows": 
     {
-        "command": ".\\src\\MakefileWin.bat",
+        "command": ".\\MakefileWin.bat",
     },
     "group": {
         "kind": "build",

@@ -30,15 +30,15 @@ class Particle {
         }
 
         glm::vec3 getPosition(){
-            return position;
+            return this->position;
         }
 
         float getRotation(){
-            return rotation;
+            return this->rotation;
         }
 
         float getScale(){
-            return scale;
+            return this->scale;
         }
 
         bool update(){

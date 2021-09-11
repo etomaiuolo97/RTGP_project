@@ -27,7 +27,7 @@ private:
 public:
 
     WaterShader()
-    :Shader("shaders/water.vert", "shaders/water.frag"){
+    :Shader("../shaders/water.vert", "../shaders/water.frag"){
         bindAttributes();
 
         glCall(glLinkProgram(getProgram()));

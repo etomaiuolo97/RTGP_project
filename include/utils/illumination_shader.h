@@ -41,7 +41,7 @@ private:
 public:
 
     IlluminationShader()
-    :Shader("shaders/illumination.vert", "shaders/illumination.frag"){
+    :Shader("../shaders/illumination.vert", "../shaders/illumination.frag"){
         bindAttributes();
 
         glCall(glLinkProgram(getProgram()));
