@@ -1,11 +1,8 @@
 #pragma once
-#include <glad/glad.h>
-#include <utils/background_shader.h>
-#include <glm/gtc/matrix_transform.hpp>
-#include <utils/camera.h>
+
 #include <utils/particle.h>
-#include <list>
-#include <utils/utils.h>
+#include <utils/particleShader.h>
+#include <utils/camera.h>
 
 class particleRenderer
 {
@@ -20,12 +17,16 @@ private:
         1, 2, 3   // Second Triangle
     };
 
+    GLuint quad;
+    particleShader shader;
+
     void prepare(){
         shader.start();
         glBindVertexArray(this->quad);
         glEnableVertexAttribArray(0);
-        GL_BLEND;
+        glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_CONSTANT_ALPHA);
+        glDepthMask(false);
     }
 
     void finishRendering(){
@@ -36,9 +37,20 @@ private:
         shader.stop();
     }
 
+    glm::mat4 createViewMatrix(Camera camera) {
+        glm::mat4 matrix = glm::mat4(1.0f);
+        matrix = glm::rotate(matrix, (GLfloat)glm::radians(camera.pitch), glm::vec3(1.0f, 0.0f, 0.0f));
+        matrix = glm::rotate(matrix, (GLfloat)glm::radians(camera.yaw), glm::vec3(0.0f, 1.0f, 0.0f));
+        matrix = glm::rotate(matrix, (GLfloat)glm::radians(camera.roll), glm::vec3(0.0f, 0.0f, 1.0f));
+
+        glm::vec3 cameraPos = camera.position;
+        glm::vec3 negCameraPos = glm::vec3(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+        matrix = glm::translate(matrix, negCameraPos);
+
+        return matrix;
+    }
+
 public:
-    GLuint quad;
-    BackgroundShader shader;
     
     ~particleRenderer();
 
@@ -63,9 +75,6 @@ public:
 
         glBindVertexArray(0);
 
-        //quad = loadtoVAO(vertices,2);
-        // TODO: problems with type of shader: GLuint vs particleShader class
-        shader = glCreateShader(GL_VERTEX_SHADER);
         shader.start();
         shader.loadProjectionMatrix(projectionMatrix);
         shader.stop(); 
@@ -75,8 +84,7 @@ public:
         glm::mat4 viewMatrix = createViewMatrix(camera);
         prepare();        
         for(Particle particle: particles){
-            updateModelViewMatrix(particle.getPosition(),particle.getRotation(),
-                particle.getScale(),viewMatrix);
+            updateModelViewMatrix(particle.getPosition(), particle.getRotation(), particle.getScale(), viewMatrix);
             glDrawArrays(GL_TRIANGLE_STRIP,0,sizeof(quad));           
         }
         finishRendering();
@@ -86,15 +94,20 @@ public:
         shader.cleanUp();
     }
 
-    void updateModelViewMatrix(glm::vec3 position, float rotation, float scale,
-    glm::mat4 viewMatrix){
+    void updateModelViewMatrix(glm::vec3 position, float rotation, float scale, glm::mat4 viewMatrix){
         glm::mat4 modelMatrix = glm::mat4(1.0f);
         modelMatrix = glm::translate(modelMatrix,position);
         // sets rotation of model matrix to transpose of rotation of view matrix in 3*3
-        modelMatrix = glm::transpose(viewMatrix);
-        
-        // modelMatrix.m00=viewMatrix.m00;
-        // modelMatrix.m22=viewMatrix.m22;
+        //modelMatrix = glm::transpose(viewMatrix);
+        modelMatrix[0,0] = viewMatrix[0,0];
+        modelMatrix[0,1] = viewMatrix[1,0];
+        modelMatrix[0,2] = viewMatrix[2,0];
+        modelMatrix[1,0] = viewMatrix[0,1];
+        modelMatrix[1,1] = viewMatrix[1,1];
+        modelMatrix[1,2] = viewMatrix[2,1];
+        modelMatrix[2,0] = viewMatrix[0,2];
+        modelMatrix[2,1] = viewMatrix[1,2];
+        modelMatrix[2,2] = viewMatrix[2,2];
         
         modelMatrix = glm::rotate(modelMatrix,glm::radians(rotation),glm::vec3(0,0,1));
         modelMatrix = glm::scale(modelMatrix,glm::vec3(scale,scale,scale));

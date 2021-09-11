@@ -17,19 +17,13 @@ public:
     }
 
     void update(){
-        
-        std::vector<Particle>::iterator iter;
-        // TODO: iterator and vector
-        for (iter = particles.begin(); iter < particles.end(); iter++)
-        {
-            Particle p = particles.iterator();
-            bool stillAlive = p.update();
+        for(Particle particle: particles){
+            bool stillAlive = particle.update();
             if (!stillAlive)
             {
-                iter.remove();
-            }  
-        }
-        
+                particles.pop_back();
+            }
+        }      
     }
 
     void renderParticles(Camera camera){

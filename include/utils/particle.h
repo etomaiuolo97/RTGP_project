@@ -44,9 +44,9 @@ class Particle {
         bool update(){
             velocity.y += GRAVITY * gravityEffect * glfwGetTime();
             glm::vec3 change = glm::vec3(velocity);
-            //change.scale(glfwGetTime());
+            change*=(float)glfwGetTime();
             position+=change;
-            elapsedTime += glfwGetTime();
+            elapsedTime += (float)glfwGetTime();
 
             return elapsedTime < lifeLength;
         }

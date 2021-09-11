@@ -5,7 +5,7 @@
 # Universita' degli Studi di Milano
 
 #name of the file
-FILENAME = ../src/main
+FILENAME = main
 
 # Xcode compiler
 CXX = clang++

@@ -86,6 +86,12 @@ int main () {
     particleMaster particleMaster;
     particleMaster.init(projection);
     particleSystem system= particleSystem(50,25,0.3f,4);
+    //particleSystem system= particleSystem(50,25,0.3f,4,1);
+    //system.randomizeRotation();
+    //system.setDirection(glm::vec3(0,1,0),0.1f);
+    //system.setLifeError(0.1f);
+    //system.setSpeedError(0.4f);
+    //system.setScaleError(0.8f);
     
     while(!glfwWindowShouldClose(window)) {
         GLfloat currentFrame = glfwGetTime();

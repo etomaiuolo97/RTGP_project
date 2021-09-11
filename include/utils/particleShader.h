@@ -15,15 +15,19 @@ private:
 
 public:
 
-    GLuint program;
+    //GLuint program;
 
-    GLint getUniformLocation(const GLchar* uniformName){
-        return glGetUniformLocation(this->program, uniformName);
-    }
+    //GLint getUniformLocation(const GLchar* uniformName){
+      //  return glGetUniformLocation(this->program, uniformName);
+    //}
 
     void getAllUniformLocations() {
-        viewMatrixLocation = getUniformLocation("viewMatrix");
-        projectionMatLocation = getUniformLocation("projectionMatrix");
+        this->projectionMatLocation = Shader::getUniformLocation("projectionMatrix");
+        this->viewMatrixLocation = Shader::getUniformLocation("viewMatrix");
+
+
+        //viewMatrixLocation = getUniformLocation("viewMatrix");
+        //projectionMatLocation = getUniformLocation("projectionMatrix");
     }
 
     void bindAttributes() {
@@ -31,14 +35,14 @@ public:
     }
 
     void loadViewMatrix(glm::mat4 modelView) {
-            glUniformMatrix4fv(this->viewMatrixLocation, 1, GL_FALSE, glm::value_ptr(modelView));
+        glUniformMatrix4fv(this->viewMatrixLocation, 1, GL_FALSE, glm::value_ptr(modelView));
     }
 
     void loadProjectionMatrix(glm::mat4 projectionMatrix) {
-            glUniformMatrix4fv(this->projectionMatLocation, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+        glUniformMatrix4fv(this->projectionMatLocation, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
     }
 
-    particleShader():Shader("particle.vert", "particle.frag"){
+    particleShader():Shader("shaders/particle.vert", "shaders/particle.frag"){
         bindAttributes();
 
         glLinkProgram(this->program);
