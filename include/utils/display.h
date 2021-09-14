@@ -67,6 +67,10 @@ void mouse_callback (GLFWwindow* window, double xpos, double ypos) {
     // camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
+void scroll_callback (GLFWwindow* window, double xoffset, double yoffset){
+    camera.calculateZoom(yoffset);
+}
+
 GLFWwindow* createDisplay() {
     glfwInit();
 
@@ -88,6 +92,7 @@ GLFWwindow* createDisplay() {
 
     glfwSetKeyCallback(window, key_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         std::cout << "Failed to initialize OpenGL context" << std::endl;
