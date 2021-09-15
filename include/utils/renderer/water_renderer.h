@@ -39,7 +39,7 @@ private:
         glCall(glBindTexture(GL_TEXTURE_2D, this->dudvTexture));
         glCall(glActiveTexture(GL_TEXTURE3));
         glCall(glBindTexture(GL_TEXTURE_2D, this->normalMapTexture));
-        glCall(glActiveTexture(GL_TEXTURE3));
+        glCall(glActiveTexture(GL_TEXTURE4));
         glCall(glBindTexture(GL_TEXTURE_2D, this->fbos.getRefractionDepthTexture()));
 
         glCall(glEnable(GL_BLEND));
