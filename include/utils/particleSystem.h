@@ -2,17 +2,22 @@
 
 #include <utils/particle.h>
 #include <glm/glm.hpp>
+#include <mat4x4.hpp>
 
 #define PI 3.141592653
+#define RAND_FACTOR 2.0f
+
 
 class particleSystem
 {
 private:
-
+/*
     float pps;
 	float speed;
 	float gravityComplient;
 	float lifeLength;
+
+    particleTexture texture;
 
     void emitParticle(glm::vec3 center){
 		float dirX = (float) random();
@@ -21,16 +26,18 @@ private:
 		velocity = glm::normalize(velocity)*speed;
 		//velocity = glm::scale(glm::vec3(speed));
 
-		Particle(glm::vec3(center), velocity, gravityComplient, lifeLength, 0, 1);
+		Particle(texture,glm::vec3(center), velocity, gravityComplient, lifeLength, 0, 1);
 	}
 	
-
-/*	// pps= particle per seconds
+*/
+	// pps= particle per seconds
     float pps, averageSpeed, gravityComplient, averageLifeLength, averageScale;
     float speedError, lifeError, scaleError = 0;
     bool randomRotation = false;
     glm::vec3 direction;
     float directionDeviation = 0;
+
+    particleTexture texture;
 
 	void emitParticle(glm::vec3 center) {
         glm::vec3 velocity;
@@ -41,31 +48,30 @@ private:
         }
 		velocity = glm::normalize(velocity);
         //velocity.scale(generateValue(averageSpeed, speedError));
-		velocity = glm::scale(velocity,generateValue(averageSpeed, speedError));
+        velocity = velocity*generateValue(averageSpeed, speedError);
         float scale = generateValue(averageScale, scaleError);
         float lifeLength = generateValue(averageLifeLength, lifeError);
-        new Particle(glm::vec3(center), velocity, gravityComplient, lifeLength, generateRotation(), scale);
+        new Particle(texture,glm::vec3(center), velocity, gravityComplient, lifeLength, generateRotation(), scale);
     }
 
-	// TODO: random.nextFloat
 	float generateValue(float average, float errorMargin) {
-        float offset = (random.nextFloat() - 0.5f) * 2f * errorMargin;
+        float offset = (randf(0.05) - 0.5f) * (2.0f) * errorMargin;
         return average + offset;
     }
 
     float generateRotation() {
         if (randomRotation) {
-            return random.nextFloat() * 360f;
+            return randf(0.05) * (360.0f);
         } else {
             return 0;
         }
     }
 
-    static glm::vec3 generateRandomUnitVectorWithinCone(glm::vec3 coneDirection, float angle) {
+    glm::vec3 generateRandomUnitVectorWithinCone(glm::vec3 coneDirection, float angle) {
         float cosAngle = (float) cos(angle);
-        Random random = Random();
-        float theta = (float) (random.nextFloat() * 2f * PI);
-        float z = cosAngle + (random.nextFloat() * (1 - cosAngle));
+        //Random random = Random();
+        float theta = (float) (randf(0.05) * (2.0f) * PI);
+        float z = cosAngle + (randf(0.05) * (1 - cosAngle));
         float rootOneMinusZSquared = (float) sqrt(1 - z * z);
         float x = (float) (rootOneMinusZSquared * cos(theta));
         float y = (float) (rootOneMinusZSquared * sin(theta));
@@ -76,8 +82,12 @@ private:
 			rotateAxis = glm::normalize(rotateAxis);
             float rotateAngle = (float) acos(glm::dot(coneDirection, glm::vec3(0, 0, 1)));
             glm::mat4 rotationMatrix = glm::mat4();
-			rotationMatrix = glm::rotate(rotationMatrix,-rotateAngle, rotateAxis);
-            glm::mat4 direction = glm:: .transform(rotationMatrix, direction, direction);
+            //rotationMatrix.rotate(-rotateAngle, rotateAxis);
+            glRotatef(-rotateAngle,rotateAxis.x,rotateAxis.y,rotateAxis.z);
+            //Matrix4f.transform(rotationMatrix, direction, direction);
+            // TODO: transform matrix
+            //glm::mat4 direction = glm::translate()*glm::rotate()* glm::scale();//rotationMatrix*direction;
+            
         } else if (coneDirection.z == -1) {
             direction.z *= -1;
         }
@@ -85,23 +95,30 @@ private:
     }
     
     glm::vec3 generateRandomUnitVector() {
-        float theta = (float) (random.nextFloat() * 2f * PI);
-        float z = (random.nextFloat() * 2) - 1;
+        float theta = (float) (randf(0.05) * (2.0f) * PI);
+        float z = (randf(0.05) * 2) - 1;
         float rootOneMinusZSquared = (float) sqrt(1 - z * z);
         float x = (float) (rootOneMinusZSquared * cos(theta));
         float y = (float) (rootOneMinusZSquared * sin(theta));
         return glm::vec3(x, y, z);
     }
-*/
+
+    // generate random floats between 0 and 1
+    float randf(float range) {
+        return (float)rand() / (float)RAND_MAX * range * RAND_FACTOR;
+    }
+
 
 public:
     ~particleSystem();
-
-    particleSystem(float pps, float speed, float gravityComplient, float lifeLength) {
+/*
+    particleSystem(particleTexture texture,float pps, float speed, float gravityComplient, float lifeLength) {
 		this->pps = pps;
 		this->speed = speed;
 		this->gravityComplient = gravityComplient;
 		this->lifeLength = lifeLength;
+        
+        this->texture=texture;
 	}
 
     void generateParticles(glm::vec3 systemCenter){
@@ -116,8 +133,8 @@ public:
 			emitParticle(systemCenter);
 		}
 	}
+*/
 
-/*
 	particleSystem(float pps, float speed, float gravityComplient, float lifeLength, float scale) {
         this->pps = pps;
         this->averageSpeed = speed;
@@ -160,6 +177,5 @@ public:
             emitParticle(systemCenter);
         }
     }
-    */
 	
 };

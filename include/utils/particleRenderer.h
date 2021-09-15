@@ -1,10 +1,12 @@
 #pragma once
 
+#include <utils/renderer/renderer.h>
 #include <utils/particle.h>
 #include <utils/particleShader.h>
 #include <utils/camera.h>
 
-class particleRenderer
+// TODO: render tramite particelle sferiche
+class particleRenderer : public Renderer
 {
 private:
     GLfloat vertices[9] = {
@@ -18,6 +20,8 @@ private:
     };
 
     GLuint quad;
+    //Model quad;
+
     particleShader shader;
 
     void prepare(){
@@ -50,11 +54,17 @@ private:
         return matrix;
     }
 
+    void bindTexture(particleTexture texture){
+        glCall(glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA));
+        glCall(glActiveTexture(GL_TEXTURE0));
+        glCall(glBindTexture(GL_TEXTURE_2D,texture.getTextureID())); 
+        shader.loadNumberRows(texture.getNumberRows());
+    }
+
 public:
     
-    ~particleRenderer();
-
-    particleRenderer(glm::mat4 projectionMatrix){
+    particleRenderer(glm::mat4 projectionMatrix):Renderer(projectionMatrix){
+    
         GLuint VBO, VAO, EBO;
         glCall(glGenVertexArrays(1, &VAO));
         glCall(glGenBuffers(1, &VBO));
@@ -79,15 +89,35 @@ public:
         shader.loadProjectionMatrix(projectionMatrix);
         shader.stop(); 
     }
-
-    void render(std::vector<Particle> particles, Camera camera){
+    
+    // Associate a texture to particle: using maps or model?
+    void render(vector<Particle> particles, Camera camera){
         glm::mat4 viewMatrix = createViewMatrix(camera);
         prepare();        
+        /*
+        for ( particleTexture texture: particles.keySet()){
+            
+            //bind texture
+            bindTexture(texture);
+            //glCall(glBindTexture(GL_TEXTURE0, this->quad));
+            
+            //glActiveTexture(GL_TEXTURE0);
+            //glBindTexture(GL_TEXTURE_2D,texture.getTextureID());
+            for(Particle particle: particles.get(texture)){
+                updateModelViewMatrix(particle.getPosition(), particle.getRotation(), particle.getScale(), viewMatrix);
+                //shader.loadTextureCoordInfo(particle.getTexOffset1(),particle.getTexOffset2(),texture.getNumberRows(),particle.getBlend());
+                //glCall(glDrawArrays(GL_TRIANGLE_STRIP,0,sizeof(quad)));  
+            }         
+        }
+        finishRendering();
+        */
+        
         for(Particle particle: particles){
             updateModelViewMatrix(particle.getPosition(), particle.getRotation(), particle.getScale(), viewMatrix);
             glCall(glDrawArrays(GL_TRIANGLE_STRIP,0,sizeof(quad)));           
         }
         finishRendering();
+        
     }
 
     void cleanUp(){

@@ -32,6 +32,7 @@ using namespace std;
 #include <utils/renderer/water_renderer.h>
 #include <utils/renderer/gui_renderer.h>
 
+#include <utils/particleTexture.h>
 #include <utils/particle.h>
 #include <utils/particleMaster.h>
 #include <utils/particleSystem.h>
@@ -62,16 +63,21 @@ int main () {
 
     vector<WaterTile> waters = {WaterTile(0, -4.8, -0.5)};
 
+    //particle texture
+    //particleTexture particleTexture = particleTexture(loader.loadTexture("particlesAtlas"),4);
+    //particleTexture particleTexture;
+    //particleTexture(LoadTexture(""));
+
     // init particle
-    particleMaster particleMaster;
-    particleMaster.init(projection);
-    particleSystem system= particleSystem(50,25,0.3f,4);
-    //particleSystem system= particleSystem(50,25,0.3f,4,1);
-    //system.randomizeRotation();
-    //system.setDirection(glm::vec3(0,1,0),0.1f);
-    //system.setLifeError(0.1f);
-    //system.setSpeedError(0.4f);
-    //system.setScaleError(0.8f);
+    //particleMaster particleMaster;
+    //particleMaster.init(projection);
+    //particleSystem system= particleSystem(particleTexture,50,25,0.3f,4);
+    particleSystem system= particleSystem(50,25,0.3f,4,1);
+    system.randomizeRotation();
+    system.setDirection(glm::vec3(0,1,0),0.1f);
+    system.setLifeError(0.1f);
+    system.setSpeedError(0.4f);
+    system.setScaleError(0.8f);
 
     textureCube = LoadTextureCube("../textures/skybox/");
     textures.push_back(LoadTexture("../textures/terrain.png"));
@@ -93,7 +99,7 @@ int main () {
         //if(GLFW_KEY_Y){
           //  Particle(glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,30.0f,0.0f),1.0f,4.0f,0.0f,1.0f);
         //}
-        particleMaster.update();
+        particleMaster.update(camera);
 
         water_renderer.getFbos().bindReflectionFrameBuffer();
         GLfloat distance = 2 * (camera.position.y + 0.5);
