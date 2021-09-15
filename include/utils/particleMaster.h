@@ -1,10 +1,14 @@
 #pragma once
 
+#ifndef PARTICLE_MASTER
+#define PARTICLE_MASTER
+
+//#include <utils/particle.h>
 #include <utils/particleRenderer.h>
 #include <vector>
-#include <map>
-#include <list>
-#include <utils/insertionSort.h>
+//#include <map>
+//#include <list>
+//#include <utils/insertionSort.h>
 
 // Gestore di particelle con un vettore di particelle
 class particleMaster
@@ -43,7 +47,6 @@ public:
             insertionSort.sortHighToLow(list);
         }
   */      
-
         for(Particle particle: this->particles){
             bool stillAlive = particle.update(camera);
             if (!stillAlive)
@@ -74,3 +77,5 @@ public:
     }
 
 };
+
+#endif

@@ -1,7 +1,11 @@
 #pragma once
 
+#ifndef PARTICLE
+#define PARTICLE
+
 #include <glfw/glfw3.h>
-#include <utils/particleTexture.h>
+//#include <utils/particleTexture.h>
+#include <utils/particleMaster.h>
 
 #define GRAVITY -50
 
@@ -13,13 +17,14 @@ class Particle {
         float gravityEffect, lifeLength;
         float rotation, scale;
 
+        float elapsedTime=0;
+        float distance;
+
+/*
         particleTexture texture;
         glm::vec2 texOffset1;
         glm::vec2 texOffset2;
         float blend;
-
-        float elapsedTime;
-        float distance;
 
         // TODO: texture with model
         void updateTextureCoordInfo(){
@@ -40,12 +45,13 @@ class Particle {
             offset.x = (float)column / texture.getNumberRows();
             offset.y = (float)row / texture.getNumberRows();
         }
-
+*/
     public:
         // TODO: array di particelle
-        Particle(particleTexture texture,glm::vec3 x, glm::vec3 v,float gravity, float life, float rot,
+        //particleTexture texture,
+        Particle(glm::vec3 x, glm::vec3 v,float gravity, float life, float rot,
             float scale){
-            this->texture=texture;
+            //this->texture=texture;
             this->position=x;
             this->velocity=v;
             this->gravityEffect=gravity;
@@ -68,7 +74,7 @@ class Particle {
         float getScale(){
             return this->scale;
         }
-
+/*
         glm::vec2 getTexOffset1(){
             return texOffset1;
         }
@@ -84,12 +90,13 @@ class Particle {
         particleTexture getTexture(){
             return this->texture;
         }
+        */
 
         float getDistance(){
             return this->distance;
         }
 
-        // dice se la particella è ancora viva
+        // dice se la particella è ancora viva e se deve rimuovere dallla scena
         bool update(Camera camera){
             velocity.y += GRAVITY * gravityEffect * glfwGetTime();
             glm::vec3 change = glm::vec3(velocity);
@@ -106,3 +113,5 @@ class Particle {
         Particle();
 
 };
+
+#endif

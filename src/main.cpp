@@ -32,7 +32,7 @@ using namespace std;
 #include <utils/renderer/water_renderer.h>
 #include <utils/renderer/gui_renderer.h>
 
-#include <utils/particleTexture.h>
+//#include <utils/particleTexture.h>
 #include <utils/particle.h>
 #include <utils/particleMaster.h>
 #include <utils/particleSystem.h>
@@ -69,15 +69,15 @@ int main () {
     //particleTexture(LoadTexture(""));
 
     // init particle
-    //particleMaster particleMaster;
-    //particleMaster.init(projection);
-    //particleSystem system= particleSystem(particleTexture,50,25,0.3f,4);
-    particleSystem system= particleSystem(50,25,0.3f,4,1);
-    system.randomizeRotation();
-    system.setDirection(glm::vec3(0,1,0),0.1f);
-    system.setLifeError(0.1f);
-    system.setSpeedError(0.4f);
-    system.setScaleError(0.8f);
+    particleMaster particleMaster;
+    particleMaster.init(projection);
+    particleSystem system= particleSystem(50,25,0.3f,4);
+    //particleSystem system= particleSystem(50,25,0.3f,4,1);
+    //system.randomizeRotation();
+    //system.setDirection(glm::vec3(0,1,0),0.1f);
+    //system.setLifeError(0.1f);
+    //system.setSpeedError(0.4f);
+    //system.setScaleError(0.8f);
 
     textureCube = LoadTextureCube("../textures/skybox/");
     textures.push_back(LoadTexture("../textures/terrain.png"));

@@ -2,6 +2,9 @@
 
 using namespace std;
 
+#ifndef PARTICLE_SHADER
+#define PARTICLE_SHADER
+
 #include <utils/shader.h>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -69,3 +72,5 @@ public:
     }
 
 };
+
+#endif

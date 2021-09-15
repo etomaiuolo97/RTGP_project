@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef PARTICLE_RENDERER
+#define PARTICLE_RENDERER
+
 #include <utils/renderer/renderer.h>
 #include <utils/particle.h>
 #include <utils/particleShader.h>
@@ -9,6 +12,7 @@
 class particleRenderer : public Renderer
 {
 private:
+    /*
     GLfloat vertices[9] = {
         -0.5f,0.5f,-0.5f,
         -0.5f,0.5f,0.5f,
@@ -18,19 +22,21 @@ private:
         0, 1, 3,  // First Triangle
         1, 2, 3   // Second Triangle
     };
+    */
 
-    GLuint quad;
-    //Model quad;
+    //GLuint quad;
+    Model quad;
 
     particleShader shader;
 
     void prepare(){
         shader.start();
-        glCall(glBindVertexArray(this->quad));
+        //glCall(glBindVertexArray(quad.getVAOID()));
         glCall(glEnableVertexAttribArray(0));
         glCall(glEnable(GL_BLEND));
         glCall(glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_CONSTANT_ALPHA));
         glCall(glDepthMask(false));
+        
     }
 
     void finishRendering(){
@@ -41,30 +47,21 @@ private:
         shader.stop();
     }
 
-    glm::mat4 createViewMatrix(Camera camera) {
-        glm::mat4 matrix = glm::mat4(1.0f);
-        matrix = glm::rotate(matrix, (GLfloat)glm::radians(camera.pitch), glm::vec3(1.0f, 0.0f, 0.0f));
-        matrix = glm::rotate(matrix, (GLfloat)glm::radians(camera.yaw), glm::vec3(0.0f, 1.0f, 0.0f));
-        matrix = glm::rotate(matrix, (GLfloat)glm::radians(camera.roll), glm::vec3(0.0f, 0.0f, 1.0f));
-
-        glm::vec3 cameraPos = camera.position;
-        glm::vec3 negCameraPos = glm::vec3(-cameraPos.x, -cameraPos.y, -cameraPos.z);
-        matrix = glm::translate(matrix, negCameraPos);
-
-        return matrix;
-    }
-
+/*
     void bindTexture(particleTexture texture){
         glCall(glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA));
         glCall(glActiveTexture(GL_TEXTURE0));
         glCall(glBindTexture(GL_TEXTURE_2D,texture.getTextureID())); 
         shader.loadNumberRows(texture.getNumberRows());
     }
+    */
 
 public:
-    
+    // model al posto dei mesh : rawmodel corrisponde alla mesh, loader vale anche load texture
     particleRenderer(glm::mat4 projectionMatrix):Renderer(projectionMatrix){
-    
+
+        quad = Model("../meshes/sphere.obj");
+    /*
         GLuint VBO, VAO, EBO;
         glCall(glGenVertexArrays(1, &VAO));
         glCall(glGenBuffers(1, &VBO));
@@ -84,7 +81,7 @@ public:
         glCall(glBindBuffer(GL_ARRAY_BUFFER, 0)); // Note that this is allowed, the call to glVertexAttribPointer registered VBO as the currently bound vertex buffer object so afterwards we can safely unbind
 
         glCall(glBindVertexArray(0));
-
+*/
         shader.start();
         shader.loadProjectionMatrix(projectionMatrix);
         shader.stop(); 
@@ -114,7 +111,8 @@ public:
         
         for(Particle particle: particles){
             updateModelViewMatrix(particle.getPosition(), particle.getRotation(), particle.getScale(), viewMatrix);
-            glCall(glDrawArrays(GL_TRIANGLE_STRIP,0,sizeof(quad)));           
+            quad.Draw();
+            //glCall(glDrawArrays(GL_TRIANGLE_STRIP,0,sizeof(quad)));           
         }
         finishRendering();
         
@@ -124,8 +122,9 @@ public:
         shader.cleanUp();
     }
 
+    // particles faced the camera.
     void updateModelViewMatrix(glm::vec3 position, float rotation, float scale, glm::mat4 viewMatrix){
-        glm::mat4 modelMatrix = glm::mat4(1.0f);
+        glm::mat4 modelMatrix = glm::mat4();
         modelMatrix = glm::translate(modelMatrix,position);
         // sets rotation of model matrix to transpose of rotation of view matrix in 3*3
         //modelMatrix = glm::transpose(viewMatrix);
@@ -146,3 +145,5 @@ public:
     }
 
 };
+
+#endif

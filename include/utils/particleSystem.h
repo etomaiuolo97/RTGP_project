@@ -1,23 +1,25 @@
 #pragma once
 
+#ifndef PARTICLE_SYSTEM
+#define PARTICLE_SYSTEM
+
 #include <utils/particle.h>
 #include <glm/glm.hpp>
-#include <mat4x4.hpp>
 
-#define PI 3.141592653
-#define RAND_FACTOR 2.0f
+//#define PI 3.141592653
+//#define RAND_FACTOR 2.0f
 
 
 class particleSystem
 {
 private:
-/*
+
     float pps;
 	float speed;
 	float gravityComplient;
 	float lifeLength;
 
-    particleTexture texture;
+    //particleTexture texture;
 
     void emitParticle(glm::vec3 center){
 		float dirX = (float) random();
@@ -26,10 +28,10 @@ private:
 		velocity = glm::normalize(velocity)*speed;
 		//velocity = glm::scale(glm::vec3(speed));
 
-		Particle(texture,glm::vec3(center), velocity, gravityComplient, lifeLength, 0, 1);
+		Particle(glm::vec3(center), velocity, gravityComplient, lifeLength, 0, 1);
 	}
 	
-*/
+/*
 	// pps= particle per seconds
     float pps, averageSpeed, gravityComplient, averageLifeLength, averageScale;
     float speedError, lifeError, scaleError = 0;
@@ -107,18 +109,18 @@ private:
     float randf(float range) {
         return (float)rand() / (float)RAND_MAX * range * RAND_FACTOR;
     }
-
+*/
 
 public:
     ~particleSystem();
-/*
-    particleSystem(particleTexture texture,float pps, float speed, float gravityComplient, float lifeLength) {
+
+    particleSystem(float pps, float speed, float gravityComplient, float lifeLength) {
 		this->pps = pps;
 		this->speed = speed;
 		this->gravityComplient = gravityComplient;
 		this->lifeLength = lifeLength;
         
-        this->texture=texture;
+        //this->texture=texture;
 	}
 
     void generateParticles(glm::vec3 systemCenter){
@@ -133,8 +135,8 @@ public:
 			emitParticle(systemCenter);
 		}
 	}
-*/
 
+/*
 	particleSystem(float pps, float speed, float gravityComplient, float lifeLength, float scale) {
         this->pps = pps;
         this->averageSpeed = speed;
@@ -177,5 +179,7 @@ public:
             emitParticle(systemCenter);
         }
     }
-	
+	*/
 };
+
+#endif
