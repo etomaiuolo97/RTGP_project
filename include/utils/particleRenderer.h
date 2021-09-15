@@ -3,10 +3,13 @@
 #ifndef PARTICLE_RENDERER
 #define PARTICLE_RENDERER
 
+using namespace std;
+
 #include <utils/renderer/renderer.h>
 #include <utils/particle.h>
 #include <utils/particleShader.h>
 #include <utils/camera.h>
+#include <vector>
 
 // TODO: render tramite particelle sferiche
 class particleRenderer : public Renderer
@@ -40,10 +43,10 @@ private:
     }
 
     void finishRendering(){
-        glDepthMask(true);
-        glDisable(GL_BLEND);
-        glDisableVertexAttribArray(0);
-        glBindVertexArray(0);
+        glCall(glDepthMask(true));
+        glCall(glDisable(GL_BLEND));
+        glCall(glDisableVertexAttribArray(0));
+        glCall(glBindVertexArray(0));
         shader.stop();
     }
 
@@ -109,10 +112,17 @@ public:
         finishRendering();
         */
         
+        /*
         for(Particle particle: particles){
             updateModelViewMatrix(particle.getPosition(), particle.getRotation(), particle.getScale(), viewMatrix);
             quad.Draw();
             //glCall(glDrawArrays(GL_TRIANGLE_STRIP,0,sizeof(quad)));           
+        }
+        */
+
+        for (int i = 0; i < particles.size(); i++){
+            updateModelViewMatrix(particles[i].getPosition(), particles[i].getRotation(), particles[i].getScale(), viewMatrix);
+            quad.Draw();
         }
         finishRendering();
         
@@ -124,10 +134,11 @@ public:
 
     // particles faced the camera.
     void updateModelViewMatrix(glm::vec3 position, float rotation, float scale, glm::mat4 viewMatrix){
-        glm::mat4 modelMatrix = glm::mat4();
+        glm::mat4 modelMatrix = glm::mat4(1.0f);
         modelMatrix = glm::translate(modelMatrix,position);
         // sets rotation of model matrix to transpose of rotation of view matrix in 3*3
-        //modelMatrix = glm::transpose(viewMatrix);
+        modelMatrix = glm::transpose(glm::mat3(viewMatrix));
+        /*
         modelMatrix[0,0] = viewMatrix[0,0];
         modelMatrix[0,1] = viewMatrix[1,0];
         modelMatrix[0,2] = viewMatrix[2,0];
@@ -137,6 +148,7 @@ public:
         modelMatrix[2,0] = viewMatrix[0,2];
         modelMatrix[2,1] = viewMatrix[1,2];
         modelMatrix[2,2] = viewMatrix[2,2];
+        */
         
         modelMatrix = glm::rotate(modelMatrix,glm::radians(rotation),glm::vec3(0,0,1));
         modelMatrix = glm::scale(modelMatrix,glm::vec3(scale,scale,scale));

@@ -3,6 +3,8 @@
 #ifndef PARTICLE
 #define PARTICLE
 
+using namespace std;
+
 #include <glfw/glfw3.h>
 //#include <utils/particleTexture.h>
 #include <utils/particleMaster.h>

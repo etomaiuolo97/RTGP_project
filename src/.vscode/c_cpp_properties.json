@@ -3,7 +3,8 @@
         {
             "name": "Mac",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "/Applications/VCode/RTGP_project/include"
             ],
             "defines": [],
             "macFrameworkPath": [

@@ -3,25 +3,25 @@
 #ifndef PARTICLE_MASTER
 #define PARTICLE_MASTER
 
-//#include <utils/particle.h>
+using namespace std;
+
+#include <utils/particle.h>
 #include <utils/particleRenderer.h>
 #include <vector>
-//#include <map>
-//#include <list>
 //#include <utils/insertionSort.h>
 
 // Gestore di particelle con un vettore di particelle
 class particleMaster
 {
 private:
-    std::vector<Particle> particles;
-    //std::list<Particle> particles1;
+    vector<Particle> particles;
     //std::map<particleTexture,vector<Particle> > particles;
     particleRenderer renderer;
 
 public:
     particleMaster();
     ~particleMaster();
+
     void init(glm::mat4 projectionMatrix){
         renderer = particleRenderer(projectionMatrix);
     }
@@ -47,13 +47,24 @@ public:
             insertionSort.sortHighToLow(list);
         }
   */      
+
+ /*
         for(Particle particle: this->particles){
             bool stillAlive = particle.update(camera);
             if (!stillAlive)
             {
                 particles.pop_back();
             }
-        }    
+        }   
+
+        */ 
+
+        for (int i = 0; i < particles.size(); i++){
+            bool stillAlive = particles[i].update(camera);
+            if (!stillAlive){
+                particles.pop_back();
+            }
+        }
         
     }
 
