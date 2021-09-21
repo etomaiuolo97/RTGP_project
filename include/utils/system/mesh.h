@@ -8,7 +8,7 @@ using namespace std;
 // Std. Includes
 #include <vector>
 
-#include <utils/utils.h>
+#include <utils/system/utils.h>
 
 // data structure for vertices
 struct Vertex {

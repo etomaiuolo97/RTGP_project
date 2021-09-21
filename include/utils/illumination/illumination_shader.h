@@ -3,18 +3,16 @@
 #ifndef ILLUMINATION_SHADER
 #define ILLUMINATION_SHADER
 
-using namespace std;
+#include <glad/glad.h>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <iostream>
 
-#include <utils/shader.h>
-
-#include <glad/glad.h>
-#include <glm/gtc/type_ptr.hpp>
-
+#include <utils/system/shader.h>
+#include <utils/system/utils.h>
 
 class IlluminationShader: public Shader {
 private:
@@ -41,7 +39,7 @@ private:
 public:
 
     IlluminationShader()
-    :Shader("../shaders/illumination.vert", "../shaders/illumination.frag"){
+    :Shader("./shaders/illumination.vert", "./shaders/illumination.frag"){
         bindAttributes();
 
         glCall(glLinkProgram(getProgram()));

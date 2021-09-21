@@ -3,7 +3,7 @@
 #ifndef WATER_SHADER
 #define WATER_SHADER
 
-#include <utils/shader.h>
+#include <utils/system/shader.h>
 
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -27,7 +27,7 @@ private:
 public:
 
     WaterShader()
-    :Shader("../shaders/water.vert", "../shaders/water.frag"){
+    :Shader("./shaders/water.vert", "./shaders/water.frag"){
         bindAttributes();
 
         glCall(glLinkProgram(getProgram()));

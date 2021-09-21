@@ -21,28 +21,26 @@
 
 using namespace std;
 
-#include <utils/utils.h>
-#include <utils/model.h>
-#include <utils/camera.h>
-#include <utils/display.h>
-#include <utils/waterframe_buffers.h>
-#include <utils/gui_texture.h>
-#include <utils/renderer/illumination_renderer.h>
-#include <utils/renderer/background_renderer.h>
-#include <utils/renderer/water_renderer.h>
-#include <utils/renderer/gui_renderer.h>
+#include <utils/system/utils.h>
+#include <utils/system/model.h>
+#include <utils/system/camera.h>
+#include <utils/system/display.h>
 
-//#include <utils/particleTexture.h>
-#include <utils/particle.h>
-#include <utils/particleMaster.h>
-#include <utils/particleSystem.h>
+#include <utils/illumination/illumination_renderer.h>
+
+#include <utils/background/background_renderer.h>
+
+#include <utils/water/waterframe_buffers.h>
+#include <utils/water/water_renderer.h>
+
+#include <utils/particle/particle_generator.h>
 
 int main () {
     std::cout << "Starting GLFW context" << std::endl;
 
     GLFWwindow* window = createDisplay();
     
-    // // Enable Z test
+    // Enable Z test
     glCall(glEnable(GL_DEPTH_TEST));
 
     // The clear color for the frame buffer
@@ -58,30 +56,18 @@ int main () {
     BackgroundRenderer background_renderer (projection);
     WaterRenderer water_renderer (projection, WIDTH, HEIGHT);
 
-    Model fountainModel("../meshes/ball_fountain.obj");
-    Model bgModel("../meshes/cube.obj");
+    Model fountainModel("./meshes/ball_fountain.obj");
+    Model bgModel("./meshes/cube.obj");
 
     vector<WaterTile> waters = {WaterTile(0, -4.8, -0.5)};
 
-    //particle texture
-    //particleTexture particleTexture = particleTexture(loader.loadTexture("particlesAtlas"),4);
-    //particleTexture particleTexture;
-    //particleTexture(LoadTexture(""));
-
-    // init particle
-    particleMaster particleMaster;
-    particleMaster.init(projection);
-    particleSystem system= particleSystem(50,25,0.3f,4);
-    //particleSystem system= particleSystem(50,25,0.3f,4,1);
-    //system.randomizeRotation();
-    //system.setDirection(glm::vec3(0,1,0),0.1f);
-    //system.setLifeError(0.1f);
-    //system.setSpeedError(0.4f);
-    //system.setScaleError(0.8f);
-
-    textureCube = LoadTextureCube("../textures/skybox/");
-    textures.push_back(LoadTexture("../textures/terrain.png"));
+    textureCube = LoadTextureCube("./textures/skybox/");
+    textures.push_back(LoadTexture("./textures/terrain.png"));
+    textures.push_back(LoadTexture("./textures/particle.png"));
     
+    // Particles system
+    ParticleGenerator particles (projection, textures[1], 50);
+
     while(!glfwWindowShouldClose(window)) {
         GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -93,13 +79,6 @@ int main () {
         apply_camera_movements();
 
         glCall(glEnable(GL_CLIP_DISTANCE0));
-
-        // generate particle and give the position of center of fountain
-        system.generateParticles(glm::vec3(0.0f,0.0f,0.0f));
-        //if(GLFW_KEY_Y){
-          //  Particle(glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,30.0f,0.0f),1.0f,4.0f,0.0f,1.0f);
-        //}
-        particleMaster.update(camera);
 
         water_renderer.getFbos().bindReflectionFrameBuffer();
         GLfloat distance = 2 * (camera.position.y + 0.5);
@@ -119,24 +98,24 @@ int main () {
         glCall(illumination_renderer.render(fountainModel, textures[0], camera, glm::vec4(0, -1, 0, 100000)));
         glCall(background_renderer.render(bgModel, textureCube, camera));
 
+        particles.update(deltaTime, 2, glm::vec2(0.5f));
+
         glm::vec3 lightColour;
         lightColour.x = illumination_renderer.getLightColor()[0];
         lightColour.y = illumination_renderer.getLightColor()[1];
         lightColour.z = illumination_renderer.getLightColor()[2];
         glCall(water_renderer.render(waters, camera, deltaTime, illumination_renderer.getLightPos()[0], lightColour));
 
-        // render particles
-        particleMaster.renderParticles(camera);
+        particles.Draw();
 
         glfwSwapBuffers(window);
     }
 
+    particles.cleanUp();
     water_renderer.getFbos().cleanUp();
     illumination_renderer.cleanUp();
     background_renderer.cleanUp();
     water_renderer.cleanUp();
-    // delete particles
-    particleMaster.cleanUp();
 
     glfwTerminate();
     return 0;

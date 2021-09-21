@@ -6,9 +6,9 @@
 #include <iostream>
 #include <vector>
 
-#include <utils/model.h>
-#include <utils/camera.h>
-#include <utils/shader.h>
+#include <utils/system/model.h>
+#include <utils/system/camera.h>
+#include <utils/system/shader.h>
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>

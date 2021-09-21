@@ -3,8 +3,8 @@
 #ifndef ILLUMINATION_RENDERER
 #define ILLUMINATION_RENDERER
 
-#include "utils/renderer/renderer.h"
-#include "utils/illumination_shader.h"
+#include "utils/system/renderer.h"
+#include "utils/illumination/illumination_shader.h"
 
 class IlluminationRenderer : public Renderer{
 private:

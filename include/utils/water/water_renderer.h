@@ -3,11 +3,12 @@
 #ifndef WATER_RENDERER
 #define WATER_RENDERER
 
-#include "utils/renderer/renderer.h"
-#include "utils/water_shader.h"
-#include "utils/water_tile.h"
-#include "utils/model.h"
-#include "utils/waterframe_buffers.h"
+#include "utils/system/renderer.h"
+#include "utils/system/model.h"
+
+#include "utils/water/water_shader.h"
+#include "utils/water/water_tile.h"
+#include "utils/water/waterframe_buffers.h"
 
 class WaterRenderer : public Renderer{
 private:
@@ -54,16 +55,19 @@ private:
 public:
 
     WaterRenderer (glm::mat4 projection, GLuint width, GLuint height)
-        :Renderer(projection){   
+        :Renderer(projection){ 
+        
+        Renderer::SetupShaders(shader.getProgram());
+          
         this->fbos = WaterFrameBuffers(width, height);
-        this->dudvTexture = LoadTexture("../textures/water/DuDv.png");
-        this->normalMapTexture = LoadTexture("../textures/water/normalMap.png");
+        this->dudvTexture = LoadTexture("./textures/water/DuDv.png");
+        this->normalMapTexture = LoadTexture("./textures/water/normalMap.png");
 
         shader.start();
         shader.connectTextureUnits();
         shader.loadProjectionMatrix(projection);
         shader.stop();
-        quad = Model("../meshes/circle.obj");
+        quad = Model("./meshes/circle.obj");
     }
 
     WaterFrameBuffers getFbos(){

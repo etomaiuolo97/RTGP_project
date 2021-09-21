@@ -3,8 +3,8 @@
 #ifndef BACKGROUND_RENDERER
 #define BACKGROUND_RENDERER
 
-#include "utils/renderer/renderer.h"
-#include "utils/background_shader.h"
+#include "utils/system/renderer.h"
+#include "utils/background/background_shader.h"
 
 class BackgroundRenderer : public Renderer{
 private:

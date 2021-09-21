@@ -3,7 +3,7 @@
 #ifndef GUI_SHADER
 #define GUI_SHADER
 
-#include <utils/shader.h>
+#include <utils/system/shader.h>
 
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -16,7 +16,7 @@ private:
 public:
 
     GuiShader()
-    :Shader("../shaders/gui.vert", "../shaders/gui.frag"){
+    :Shader("./shaders/gui.vert", "./shaders/gui.frag"){
         bindAttributes();
 
         glCall(glLinkProgram(getProgram()));

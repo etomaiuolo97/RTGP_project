@@ -3,10 +3,10 @@
 #ifndef GUI_RENDERER
 #define GUI_RENDERER
 
-#include "utils/renderer/renderer.h"
-#include "utils/model.h"
-#include "utils/gui_texture.h"
-#include "utils/gui_shader.h"
+#include "utils/system/renderer.h"
+#include "utils/system/model.h"
+#include "utils/gui/gui_texture.h"
+#include "utils/gui/gui_shader.h"
 
 class GuiRenderer : public Renderer{
 private:

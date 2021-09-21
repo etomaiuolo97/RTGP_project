@@ -1,8 +1,12 @@
 #pragma once
 
-using namespace std;
+#ifndef BACKGROUND_SHADER
+#define BACKGROUND_SHADER
 
-#include <utils/shader.h>
+#include <utils/system/shader.h>
+
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/glm.hpp>
 
 class BackgroundShader: public Shader {
 private:
@@ -33,7 +37,7 @@ public:
         glUniformMatrix4fv(this->viewMatrixLocation, 1, GL_FALSE, glm::value_ptr(matrix));
     }
 
-    BackgroundShader():Shader("../shaders/background.vert", "../shaders/background.frag"){
+    BackgroundShader():Shader("./shaders/background.vert", "./shaders/background.frag"){
         bindAttributes();
 
         glLinkProgram(getProgram());
@@ -46,3 +50,5 @@ public:
 
     
 };
+
+#endif

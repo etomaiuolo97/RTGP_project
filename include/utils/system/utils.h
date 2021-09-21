@@ -26,11 +26,18 @@ bool logCall (const char* function, const char* file, int line) {
     return true;
 }
 
+void checkErrors (){
+    while (GLenum error = glGetError()){
+        std::cout << "[OpenGL_Error] (" << error << std::endl;
+    }
+}
+
 #ifdef _WIN32
     #define ASSERT(x) if (!x) __debugbreak();
+#else
+    #define ASSERT(x) if (!x) __builtin_debugtrap(); //or __builtin_trap();
 #endif
-// for mac
-#define ASSERT(x) if (!x) __builtin_debugtrap(); //or __builtin_trap();
+
 #define glCall(x) clearErrors(); x; ASSERT(logCall(#x, __FILE__, __LINE__));
 
 void LoadTextureCubeSide (string path, string side_img, GLuint side_name) {

@@ -34,7 +34,6 @@ private:
         this->reflectionFrameBuffer = this->createFrameBuffer();
         this->reflectionTexture = this->createTextureAttachment(this->REFLECTION_WIDTH, this->REFLECTION_HEIGHT);
         this->reflectionDepthBuffer = this->createDepthBufferAttachment(this->REFLECTION_WIDTH, this->REFLECTION_HEIGHT);
-        std::cout << "Reflection buffer" << std::endl;
         this->unbindCurrentFrameBuffer();
     }
 
@@ -42,7 +41,6 @@ private:
         this->refractionFrameBuffer = this->createFrameBuffer();
         this->refractionTexture = this->createTextureAttachment(this->REFRACTION_WIDTH, this->REFRACTION_HEIGHT);
         this->refractionDepthTexture = this->createDepthTextureAttachment(this->REFRACTION_WIDTH, this->REFRACTION_HEIGHT);
-        std::cout << "Refraction buffer" << std::endl;
         this->unbindCurrentFrameBuffer();
     }
 

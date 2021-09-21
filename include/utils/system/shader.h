@@ -3,8 +3,6 @@
 #ifndef SHADER
 #define SHADER
 
-using namespace std;
-
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -12,7 +10,7 @@ using namespace std;
 
 #include <glad/glad.h>
 
-#include "utils/utils.h"
+#include <utils/system/utils.h>
 
 class Shader {
 protected:
@@ -45,7 +43,6 @@ private:
     GLuint program;
 
     GLuint loadShader (const GLchar* file, GLint type){
-        std::cout << file << std::endl;
         string code;
         ifstream shaderFile;
 
@@ -68,9 +65,7 @@ private:
 
         const GLchar* shaderCode = code.c_str();
 
-        GLuint shader;
-
-        shader = glCreateShader(type);
+        GLuint shader = glCreateShader(type);
         glCall(glShaderSource(shader, 1, &shaderCode, NULL));
         glCall(glCompileShader(shader));
         checkCompileErrors(shader, type == GL_VERTEX_SHADER? "VERTEX": "FRAGMENT");
