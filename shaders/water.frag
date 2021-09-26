@@ -64,6 +64,13 @@ void main(void) {
 	vec3 specularHighlights = lightColour * specular * reflectivity * clamp(waterDepth/20.0, 0.0, 1.0);
 
 	out_Color = mix(reflectColour, refractColour, refractiveFactor);
-	out_Color = mix(out_Color, vec4(0.0, 0.3, 0.5, 1.0), 0.2) + vec4(specularHighlights, 0.0);
+
+	#ifdef _WIN32
+		out_Color = mix(out_Color, vec4(0.0, 0.3, 0.5, 1.0), 0.2) + vec4(specularHighlights, 0.0);
+	#endif
+	//for mac : color changes
+	//out_Color = mix(out_Color, vec4(0.74902, 0.947059, 0.847059, 0.0), 0.5) + vec4(specularHighlights, 0.0);
+	out_Color = mix(out_Color, vec4(0.604, 0.867, 0.851, 0.0), 0.5) + vec4(specularHighlights, 0.0);
+	
 	// out_Color.a = clamp(waterDepth/5.0, 0.0, 0.5);
 }
