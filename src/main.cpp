@@ -33,7 +33,7 @@ using namespace std;
 #include <utils/water/waterframe_buffers.h>
 #include <utils/water/water_renderer.h>
 
-#include <utils/particle/particle_generator.h>
+#include <utils/particle/particle_renderer.h>
 
 int main () {
     std::cout << "Starting GLFW context" << std::endl;
@@ -44,7 +44,7 @@ int main () {
     glCall(glEnable(GL_DEPTH_TEST));
 
     // The clear color for the frame buffer
-    glCall(glClearColor(0.26f, 0.46f, 0.98f, 1.0f));
+    // glCall(glClearColor(0.26f, 0.46f, 0.98f, 1.0f));
 
     // Projection matrix
     glm::mat4 projection = glm::perspective(45.0f, (float)WIDTH/(float)HEIGHT, 0.1f, 10000.0f);
@@ -63,10 +63,10 @@ int main () {
 
     textureCube = LoadTextureCube("./textures/skybox/");
     textures.push_back(LoadTexture("./textures/terrain.png"));
-    textures.push_back(LoadTexture("./textures/particle.png"));
     
     // Particles system
-    ParticleGenerator particles (projection, textures[1], 50);
+    ParticleRenderer particle_renderer (projection);
+    
 
     while(!glfwWindowShouldClose(window)) {
         GLfloat currentFrame = glfwGetTime();
@@ -78,40 +78,38 @@ int main () {
         // Apply FPS camera movements
         apply_camera_movements();
 
-        glCall(glEnable(GL_CLIP_DISTANCE0));
+        // glCall(glEnable(GL_CLIP_DISTANCE0));
 
-        water_renderer.getFbos().bindReflectionFrameBuffer();
-        GLfloat distance = 2 * (camera.position.y + 0.5);
-        camera.position.y -= distance;
-        camera.pitch = -camera.pitch;
-        glCall(illumination_renderer.render(fountainModel, textures[0], camera, glm::vec4(0, 1, 0, 0.5 + 1)));
-        glCall(background_renderer.render(bgModel, textureCube, camera));
-        camera.position.y += distance;
-        camera.pitch = -camera.pitch;
+        // water_renderer.getFbos().bindReflectionFrameBuffer();
+        // GLfloat distance = 2 * (camera.position.y + 0.5);
+        // camera.position.y -= distance;
+        // camera.pitch = -camera.pitch;
+        // glCall(illumination_renderer.render(fountainModel, textures[0], camera, glm::vec4(0, 1, 0, 0.5 + 1)));
+        // glCall(background_renderer.render(bgModel, textureCube, camera));
+        // camera.position.y += distance;
+        // camera.pitch = -camera.pitch;
 
-        water_renderer.getFbos().bindRefractionFrameBuffer();
-        glCall(illumination_renderer.render(fountainModel, textures[0], camera, glm::vec4(0, -1, 0, -0.5)));
-        glCall(background_renderer.render(bgModel, textureCube, camera));
+        // water_renderer.getFbos().bindRefractionFrameBuffer();
+        // glCall(illumination_renderer.render(fountainModel, textures[0], camera, glm::vec4(0, -1, 0, -0.5)));
+        // glCall(background_renderer.render(bgModel, textureCube, camera));
 
-        glCall(glDisable(GL_CLIP_DISTANCE0));
-        water_renderer.getFbos().unbindCurrentFrameBuffer();
-        glCall(illumination_renderer.render(fountainModel, textures[0], camera, glm::vec4(0, -1, 0, 100000)));
-        glCall(background_renderer.render(bgModel, textureCube, camera));
+        // glCall(glDisable(GL_CLIP_DISTANCE0));
+        // water_renderer.getFbos().unbindCurrentFrameBuffer();
+        // glCall(illumination_renderer.render(fountainModel, textures[0], camera, glm::vec4(0, -1, 0, 100000)));
+        // glCall(background_renderer.render(bgModel, textureCube, camera));
 
-        particles.update(deltaTime, 2, glm::vec2(0.5f));
-
-        glm::vec3 lightColour;
-        lightColour.x = illumination_renderer.getLightColor()[0];
-        lightColour.y = illumination_renderer.getLightColor()[1];
-        lightColour.z = illumination_renderer.getLightColor()[2];
-        glCall(water_renderer.render(waters, camera, deltaTime, illumination_renderer.getLightPos()[0], lightColour));
-
-        particles.Draw();
+        // glm::vec3 lightColour;
+        // lightColour.x = illumination_renderer.getLightColor()[0];
+        // lightColour.y = illumination_renderer.getLightColor()[1];
+        // lightColour.z = illumination_renderer.getLightColor()[2];
+        // glCall(water_renderer.render(waters, camera, deltaTime, illumination_renderer.getLightPos()[0], lightColour));
+        
+        particle_renderer.render(deltaTime, camera);
 
         glfwSwapBuffers(window);
     }
 
-    particles.cleanUp();
+    particle_renderer.cleanUp();
     water_renderer.getFbos().cleanUp();
     illumination_renderer.cleanUp();
     background_renderer.cleanUp();

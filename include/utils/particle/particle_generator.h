@@ -5,146 +5,224 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
+
+#define GLM_ENABLE_EXPERIMENTAL
+
+#include <glm/gtx/compatibility.hpp>
 
 #include <utils/particle/particle_shader.h>
 #include <utils/system/utils.h>
+#include <utils/system/random.h>
 
-struct Particle {
-    glm::vec2 position;
-    glm::vec2 velocity;
-    glm::vec4 color;
+struct ParticleProps {
+    glm::vec3 position;
+    glm::vec3 velocity;
+    glm::vec4 colorBegin, colorEnd;
+    GLfloat velocityVariation;
+    GLfloat sizeBegin, sizeEnd, sizeVariation;
+    GLfloat life = 1.0f;
+    GLfloat speedError = 0.4f;
+    GLfloat lifeError = 0.1f;
+    GLfloat scaleError = 0.8f;
+    GLboolean randomRotation = GL_FALSE;
+    glm::vec3 direction = {0.0f, 1.0f, 0.0f};
+    GLfloat directionDev = 0.1f;
+};
 
-    GLfloat life;
-
-    Particle(): position(0.0f), velocity(0.0f), color(1.0f), life(0.0f) {}
+struct ParticleVertex {
+    glm::vec3 position;
 };
 
 class ParticleGenerator {
 public:
-    ParticleGenerator (glm::mat4 projection, GLuint texture, GLuint amount)
-        : texture(texture), amount(amount) {
-        
-        this->shader.start();
-        this->shader.loadSprite(0);
-        this->shader.loadProjection(projection);
-        this->shader.stop();
-
-        this->init();
+    ParticleGenerator (){
+        this->particles.resize(1000);
     }
 
-    void update (GLfloat deltaTime, GLuint newParticle, glm::vec2 offset = glm::vec2(0.0f, 0.0f)){
-        for (GLuint i = 0; i < newParticle; ++i) {
-            GLint unusedParticle = this->firstUnusedParticle();
-            this->respawnParticle(this->particles[unusedParticle], offset);
-        }
-
-        for (GLuint i = 0; i < this-> amount; ++i) {
-            Particle &p = this->particles[i];
-            p.life -= deltaTime;
-
-            if (p.life > 0.0f) {
-                p.position -= p.velocity * deltaTime;
-                p.color.a -= deltaTime * 2.5f;
+    void update (GLfloat deltaTime){
+        for (auto& particle : this->particles) {
+            if (!particle.active)
+                continue;
+            
+            if (particle.lifeRemaining <= 0.0f) {
+                particle.active = false;
+                continue;
             }
+
+            particle.lifeRemaining -= deltaTime;
+            particle.velocity.y += gravity * deltaTime;
+            particle.position += particle.velocity * (GLfloat) deltaTime;
+            particle.rotation += 0.01 * deltaTime;
         }
     }
 
     void Draw () {
-        glCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE));
-        this->shader.start();
+        if (!this->VAO) {
+        
+            vector<ParticleVertex> vertices;
+            
+            ParticleVertex temp; 
+            temp.position = glm::vec3(-0.5f, -0.5f, 0.0f);
+            vertices.push_back(temp);
+            temp.position = glm::vec3(0.5f, -0.5f, 0.0f);
+            vertices.push_back(temp);
+            temp.position = glm::vec3(0.5f,  0.5f, 0.0f);
+            vertices.push_back(temp);
+            temp.position = glm::vec3(-0.5f,  0.5f, 0.0f);
+            vertices.push_back(temp);
 
-        for (Particle particle: this->particles) {
-            if (particle.life > 0.0f) {
-                this->shader.loadOffset(particle.position);
-                this->shader.loadColor(particle.color);
+            vector<GLuint> indices = {0, 1, 2, 2, 3, 0};
+
+            GLuint VBO, EBO;
+            glCall(glGenVertexArrays(1, &this->VAO));
+            glCall(glGenBuffers(1, &VBO));
+            glCall(glGenBuffers(1, &EBO));
+
+            glCall(glBindVertexArray(this->VAO));
+
+            glCall(glBindBuffer(GL_ARRAY_BUFFER, VBO));
+            glCall(glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(ParticleVertex), &vertices[0], GL_STATIC_DRAW));
+
+            glCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO));
+            glCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW));
+
+            glCall(glEnableVertexAttribArray(0));
+            glCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleVertex), (void*) 0));
+            
+            glCall(glBindVertexArray(0));
+        }
+
+        for (auto& particle: this->particles) {
+            if (particle.active){
+                GLfloat life = particle.lifeRemaining / particle.lifeTime;
+
+                glm::vec4 color = glm::lerp(particle.colorEnd, particle.colorBegin, life);
+
+                GLfloat size = glm::lerp(particle.sizeEnd, particle.sizeBegin, life);
+
+                glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(particle.position.x, particle.position.y, 1.0f))
+                            * glm::rotate(glm::mat4(1.0f), particle.rotation, glm::vec3(0.0f, 0.0f, 1.0f))
+                            * glm::scale(glm::mat4(1.0f), glm::vec3(size, size, 1.0f));
                 
-                glCall(glActiveTexture(GL_TEXTURE0));
-                glCall(glBindTexture(GL_TEXTURE_2D, this->texture));
+                glm::mat4 matrix = glm::mat4(1.0f);
+                matrix = glm::translate(matrix, glm::vec3(particle.position));
+                matrix = glm::rotate(matrix, particle.rotation, glm::vec3(0.0f, 0.0f, 1.0f));
+                matrix = glm::scale(matrix, glm::vec3(size, size, size));
+
+                shader.loadTransform(matrix);
+                shader.loadColor(color);
 
                 glCall(glBindVertexArray(this->VAO));
-                glCall(glDrawArrays(GL_TRIANGLES, 0, 6));
+                glCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
                 glCall(glBindVertexArray(0));
+                
             }
         }
 
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        this->shader.stop();
     }
 
-    void cleanUp() {
+    void emit(const ParticleProps& particleProps) {        
+        Particle& particle = this->particles[index];
+        particle.active = true;
+        particle.position = particleProps.position;
+        particle.rotation = Random::Float() * 2.0f * glm::pi<float>();
+
+        if (particleProps.direction != glm::vec3(0.0f, 0.0f, 1.0f)) {
+            particle.velocity = generateRandomUnitVectorWithinCone(particleProps.direction, particleProps.directionDev);
+        }
+        else {
+            particle.velocity = generateRandomUnitVector();
+        }
+        particle.velocity = glm::normalize(particle.velocity);
+        particle.velocity *= particleProps.velocityVariation;
+
+        particle.colorBegin = particleProps.colorBegin;
+        particle.colorEnd = particleProps.colorEnd;
+
+        particle.lifeTime = particleProps.life;
+        particle.lifeRemaining = particleProps.life;
+            
+        particle.sizeBegin = particleProps.sizeBegin - particleProps.sizeVariation * (Random::Float() - 0.5f);
+        particle.sizeEnd = particleProps.sizeEnd;
+
+        index = --index % this->particles.size();
+    }
+
+    void cleanUp(){
         this->shader.cleanUp();
     }
 
+    ParticleShader& getShader() {
+        return this->shader;
+    }
+
 private:
+    struct Particle {
+        glm::vec3 position;
+        glm::vec3 velocity;
+        glm::vec4 colorBegin, colorEnd;
+
+        GLfloat rotation = 0.0f;
+        GLfloat sizeBegin, sizeEnd;
+
+        GLfloat lifeTime = 1.0f;
+        GLfloat lifeRemaining = 0.0f;
+
+        bool active = false;
+    };
+
     std::vector<Particle> particles;
-    GLuint amount;
+    GLuint index = 999;
 
     ParticleShader shader;
-    GLuint texture;
-    GLuint VAO;
+    GLuint VAO = 0;
+    GLfloat gravity = 9.81f;
 
-    void init (){
-        GLuint VBO;
-
-        GLfloat particle_quad [] = {
-            0.0f, 1.0f, 0.0f, 1.0f,
-            1.0f, 0.0f, 1.0f, 0.0f,
-            0.0f, 0.0f, 0.0f, 0.0f,
-
-            0.0f, 1.0f, 0.0f, 1.0f,
-            1.0f, 1.0f, 1.0f, 1.0f,
-            1.0f, 0.0f, 1.0f, 0.0f
-        };
-
-        glCall(glGenVertexArrays(1, &this->VAO));
-        glCall(glGenBuffers(1, &VBO));
-        glCall(glBindVertexArray(this->VAO));
-
-        // Fill mesh buffer
-        glCall(glBindBuffer(GL_ARRAY_BUFFER, VBO));
-        glCall(glBufferData(GL_ARRAY_BUFFER, sizeof(particle_quad), particle_quad, GL_STATIC_DRAW));
-
-        // Set mesh attributes
-        glCall(glEnableVertexAttribArray(0));
-        glCall(glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GL_FLOAT), (void *) 0));
-        glCall(glBindVertexArray(0));
-
-        // Create this->amount default particle instances
-        for (GLuint i = 0; i < this->amount; ++i) 
-            this->particles.push_back(Particle());
+    GLfloat generateValue (GLfloat average, GLfloat error) {
+        GLfloat offset = (Random::Float() - 0.5f) * 2.0f * error;
+        return average + offset;
     }
 
-    GLuint lastUsedParticle = 0;
-    GLuint firstUnusedParticle () {
-        // First search from last used particle, this will usually return almost instantly
-        for (GLuint i = lastUsedParticle; i < this->amount; ++i) {
-            if (this->particles[i].life <= 0.0f) {
-                lastUsedParticle = i;
-                return i;
-            }
+    GLfloat generateRotation () {
+        return Random::Float() * 360.0f;
+    }
+
+    glm::vec3 generateRandomUnitVectorWithinCone (glm::vec3 coneDirection, GLfloat angle) {
+        GLfloat cosAngle = (GLfloat) std::cos(angle);
+        GLfloat theta = Random::Float() * 2.0f * glm::pi<float>();
+        GLfloat z = cosAngle + Random::Float() * (1 - cosAngle);
+        GLfloat rootMinusZSquared = (GLfloat) glm::sqrt(1 - z * z);
+        GLfloat x = rootMinusZSquared * glm::cos(theta);
+        GLfloat y = rootMinusZSquared * glm::sin(theta);
+
+        glm::vec4 direction = glm::vec4(x, y, z, 1.0f);
+        if (coneDirection.x != 0 || coneDirection.y != 0 || (coneDirection.z != 1 && coneDirection.z != -1)) {
+            glm::vec3 rotateAxis = glm::cross(coneDirection, glm::vec3(0.0f, 0.0f, 1.0f));
+            rotateAxis = glm::normalize(rotateAxis);
+
+            GLfloat rotateAngle = (GLfloat) glm::acos(glm::dot(coneDirection, glm::vec3(0.0f, 0.0f, 1.0f)));
+            glm::mat4 rotationMat = glm::rotate(glm::mat4(1.0), -rotateAngle, rotateAxis);
+            direction = rotationMat * direction;
+        }
+        else if (coneDirection.z == -1) {
+            direction.z *= -1;
         }
 
-        // Otherwise, do a linear search
-        for (GLuint i = 0; i < lastUsedParticle; ++i) {
-            if (this->particles[i].life <= 0.0f){
-                lastUsedParticle = i;
-                return i;
-            }
-        }
 
-        // All particles are taken, ovverride the first one
-        lastUsedParticle = 0;
-        return 0;
+        return glm::vec3(direction);
     }
 
-    void respawnParticle (Particle& particle, glm::vec2 offset = glm::vec2(0.0f, 0.0f)) {
-        GLfloat random = (GLfloat) (((rand() % 100) - 50) / 10.0f);
-        GLfloat rColor = 0.5f + ((rand() % 100) / 100.0f);
+    glm::vec3 generateRandomUnitVector () {
+        GLfloat theta = (GLfloat) (Random::Float() * 2.0f * glm::pi<float>());
+        GLfloat z = (Random::Float() * 2.0f - 1.0f);
+        GLfloat rootMinusZSquared = (GLfloat) glm::sqrt(1 - z * z);
+        GLfloat x = (GLfloat) (rootMinusZSquared * glm::cos(theta));
+        GLfloat y = (GLfloat) (rootMinusZSquared * glm::sin(theta));
 
-        particle.position = glm::vec2(0.0f) + random + offset;
-        particle.life = 1.0f;
-        // particle.velocity = 0.1f;
+        return glm::vec3 (x, y, z);
     }
+
 };
 
 #endif

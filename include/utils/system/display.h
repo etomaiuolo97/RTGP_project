@@ -77,6 +77,7 @@ void mouse_callback (GLFWwindow* window, double xpos, double ypos) {
 GLFWwindow* createDisplay() {
     glfwInit();
 
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);  
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);

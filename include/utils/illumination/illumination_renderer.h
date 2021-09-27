@@ -34,7 +34,7 @@ public:
             Renderer::SetupShaders(shader.getProgram());
     }
 
-    void render(Model& model, GLuint texture, Camera camera, glm::vec4 clipPlane) {
+    void render(Model& model, GLuint texture, Camera & camera, glm::vec4 clipPlane) {
         glm::mat4 view = camera.GetViewMatrix();
 
         shader.start();

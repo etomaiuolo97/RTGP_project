@@ -17,7 +17,7 @@ public:
             Renderer::SetupShaders(shader.getProgram());
     }
 
-    void render(Model& model, GLuint texture, Camera camera) {
+    void render(Model& model, GLuint texture, Camera & camera) {
         glm::mat4 view = camera.GetViewMatrix();
 
         glDepthFunc(GL_LEQUAL);

@@ -28,6 +28,7 @@ protected:
         }
         else {
             glCall(glGetProgramiv(shader, GL_LINK_STATUS, &success));
+
             if (!success) {
                 glCall(glGetProgramInfoLog(shader, 1024, NULL, infoLog));
                 std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
@@ -66,6 +67,7 @@ private:
         const GLchar* shaderCode = code.c_str();
 
         GLuint shader = glCreateShader(type);
+
         glCall(glShaderSource(shader, 1, &shaderCode, NULL));
         glCall(glCompileShader(shader));
         checkCompileErrors(shader, type == GL_VERTEX_SHADER? "VERTEX": "FRAGMENT");
@@ -102,7 +104,7 @@ public:
         this->fragmentShader = loadShader(fragmentFile, GL_FRAGMENT_SHADER);
 
         this->program = glCreateProgram();
-
+        
         glCall(glAttachShader(this->program, this->vertexShader));
         glCall(glAttachShader(this->program, this->fragmentShader));
     }

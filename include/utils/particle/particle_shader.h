@@ -10,17 +10,17 @@
 class ParticleShader : public Shader {
 
 private:
+    GLint viewLocation;
     GLint projectionLocation;
-    GLint offsetLocation;
+    GLint transformLocation;
     GLint colorLocation;
-    GLint spriteLocation;
 
 public:
 
     ParticleShader() : 
     Shader("./shaders/particle.vert", "./shaders/particle.frag"){
         bindAttributes();
-
+        
         glCall(glLinkProgram(getProgram()));
         glCall(glValidateProgram(getProgram()));
 
@@ -31,30 +31,30 @@ public:
 
 
     void getAllUniformLocations() {
-        this->projectionLocation = Shader::getUniformLocation("projection");
-        this->offsetLocation = Shader::getUniformLocation("offset");
-        this->colorLocation = Shader::getUniformLocation("color");
-        this->spriteLocation = Shader::getUniformLocation("sprite");
+        this->viewLocation = Shader::getUniformLocation("u_View");
+        this->projectionLocation = Shader::getUniformLocation("u_Projection");
+        this->transformLocation = Shader::getUniformLocation("u_Transform");
+        this->colorLocation = Shader::getUniformLocation("u_Color");
     }
 
     void bindAttributes() {
-        Shader::bindAttribute(0,"vertex");
+        Shader::bindAttribute(0,"a_Position");
     }
     
-    void loadOffset(glm::vec2 offset) {
-        glCall(glUniform2fv(this->offsetLocation, 1, glm::value_ptr(offset)));
+    void loadTransform(glm::mat4 transformation) {
+        glCall(glUniformMatrix4fv(this->transformLocation, 1, GL_FALSE, glm::value_ptr(transformation)));
     }
     
     void loadColor(glm::vec4 color) {
         glCall(glUniform4fv(this->colorLocation, 1, glm::value_ptr(color)));
     }
 
-    void loadProjection(glm::mat4 projectionMatrix) {
-       glCall(glUniformMatrix4fv(this->projectionLocation, 1, GL_FALSE, glm::value_ptr(projectionMatrix)));
+    void loadView(glm::mat4 view) {
+        glCall(glUniformMatrix4fv(this->viewLocation, 1, GL_FALSE, glm::value_ptr(view)));
     }
 
-    void loadSprite(GLint sprite) {
-        glCall(glUniform1i(this->spriteLocation, sprite));
+    void loadProjection(glm::mat4 projection) {
+        glCall(glUniformMatrix4fv(this->projectionLocation, 1, GL_FALSE, glm::value_ptr(projection)));
     }
 };
 

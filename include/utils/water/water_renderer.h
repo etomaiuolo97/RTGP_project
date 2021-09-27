@@ -24,6 +24,7 @@ private:
 
     void prepareRender (Camera camera, GLfloat deltaTime, glm::vec3 lightPosition, glm::vec3 lightColour) {
         shader.start();
+        
         shader.loadViewMatrix(camera.GetViewMatrix());
         shader.loadCameraPosition(camera.position);
 
@@ -74,7 +75,7 @@ public:
         return this->fbos;
     }
 
-    void render(vector<WaterTile> water, Camera camera, GLfloat deltaTime, glm::vec3 lightPosition, glm::vec3 lightColour) {
+    void render(vector<WaterTile> water, Camera & camera, GLfloat deltaTime, glm::vec3 lightPosition, glm::vec3 lightColour) {
         prepareRender(camera, deltaTime, lightPosition, lightColour);
 
         for (WaterTile tile: water){
