@@ -8,6 +8,7 @@
 #include <glm/gtc/constants.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
+#define TIME_STEP 0.01
 
 #include <glm/gtx/compatibility.hpp>
 
@@ -21,13 +22,13 @@ struct ParticleProps {
     glm::vec4 colorBegin, colorEnd;
     GLfloat velocityVariation;
     GLfloat sizeBegin, sizeEnd, sizeVariation;
-    GLfloat life = 1.0f;
+    GLfloat life = 2.0f;
     GLfloat speedError = 0.4f;
     GLfloat lifeError = 0.1f;
     GLfloat scaleError = 0.8f;
     GLboolean randomRotation = GL_FALSE;
     glm::vec3 direction = {0.0f, 1.0f, 0.0f};
-    GLfloat directionDev = 0.1f;
+    GLfloat directionDev = 80.0f;
 };
 
 struct ParticleVertex {
@@ -37,23 +38,25 @@ struct ParticleVertex {
 class ParticleGenerator {
 public:
     ParticleGenerator (){
-        this->particles.resize(1000);
+        this->particles.resize(10000);
     }
 
     void update (GLfloat deltaTime){
         for (auto& particle : this->particles) {
-            if (!particle.active)
-                continue;
-            
-            if (particle.lifeRemaining <= 0.0f) {
-                particle.active = false;
-                continue;
+            if (particle.active){
+                // std::cout << particle.lifeRemaining << std::endl;
+                if (particle.lifeRemaining <= 0.0f) {
+                    particle.active = false;
+                }
+                else {
+                    particle.lifeRemaining -= deltaTime;
+                    particle.velocity.y += gravity * deltaTime;
+                    particle.position.x += particle.velocity.x * (GLfloat) deltaTime;
+                    particle.position.y += particle.velocity.y * (GLfloat) deltaTime;
+                    particle.position.z += particle.velocity.z * (GLfloat) deltaTime;
+                } 
             }
-
-            particle.lifeRemaining -= deltaTime;
-            particle.velocity.y += gravity * deltaTime;
-            particle.position += particle.velocity * (GLfloat) deltaTime;
-            particle.rotation += 0.01 * deltaTime;
+            // particle.rotation += 0.01 * deltaTime;
         }
     }
 
@@ -142,7 +145,6 @@ public:
 
         particle.lifeTime = particleProps.life;
         particle.lifeRemaining = particleProps.life;
-            
         particle.sizeBegin = particleProps.sizeBegin - particleProps.sizeVariation * (Random::Float() - 0.5f);
         particle.sizeEnd = particleProps.sizeEnd;
 
@@ -177,7 +179,7 @@ private:
 
     ParticleShader shader;
     GLuint VAO = 0;
-    GLfloat gravity = 9.81f;
+    GLfloat gravity = -9.81f;
 
     GLfloat generateValue (GLfloat average, GLfloat error) {
         GLfloat offset = (Random::Float() - 0.5f) * 2.0f * error;
@@ -189,7 +191,7 @@ private:
     }
 
     glm::vec3 generateRandomUnitVectorWithinCone (glm::vec3 coneDirection, GLfloat angle) {
-        GLfloat cosAngle = (GLfloat) std::cos(angle);
+        GLfloat cosAngle = (GLfloat) glm::cos(glm::radians(angle));
         GLfloat theta = Random::Float() * 2.0f * glm::pi<float>();
         GLfloat z = cosAngle + Random::Float() * (1 - cosAngle);
         GLfloat rootMinusZSquared = (GLfloat) glm::sqrt(1 - z * z);
@@ -208,7 +210,6 @@ private:
         else if (coneDirection.z == -1) {
             direction.z *= -1;
         }
-
 
         return glm::vec3(direction);
     }
