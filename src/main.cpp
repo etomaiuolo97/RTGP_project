@@ -33,6 +33,7 @@ using namespace std;
 #include <utils/water/waterframe_buffers.h>
 #include <utils/water/water_renderer.h>
 
+#include <utils/particle/particle_texture.h>
 #include <utils/particle/particle_renderer.h>
 
 int main () {
@@ -65,8 +66,8 @@ int main () {
     textures.push_back(LoadTexture("./textures/terrain.png"));
     
     // Particles system
-    ParticleRenderer particle_renderer (projection);
-    
+    ParticleTexture particle_texture (LoadTexture("./textures/water_atlas.png"), 4);
+    ParticleRenderer particle_renderer (projection, particle_texture);
 
     while(!glfwWindowShouldClose(window)) {
         GLfloat currentFrame = glfwGetTime();

@@ -13,7 +13,9 @@ private:
     GLint viewLocation;
     GLint projectionLocation;
     GLint transformLocation;
-    GLint colorLocation;
+    GLint texOffset1Location;
+    GLint texOffset2Location;
+    GLint texCoordsInfoLocation;
 
 public:
 
@@ -34,7 +36,9 @@ public:
         this->viewLocation = Shader::getUniformLocation("u_View");
         this->projectionLocation = Shader::getUniformLocation("u_Projection");
         this->transformLocation = Shader::getUniformLocation("u_Transform");
-        this->colorLocation = Shader::getUniformLocation("u_Color");
+        this->texOffset1Location = Shader::getUniformLocation("texOffset1");
+        this->texOffset2Location = Shader::getUniformLocation("texOffset2");
+        this->texCoordsInfoLocation = Shader::getUniformLocation("textureCoordsInfo");
     }
 
     void bindAttributes() {
@@ -45,8 +49,10 @@ public:
         glCall(glUniformMatrix4fv(this->transformLocation, 1, GL_FALSE, glm::value_ptr(transformation)));
     }
     
-    void loadColor(glm::vec4 color) {
-        glCall(glUniform4fv(this->colorLocation, 1, glm::value_ptr(color)));
+    void loadTexture(glm::vec2 offset1, glm::vec2 offset2, GLfloat numRows, GLfloat blend) {
+        glCall(glUniform2fv(this->texOffset1Location, 1, glm::value_ptr(offset1)));
+        glCall(glUniform2fv(this->texOffset2Location, 1, glm::value_ptr(offset2)));
+        glCall(glUniform2fv(this->texCoordsInfoLocation, 1, glm::value_ptr(glm::vec2(numRows, blend))));
     }
 
     void loadView(glm::mat4 view) {

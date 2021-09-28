@@ -13,7 +13,7 @@ private:
 
 public:
 
-    ParticleRenderer (glm::mat4 projection)
+    ParticleRenderer (glm::mat4 projection, ParticleTexture texture)
         :Renderer(projection){            
             Renderer::SetupShaders(generator.getShader().getProgram());
 
@@ -30,11 +30,12 @@ public:
             this->particle.velocity = {0.0f, 0.0f, 0.0f};
             this->particle.velocityVariation = 4.0f;
             this->particle.position = {0.0f, 3.1f, -5.0f};
+            this->particle.texture = texture;
     }
 
     void render(GLfloat deltaTime, Camera & camera) {
-        this->generator.getShader().start();
         
+        this->generator.getShader().start();
         this->generator.getShader().loadView(camera.GetViewMatrix());
 
         glCall(glEnable(GL_BLEND));

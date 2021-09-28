@@ -18,21 +18,26 @@
 
 struct ParticleProps {
     glm::vec3 position;
+
     glm::vec3 velocity;
-    glm::vec4 colorBegin, colorEnd;
     GLfloat velocityVariation;
+
+    glm::vec4 colorBegin, colorEnd;
+    ParticleTexture texture;
+    glm::vec2 texOffset1 = {0, 0};
+    glm::vec2 texOffset2 = {0, 0};
+    GLfloat blend;
+
     GLfloat sizeBegin, sizeEnd, sizeVariation;
+
     GLfloat life = 2.0f;
-    GLfloat speedError = 0.4f;
-    GLfloat lifeError = 0.1f;
-    GLfloat scaleError = 0.8f;
-    GLboolean randomRotation = GL_FALSE;
+
     glm::vec3 direction = {0.0f, 1.0f, 0.0f};
     GLfloat directionDev = 80.0f;
 };
 
 struct ParticleVertex {
-    glm::vec3 position;
+    glm::vec2 position;
 };
 
 class ParticleGenerator {
@@ -44,12 +49,27 @@ public:
     void update (GLfloat deltaTime){
         for (auto& particle : this->particles) {
             if (particle.active){
-                // std::cout << particle.lifeRemaining << std::endl;
                 if (particle.lifeRemaining <= 0.0f) {
                     particle.active = false;
                 }
                 else {
+                    // Life update
                     particle.lifeRemaining -= deltaTime;
+                    
+                    // Texture update
+                    GLfloat lifeFactor = (particle.lifeTime - particle.lifeRemaining) / particle.lifeTime;
+                    GLint stageCount = particle.texture.getNumRows() * particle.texture.getNumRows();
+                    GLfloat atlasProgression = lifeFactor * stageCount;
+
+                    GLint index1 = (GLint) glm::floor(atlasProgression);
+                    GLint index2 = index1 < (stageCount - 1) ? (index1 + 1) : (index1);
+
+                    particle.blend = glm::mod(atlasProgression, 1.0f);
+
+                    particle.texOffset1 = this->setTextureOffset(index1, particle.texture);
+                    particle.texOffset2 = this->setTextureOffset(index2, particle.texture);
+                    
+                    // Position update
                     particle.velocity.y += gravity * deltaTime;
                     particle.position.x += particle.velocity.x * (GLfloat) deltaTime;
                     particle.position.y += particle.velocity.y * (GLfloat) deltaTime;
@@ -66,13 +86,13 @@ public:
             vector<ParticleVertex> vertices;
             
             ParticleVertex temp; 
-            temp.position = glm::vec3(-0.5f, -0.5f, 0.0f);
+            temp.position = glm::vec2(-0.5f, -0.5f);
             vertices.push_back(temp);
-            temp.position = glm::vec3(0.5f, -0.5f, 0.0f);
+            temp.position = glm::vec2(0.5f, -0.5f);
             vertices.push_back(temp);
-            temp.position = glm::vec3(0.5f,  0.5f, 0.0f);
+            temp.position = glm::vec2(0.5f,  0.5f);
             vertices.push_back(temp);
-            temp.position = glm::vec3(-0.5f,  0.5f, 0.0f);
+            temp.position = glm::vec2(-0.5f,  0.5f);
             vertices.push_back(temp);
 
             vector<GLuint> indices = {0, 1, 2, 2, 3, 0};
@@ -91,7 +111,7 @@ public:
             glCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW));
 
             glCall(glEnableVertexAttribArray(0));
-            glCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleVertex), (void*) 0));
+            glCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(ParticleVertex), (void*) 0));
             
             glCall(glBindVertexArray(0));
         }
@@ -111,10 +131,13 @@ public:
                 glm::mat4 matrix = glm::mat4(1.0f);
                 matrix = glm::translate(matrix, glm::vec3(particle.position));
                 matrix = glm::rotate(matrix, particle.rotation, glm::vec3(0.0f, 0.0f, 1.0f));
-                matrix = glm::scale(matrix, glm::vec3(size, size, size));
+                // matrix = glm::scale(matrix, glm::vec3(size, size, size));
+                
+                glCall(glActiveTexture(GL_TEXTURE0));
+                glCall(glBindTexture(GL_TEXTURE_2D, particle.texture.getTextureID()));
 
+                shader.loadTexture(particle.texOffset1, particle.texOffset2, particle.texture.getNumRows(), particle.blend);
                 shader.loadTransform(matrix);
-                shader.loadColor(color);
 
                 glCall(glBindVertexArray(this->VAO));
                 glCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
@@ -148,6 +171,11 @@ public:
         particle.sizeBegin = particleProps.sizeBegin - particleProps.sizeVariation * (Random::Float() - 0.5f);
         particle.sizeEnd = particleProps.sizeEnd;
 
+        particle.texture = particleProps.texture;
+        particle.texOffset1 = particleProps.texOffset1;
+        particle.texOffset2 = particleProps.texOffset2;
+        particle.blend = particleProps.blend;
+
         index = --index % this->particles.size();
     }
 
@@ -170,6 +198,11 @@ private:
 
         GLfloat lifeTime = 1.0f;
         GLfloat lifeRemaining = 0.0f;
+
+        ParticleTexture texture;
+        GLfloat blend;
+        glm::vec2 texOffset1;
+        glm::vec2 texOffset2;
 
         bool active = false;
     };
@@ -222,6 +255,16 @@ private:
         GLfloat y = (GLfloat) (rootMinusZSquared * glm::sin(theta));
 
         return glm::vec3 (x, y, z);
+    }
+
+    glm::vec2 setTextureOffset (GLint index, ParticleTexture& texture) {
+        GLint column = index % texture.getNumRows();
+        GLint row = index / texture.getNumRows();
+        
+        GLfloat x = (GLfloat) column / texture.getNumRows();
+        GLfloat y = (GLfloat) row / texture.getNumRows();
+        
+        return glm::vec2(x, y);
     }
 
 };
