@@ -30,7 +30,7 @@ struct ParticleProps {
 
     GLfloat sizeBegin, sizeEnd, sizeVariation;
 
-    GLfloat life = 2.0f;
+    GLfloat life;
 
     glm::vec3 direction = {0.0f, 1.0f, 0.0f};
     GLfloat directionDev = 80.0f;
@@ -53,9 +53,6 @@ public:
                     particle.active = false;
                 }
                 else {
-                    // Life update
-                    particle.lifeRemaining -= deltaTime;
-                    
                     // Texture update
                     GLfloat lifeFactor = (particle.lifeTime - particle.lifeRemaining) / particle.lifeTime;
                     GLint stageCount = particle.texture.getNumRows() * particle.texture.getNumRows();
@@ -74,6 +71,9 @@ public:
                     particle.position.x += particle.velocity.x * (GLfloat) deltaTime;
                     particle.position.y += particle.velocity.y * (GLfloat) deltaTime;
                     particle.position.z += particle.velocity.z * (GLfloat) deltaTime;
+                    
+                    // Life update
+                    particle.lifeRemaining -= deltaTime;
                 } 
             }
             // particle.rotation += 0.01 * deltaTime;
@@ -124,10 +124,6 @@ public:
 
                 GLfloat size = glm::lerp(particle.sizeEnd, particle.sizeBegin, life);
 
-                glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(particle.position.x, particle.position.y, 1.0f))
-                            * glm::rotate(glm::mat4(1.0f), particle.rotation, glm::vec3(0.0f, 0.0f, 1.0f))
-                            * glm::scale(glm::mat4(1.0f), glm::vec3(size, size, 1.0f));
-                
                 glm::mat4 matrix = glm::mat4(1.0f);
                 matrix = glm::translate(matrix, glm::vec3(particle.position));
                 matrix = glm::rotate(matrix, particle.rotation, glm::vec3(0.0f, 0.0f, 1.0f));
@@ -135,8 +131,8 @@ public:
                 
                 glCall(glActiveTexture(GL_TEXTURE0));
                 glCall(glBindTexture(GL_TEXTURE_2D, particle.texture.getTextureID()));
-
                 shader.loadTexture(particle.texOffset1, particle.texOffset2, particle.texture.getNumRows(), particle.blend);
+                
                 shader.loadTransform(matrix);
 
                 glCall(glBindVertexArray(this->VAO));
@@ -264,6 +260,9 @@ private:
         GLfloat x = (GLfloat) column / texture.getNumRows();
         GLfloat y = (GLfloat) row / texture.getNumRows();
         
+        // std::string temp;
+        // std::cout << index << ": (" << x << "," << y << ")" << std::endl;
+        // std::cin >> temp;
         return glm::vec2(x, y);
     }
 

@@ -83,7 +83,7 @@ GLint LoadTexture(const char* path) {
     GLuint textureImage;
     int w, h, channels;
     unsigned char* image;
-    image = stbi_load(path, &w, &h, &channels, STBI_rgb);
+    image = stbi_load(path, &w, &h, &channels, STBI_rgb_alpha);
 
     if (image == nullptr)
         std::cout << "Failed to load texture!" << std::endl;

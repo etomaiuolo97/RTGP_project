@@ -26,7 +26,7 @@ public:
             this->particle.sizeBegin = 1.0f;
             this->particle.sizeVariation = 0.01f;
             this->particle.sizeEnd = 0.5f;
-            this->particle.life = 1.0f;
+            this->particle.life = 1.1f;
             this->particle.velocity = {0.0f, 0.0f, 0.0f};
             this->particle.velocityVariation = 4.0f;
             this->particle.position = {0.0f, 3.1f, -5.0f};

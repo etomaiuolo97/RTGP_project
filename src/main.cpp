@@ -66,7 +66,7 @@ int main () {
     textures.push_back(LoadTexture("./textures/terrain.png"));
     
     // Particles system
-    ParticleTexture particle_texture (LoadTexture("./textures/water_atlas.png"), 4);
+    ParticleTexture particle_texture (LoadTexture("./textures/water_atlas_blue.png"), 4);
     ParticleRenderer particle_renderer (projection, particle_texture);
 
     while(!glfwWindowShouldClose(window)) {

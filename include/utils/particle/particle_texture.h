@@ -5,18 +5,18 @@
 
 class ParticleTexture {
 private:
-    GLuint textureID;
+    GLint textureID;
     GLuint numRows;
 
 public:
     ParticleTexture () {}
 
-    ParticleTexture (GLuint textureID, GLuint numRows) {
+    ParticleTexture (GLint textureID, GLuint numRows) {
         this->textureID = textureID;
         this->numRows = numRows;
     }
 
-    GLuint getTextureID () {
+    GLint getTextureID () {
         return this->textureID;
     }
 
