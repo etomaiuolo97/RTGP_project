@@ -22,20 +22,11 @@ const GLfloat SPEED = 4.0f;
 class Camera {
 
 public:
-    Camera () {};
+    Camera () {
+        this->calculateCameraPos(this->calculateHorizontalDistance(), this->calculateVerticalDistance());
+    };
 
-    ~Camera();
-
-    void move (bool keys [], GLfloat deltaTime){
-        if (keys[GLFW_KEY_LEFT])
-            this->position.x -= SPEED;
-        if (keys[GLFW_KEY_RIGHT])
-            this->position.x += SPEED;
-        if (keys[GLFW_KEY_UP])
-            this->position.z -= SPEED;
-        if (keys[GLFW_KEY_DOWN])
-            this->position.z += SPEED;
-    }
+    ~Camera() {};
 
     void ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime) {
         GLfloat change = deltaTime * SPEED;
@@ -73,6 +64,10 @@ public:
         this->yaw = 180 - (this->angleAroundFountain);
     }
 
+    void ProcessMouseMovement (GLfloat xOffset, GLfloat yOffset) {
+
+    }
+
     glm::vec3 getPosition () {
         return this->position;
     }
@@ -108,13 +103,13 @@ public:
 
 private:
     glm::vec3 position = glm::vec3(0.0f, 0.0f, -7.0f);
-    glm::vec3 objPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 objPosition = glm::vec3(0.0f, -3.0f, -5.0f);
 
     GLfloat pitch = 30;
-    GLfloat yaw = 0;
+    GLfloat yaw = 180;
     GLfloat roll = 0;
 
-    GLfloat disFromFountain = 20;
+    GLfloat disFromFountain = 30;
     GLfloat angleAroundFountain = 0;
 
     GLfloat calculateHorizontalDistance() {
@@ -127,18 +122,14 @@ private:
 
 
     void calculateCameraPos (GLfloat hDis, GLfloat vDis) {
-    
         GLfloat offsetX = (GLfloat)(hDis * sin(glm::radians(this->angleAroundFountain)));
         GLfloat offsetZ = (GLfloat)(hDis * cos(glm::radians(this->angleAroundFountain)));
         
-    
         this->position.x = this->objPosition.x - offsetX;
         this->position.z = this->objPosition.z - offsetZ;
         this->position.y = this->objPosition.y + vDis;
     }
 };
 
-Camera::~Camera() {
-}
 
 #endif

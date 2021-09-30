@@ -10,17 +10,17 @@ class ModelRenderer : public Renderer{
 private:
     ModelShader shader;
 
-    vector<glm::vec3> lightPos = {glm::vec3(0.0f, 0.0f, 10.0f)};
+    vector<glm::vec3> lightPos = {glm::vec3(0.0f, 40.0f, 40.0f)};
 
     GLfloat Eta = 1.0f/1.52f;
     GLfloat mFresnelPower = 5.0f;
 
     vector<GLfloat> diffuseColor = {1.0f, 1.0f, 1.0f};
     vector<GLfloat> specularColor = {1.0f, 1.0f, 1.0f};
-    vector<GLfloat> ambientColor = {0.1f, 0.1f, 0.1f};
+    vector<GLfloat> ambientColor = {0.8f, 0.8f, 0.8f};
 
-    GLfloat Kd = 0.5f;
-    GLfloat Ks = 0.4f;
+    GLfloat Kd = 0.8f;
+    GLfloat Ks = 0.5f;
     GLfloat Ka = 0.1f;
 
     GLfloat shininess = 25.0f;

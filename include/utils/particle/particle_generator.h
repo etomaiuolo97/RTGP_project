@@ -67,7 +67,7 @@ public:
         }
     }
 
-    void Draw () {
+    void Draw (glm::mat4& viewMatrix) {
         for (auto& particle: this->particles) {
             if (particle.active){
                 GLfloat life = particle.lifeRemaining / particle.lifeTime;
@@ -78,13 +78,8 @@ public:
                 
                 GLfloat blend = glm::lerp(1.0f, 0.0f, life);
 
-                glm::mat4 matrix = glm::mat4(1.0f);
-                matrix = glm::translate(matrix, glm::vec3(particle.position));
-                matrix = glm::rotate(matrix, particle.rotation, glm::vec3(0.0f, 0.0f, 1.0f));
-                matrix = glm::scale(matrix, glm::vec3(size, size, size));
-                
                 shader.loadColor(glm::vec4(color.x, color.y, color.z, 1.0));
-                shader.loadTransform(matrix);
+                shader.loadTransform(this->createModelMatrix(particle.position, particle.rotation, size, viewMatrix));
 
                 this->waterDrop.Draw();
             }
@@ -154,6 +149,27 @@ private:
     GLfloat gravity = -7.81f;
 
     Model waterDrop = Model ("./meshes/circle.obj");
+
+    glm::mat4 createModelMatrix (glm::vec3 position, GLfloat rotation, GLfloat scale, glm::mat4 & viewMatrix) {
+        glm::mat4 modelMatrix (1.0f);
+
+        modelMatrix = glm::translate(modelMatrix, position);
+
+        modelMatrix[0][0] = viewMatrix[0][0];
+        modelMatrix[0][1] = viewMatrix[1][0];
+        modelMatrix[0][2] = viewMatrix[2][0];
+        modelMatrix[1][0] = viewMatrix[0][1];
+        modelMatrix[1][1] = viewMatrix[1][1];
+        modelMatrix[1][2] = viewMatrix[2][1];
+        modelMatrix[2][0] = viewMatrix[0][2];
+        modelMatrix[2][1] = viewMatrix[1][2];
+        modelMatrix[2][2] = viewMatrix[2][2];
+
+        modelMatrix = glm::rotate(modelMatrix, (GLfloat)glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+        modelMatrix = glm::scale(modelMatrix, glm::vec3(scale, scale, scale));
+
+        return modelMatrix;
+    }
 
     glm::vec3 generateRandomUnitVectorWithinCone (glm::vec3 coneDirection, GLfloat angle) {
         GLfloat cosAngle = (GLfloat) glm::cos(glm::radians(angle));

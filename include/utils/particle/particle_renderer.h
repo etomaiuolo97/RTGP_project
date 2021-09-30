@@ -11,6 +11,8 @@ private:
     ParticleGenerator generator;
     ParticleProps particle;
 
+    
+
 public:
 
     ParticleRenderer (glm::mat4 projection)
@@ -37,9 +39,10 @@ public:
     }
 
     void render(GLfloat deltaTime, Camera & camera, glm::vec3 lightPosition, GLint tCube) {
-        
+        glm::mat4 view = Renderer::createViewMatrix(camera);
+
         this->generator.getShader().start();
-        this->generator.getShader().loadView(Renderer::createViewMatrix(camera));
+        this->generator.getShader().loadView(view);
         // camera.setPitch(-camera.getPitch());
         this->generator.getShader().loadCameraPosition(camera.getPosition());
         // camera.setPitch(-camera.getPitch());
@@ -59,7 +62,7 @@ public:
 
         this->generator.getShader().loadTCube(0);
         this->generator.update(deltaTime);
-        this->generator.Draw();
+        this->generator.Draw(view);
 
         glCall(glDepthMask(true));
         glCall(glDisable(GL_BLEND));
