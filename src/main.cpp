@@ -73,17 +73,17 @@ int main () {
 
         glCall(glEnable(GL_CLIP_DISTANCE0));
 
-        // water_renderer.getFbos().bindReflectionFrameBuffer();
-        // GLfloat distance = 2 * (camera.position.y + 0.5);
-        // camera.position.y -= distance;
-        // camera.pitch = -camera.pitch;
-        // glCall(illumination_renderer.render(fountainModel, textures[0], camera, glm::vec4(0, 1, 0, 0.6 + 1)));
-        // glCall(background_renderer.render(bgModel, textureCube, camera));
-        // camera.position.y += distance;
-        // camera.pitch = -camera.pitch;
+        water_renderer.getFbos().bindReflectionFrameBuffer();
+        GLfloat distance = 2 * (camera.position.y + 0.5);
+        camera.position.y -= distance;
+        camera.pitch = -camera.pitch;
+        glCall(illumination_renderer.render(fountainModel, textures[0], camera, glm::vec4(0, 1, 0, 2.5)));
+        glCall(background_renderer.render(bgModel, textureCube, camera));
+        camera.position.y += distance;
+        camera.pitch = -camera.pitch;
 
         water_renderer.getFbos().bindRefractionFrameBuffer();
-        glCall(illumination_renderer.render(fountainModel, textures[0], camera, glm::vec4(0, -1, 0, -0.6)));
+        glCall(illumination_renderer.render(fountainModel, textures[0], camera, glm::vec4(0, -1, 0, -1.5)));
         glCall(background_renderer.render(bgModel, textureCube, camera));
 
         glCall(glDisable(GL_CLIP_DISTANCE0));
