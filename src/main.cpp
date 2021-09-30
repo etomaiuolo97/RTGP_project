@@ -66,8 +66,8 @@ int main () {
     textures.push_back(LoadTexture("./textures/terrain.png"));
     
     // Particles system
-    ParticleTexture particle_texture (LoadTexture("./textures/water_atlas_blue.png"), 4);
-    ParticleRenderer particle_renderer (projection, particle_texture);
+    // ParticleTexture particle_texture (LoadTexture("./textures/water_atlas.png"), 4);
+    ParticleRenderer particle_renderer (projection);
 
     while(!glfwWindowShouldClose(window)) {
         GLfloat currentFrame = glfwGetTime();
@@ -82,13 +82,16 @@ int main () {
         glCall(glEnable(GL_CLIP_DISTANCE0));
 
         water_renderer.getFbos().bindReflectionFrameBuffer();
-        GLfloat distance = 2 * (camera.position.y + 0.5);
-        camera.position.y -= distance;
-        camera.pitch = -camera.pitch;
+        GLfloat distance = 2 * (camera.getPosition().y + 0.5);
+        glm::vec3 cameraPos = camera.getPosition();
+        cameraPos.y -= distance;
+        camera.setPosition(cameraPos);
+        camera.setPitch(-camera.getPitch());
         glCall(illumination_renderer.render(fountainModel, textures[0], camera, glm::vec4(0, 1, 0, 0.5 + 1)));
         glCall(background_renderer.render(bgModel, textureCube, camera));
-        camera.position.y += distance;
-        camera.pitch = -camera.pitch;
+        cameraPos.y += distance;
+        camera.setPosition(cameraPos);
+        camera.setPitch(-camera.getPitch());
 
         water_renderer.getFbos().bindRefractionFrameBuffer();
         glCall(illumination_renderer.render(fountainModel, textures[0], camera, glm::vec4(0, -1, 0, -0.5)));
@@ -105,7 +108,7 @@ int main () {
         lightColour.z = illumination_renderer.getLightColor()[2];
         glCall(water_renderer.render(waters, camera, deltaTime, illumination_renderer.getLightPos()[0], lightColour));
         
-        particle_renderer.render(deltaTime, camera);
+        particle_renderer.render(deltaTime, camera, illumination_renderer.getLightPos()[0], textureCube);
 
         glfwSwapBuffers(window);
     }

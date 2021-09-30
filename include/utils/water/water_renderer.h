@@ -26,7 +26,7 @@ private:
         shader.start();
         
         shader.loadViewMatrix(camera.GetViewMatrix());
-        shader.loadCameraPosition(camera.position);
+        shader.loadCameraPosition(camera.getPosition());
 
         this->moveFactor += WAVE_SPEED * deltaTime;
         this->moveFactor = glm::mod(this->moveFactor, 1.0f);

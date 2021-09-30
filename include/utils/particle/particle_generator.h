@@ -23,17 +23,13 @@ struct ParticleProps {
     GLfloat velocityVariation;
 
     glm::vec4 colorBegin, colorEnd;
-    ParticleTexture texture;
-    glm::vec2 texOffset1 = {0, 0};
-    glm::vec2 texOffset2 = {0, 0};
-    GLfloat blend;
 
     GLfloat sizeBegin, sizeEnd, sizeVariation;
 
     GLfloat life;
 
     glm::vec3 direction = {0.0f, 1.0f, 0.0f};
-    GLfloat directionDev = 80.0f;
+    GLfloat directionDev = 90.0f;
 };
 
 struct ParticleVertex {
@@ -52,70 +48,26 @@ public:
                 if (particle.lifeRemaining <= 0.0f) {
                     particle.active = false;
                 }
-                else {
-                    // Texture update
-                    GLfloat lifeFactor = (particle.lifeTime - particle.lifeRemaining) / particle.lifeTime;
-                    GLint stageCount = particle.texture.getNumRows() * particle.texture.getNumRows();
-                    GLfloat atlasProgression = lifeFactor * stageCount;
-
-                    GLint index1 = (GLint) glm::floor(atlasProgression);
-                    GLint index2 = index1 < (stageCount - 1) ? (index1 + 1) : (index1);
-
-                    particle.blend = glm::mod(atlasProgression, 1.0f);
-
-                    particle.texOffset1 = this->setTextureOffset(index1, particle.texture);
-                    particle.texOffset2 = this->setTextureOffset(index2, particle.texture);
-                    
+                else {                    
                     // Position update
                     particle.velocity.y += gravity * deltaTime;
-                    particle.position.x += particle.velocity.x * (GLfloat) deltaTime;
                     particle.position.y += particle.velocity.y * (GLfloat) deltaTime;
-                    particle.position.z += particle.velocity.z * (GLfloat) deltaTime;
+
+                    if (particle.position.y < -0.3)
+                        particle.position.y = -0.3;
+                    else {
+                        particle.position.x += particle.velocity.x * (GLfloat) deltaTime;
+                        particle.position.z += particle.velocity.z * (GLfloat) deltaTime;
+                    }
                     
                     // Life update
                     particle.lifeRemaining -= deltaTime;
                 } 
             }
-            // particle.rotation += 0.01 * deltaTime;
         }
     }
 
     void Draw () {
-        if (!this->VAO) {
-        
-            vector<ParticleVertex> vertices;
-            
-            ParticleVertex temp; 
-            temp.position = glm::vec2(-0.5f, -0.5f);
-            vertices.push_back(temp);
-            temp.position = glm::vec2(0.5f, -0.5f);
-            vertices.push_back(temp);
-            temp.position = glm::vec2(0.5f,  0.5f);
-            vertices.push_back(temp);
-            temp.position = glm::vec2(-0.5f,  0.5f);
-            vertices.push_back(temp);
-
-            vector<GLuint> indices = {0, 1, 2, 2, 3, 0};
-
-            GLuint VBO, EBO;
-            glCall(glGenVertexArrays(1, &this->VAO));
-            glCall(glGenBuffers(1, &VBO));
-            glCall(glGenBuffers(1, &EBO));
-
-            glCall(glBindVertexArray(this->VAO));
-
-            glCall(glBindBuffer(GL_ARRAY_BUFFER, VBO));
-            glCall(glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(ParticleVertex), &vertices[0], GL_STATIC_DRAW));
-
-            glCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO));
-            glCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW));
-
-            glCall(glEnableVertexAttribArray(0));
-            glCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(ParticleVertex), (void*) 0));
-            
-            glCall(glBindVertexArray(0));
-        }
-
         for (auto& particle: this->particles) {
             if (particle.active){
                 GLfloat life = particle.lifeRemaining / particle.lifeTime;
@@ -123,22 +75,18 @@ public:
                 glm::vec4 color = glm::lerp(particle.colorEnd, particle.colorBegin, life);
 
                 GLfloat size = glm::lerp(particle.sizeEnd, particle.sizeBegin, life);
+                
+                GLfloat blend = glm::lerp(1.0f, 0.0f, life);
 
                 glm::mat4 matrix = glm::mat4(1.0f);
                 matrix = glm::translate(matrix, glm::vec3(particle.position));
                 matrix = glm::rotate(matrix, particle.rotation, glm::vec3(0.0f, 0.0f, 1.0f));
-                // matrix = glm::scale(matrix, glm::vec3(size, size, size));
+                matrix = glm::scale(matrix, glm::vec3(size, size, size));
                 
-                glCall(glActiveTexture(GL_TEXTURE0));
-                glCall(glBindTexture(GL_TEXTURE_2D, particle.texture.getTextureID()));
-                shader.loadTexture(particle.texOffset1, particle.texOffset2, particle.texture.getNumRows(), particle.blend);
-                
+                shader.loadColor(glm::vec4(color.x, color.y, color.z, 1.0));
                 shader.loadTransform(matrix);
 
-                glCall(glBindVertexArray(this->VAO));
-                glCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
-                glCall(glBindVertexArray(0));
-                
+                this->waterDrop.Draw();
             }
         }
 
@@ -166,11 +114,6 @@ public:
         particle.lifeRemaining = particleProps.life;
         particle.sizeBegin = particleProps.sizeBegin - particleProps.sizeVariation * (Random::Float() - 0.5f);
         particle.sizeEnd = particleProps.sizeEnd;
-
-        particle.texture = particleProps.texture;
-        particle.texOffset1 = particleProps.texOffset1;
-        particle.texOffset2 = particleProps.texOffset2;
-        particle.blend = particleProps.blend;
 
         index = --index % this->particles.size();
     }
@@ -207,17 +150,10 @@ private:
     GLuint index = 999;
 
     ParticleShader shader;
-    GLuint VAO = 0;
-    GLfloat gravity = -9.81f;
 
-    GLfloat generateValue (GLfloat average, GLfloat error) {
-        GLfloat offset = (Random::Float() - 0.5f) * 2.0f * error;
-        return average + offset;
-    }
+    GLfloat gravity = -7.81f;
 
-    GLfloat generateRotation () {
-        return Random::Float() * 360.0f;
-    }
+    Model waterDrop = Model ("./meshes/circle.obj");
 
     glm::vec3 generateRandomUnitVectorWithinCone (glm::vec3 coneDirection, GLfloat angle) {
         GLfloat cosAngle = (GLfloat) glm::cos(glm::radians(angle));
@@ -260,9 +196,6 @@ private:
         GLfloat x = (GLfloat) column / texture.getNumRows();
         GLfloat y = (GLfloat) row / texture.getNumRows();
         
-        // std::string temp;
-        // std::cout << index << ": (" << x << "," << y << ")" << std::endl;
-        // std::cin >> temp;
         return glm::vec2(x, y);
     }
 

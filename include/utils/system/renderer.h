@@ -53,11 +53,11 @@ protected:
 
     glm::mat4 createViewMatrix(Camera camera) {
         glm::mat4 matrix = glm::mat4(1.0f);
-        matrix = glm::rotate(matrix, (GLfloat)glm::radians(camera.pitch), glm::vec3(1.0f, 0.0f, 0.0f));
-        matrix = glm::rotate(matrix, (GLfloat)glm::radians(camera.yaw), glm::vec3(0.0f, 1.0f, 0.0f));
-        matrix = glm::rotate(matrix, (GLfloat)glm::radians(camera.roll), glm::vec3(0.0f, 0.0f, 1.0f));
+        matrix = glm::rotate(matrix, (GLfloat)glm::radians(camera.getPitch()), glm::vec3(1.0f, 0.0f, 0.0f));
+        matrix = glm::rotate(matrix, (GLfloat)glm::radians(camera.getYaw()), glm::vec3(0.0f, 1.0f, 0.0f));
+        matrix = glm::rotate(matrix, (GLfloat)glm::radians(camera.getRoll()), glm::vec3(0.0f, 0.0f, 1.0f));
 
-        glm::vec3 cameraPos = camera.position;
+        glm::vec3 cameraPos = camera.getPosition();
         glm::vec3 negCameraPos = glm::vec3(-cameraPos.x, -cameraPos.y, -cameraPos.z);
         matrix = glm::translate(matrix, negCameraPos);
 

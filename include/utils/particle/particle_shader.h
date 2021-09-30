@@ -13,9 +13,10 @@ private:
     GLint viewLocation;
     GLint projectionLocation;
     GLint transformLocation;
-    GLint texOffset1Location;
-    GLint texOffset2Location;
-    GLint texCoordsInfoLocation;
+    GLint colorLocation;
+    GLint tCubeLocation;
+    GLint cameraPositionLocation;
+    GLint pointLightPositionLocation;
 
 public:
 
@@ -36,27 +37,39 @@ public:
         this->viewLocation = Shader::getUniformLocation("u_View");
         this->projectionLocation = Shader::getUniformLocation("u_Projection");
         this->transformLocation = Shader::getUniformLocation("u_Transform");
-        this->texOffset1Location = Shader::getUniformLocation("texOffset1");
-        this->texOffset2Location = Shader::getUniformLocation("texOffset2");
-        this->texCoordsInfoLocation = Shader::getUniformLocation("textureCoordsInfo");
+        this->colorLocation = Shader::getUniformLocation("u_Color");
+        this->tCubeLocation = Shader::getUniformLocation("u_TCube");
+        this->cameraPositionLocation = Shader::getUniformLocation("u_CameraPosition");
+        this->pointLightPositionLocation = Shader::getUniformLocation("u_LightPosition");
     }
 
     void bindAttributes() {
         Shader::bindAttribute(0,"a_Position");
+        Shader::bindAttribute(1,"a_Normal");
     }
     
     void loadTransform(glm::mat4 transformation) {
         glCall(glUniformMatrix4fv(this->transformLocation, 1, GL_FALSE, glm::value_ptr(transformation)));
     }
     
-    void loadTexture(glm::vec2 offset1, glm::vec2 offset2, GLfloat numRows, GLfloat blend) {
-        glCall(glUniform2fv(this->texOffset1Location, 1, glm::value_ptr(offset1)));
-        glCall(glUniform2fv(this->texOffset2Location, 1, glm::value_ptr(offset2)));
-        glCall(glUniform2fv(this->texCoordsInfoLocation, 1, glm::value_ptr(glm::vec2(numRows, blend))));
+    void loadColor (glm::vec4 color) {
+        glCall(glUniform4fv(this->colorLocation, 1, glm::value_ptr(color)));
+    }
+
+    void loadTCube (GLint tCube) {
+        glCall(glUniform1i(this->tCubeLocation, tCube));
+    }
+
+    void loadCameraPosition (glm::vec3 cameraPosition) {
+        glCall(glUniform3fv(this->cameraPositionLocation, 1, glm::value_ptr(cameraPosition)));
     }
 
     void loadView(glm::mat4 view) {
         glCall(glUniformMatrix4fv(this->viewLocation, 1, GL_FALSE, glm::value_ptr(view)));
+    }
+
+    void loadPointLight(glm::vec3 lightPos) {
+        glCall(glUniform3fv(this->pointLightPositionLocation, 1, glm::value_ptr(lightPos)));
     }
 
     void loadProjection(glm::mat4 projection) {

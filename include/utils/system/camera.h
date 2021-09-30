@@ -22,11 +22,7 @@ const GLfloat SPEED = 4.0f;
 class Camera {
 
 public:
-    glm::vec3 position = glm::vec3(0.0f, 0.0f, 7.0f);
-    glm::vec3 FountainRot = glm::vec3(0.0f, 0.0f, 0.0f);
-    GLfloat pitch = 30;
-    GLfloat yaw = 0;
-    GLfloat roll;
+    
 
     Camera () {};
 
@@ -85,7 +81,38 @@ public:
         return glm::lookAt(this->position, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     }
 
+    glm::vec3 getPosition () {
+        return this->position;
+    }
+
+    void setPosition (glm::vec3 position) {
+        this->position = position;
+    }
+
+    GLfloat getPitch (){
+        return this->pitch;
+    }
+
+    GLfloat getYaw () {
+        return this->yaw;
+    }
+
+    void setPitch (GLfloat pitch) {
+        this->pitch = pitch;
+        this->calculateCameraPos(this->calculateHorizontalDistance(), this->calculateVerticalDistance());
+    }
+
+    GLfloat getRoll () {
+        return this->roll;
+    }
+
 private:
+    glm::vec3 position = glm::vec3(0.0f, 0.0f, 7.0f);
+    glm::vec3 FountainRot = glm::vec3(0.0f, 0.0f, 0.0f);
+    GLfloat pitch = 30;
+    GLfloat yaw = 0;
+    GLfloat roll = 0;
+
     GLfloat disFromFountain = 20;
     GLfloat angleAroundFountain = 0;
 
