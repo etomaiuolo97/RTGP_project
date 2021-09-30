@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef ILLUMINATION_SHADER
-#define ILLUMINATION_SHADER
+#ifndef MODEL_SHADER
+#define MODEL_SHADER
 
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -14,7 +14,7 @@
 #include <utils/system/shader.h>
 #include <utils/system/utils.h>
 
-class IlluminationShader: public Shader {
+class ModelShader: public Shader {
 private:
     const GLuint NR_LIGHTS = 1;
 
@@ -38,8 +38,8 @@ private:
 
 public:
 
-    IlluminationShader()
-    :Shader("./shaders/illumination.vert", "./shaders/illumination.frag"){
+    ModelShader()
+    :Shader("./shaders/model.vert", "./shaders/model.frag"){
         bindAttributes();
 
         glCall(glLinkProgram(getProgram()));

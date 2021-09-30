@@ -1,14 +1,14 @@
 #pragma once
 
-#ifndef ILLUMINATION_RENDERER
-#define ILLUMINATION_RENDERER
+#ifndef MODEL_RENDERER
+#define MODEL_RENDERER
 
 #include "utils/system/renderer.h"
-#include "utils/illumination/illumination_shader.h"
+#include "utils/model/model_shader.h"
 
-class IlluminationRenderer : public Renderer{
+class ModelRenderer : public Renderer{
 private:
-    IlluminationShader shader;
+    ModelShader shader;
 
     vector<glm::vec3> lightPos = {glm::vec3(0.0f, 0.0f, 10.0f)};
 
@@ -27,15 +27,17 @@ private:
     GLfloat alpha = 0.2f;
     GLfloat F0 = 0.9f;
 
+    glm::vec3 position = glm::vec3(0.0f, -3.0f, -5.0f);
+
 public:
 
-    IlluminationRenderer (glm::mat4 projection)
+    ModelRenderer (glm::mat4 projection)
         :Renderer(projection){
             Renderer::SetupShaders(shader.getProgram());
     }
 
     void render(Model& model, GLuint texture, Camera & camera, glm::vec4 clipPlane) {
-        glm::mat4 view = camera.GetViewMatrix();
+        glm::mat4 view = Renderer::createViewMatrix(camera);
 
         shader.start();
 
@@ -65,7 +67,7 @@ public:
 
         shader.loadDiffuseColor(diffuseColor);
 
-        glm::mat4 modMatrix = createTransformationMatrix(glm::vec3(0.0f, -3.0f, -5.0f), -90.0f, 0.0f, 0.0f, 0.8f);
+        glm::mat4 modMatrix = createTransformationMatrix(this->position, -90.0f, 0.0f, 0.0f, 0.8f);
         glm::mat4 norMatrix = createNormalMatrix(view, modMatrix);
 
         shader.loadModelMatrix(modMatrix);
@@ -78,6 +80,10 @@ public:
 
     void cleanUp(){
         shader.cleanUp();
+    }
+
+    glm::vec3 getPosition() {
+        return this->position;
     }
 
     vector<glm::vec3> getLightPos () {

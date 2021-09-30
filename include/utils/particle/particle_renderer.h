@@ -39,10 +39,10 @@ public:
     void render(GLfloat deltaTime, Camera & camera, glm::vec3 lightPosition, GLint tCube) {
         
         this->generator.getShader().start();
-        this->generator.getShader().loadView(camera.GetViewMatrix());
-        camera.setPitch(-camera.getPitch());
+        this->generator.getShader().loadView(Renderer::createViewMatrix(camera));
+        // camera.setPitch(-camera.getPitch());
         this->generator.getShader().loadCameraPosition(camera.getPosition());
-        camera.setPitch(-camera.getPitch());
+        // camera.setPitch(-camera.getPitch());
 
         this->generator.getShader().loadPointLight(lightPosition);
 

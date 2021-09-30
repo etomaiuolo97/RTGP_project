@@ -22,7 +22,7 @@ GLfloat lastX, lastY;
 // To manage the mouse position in the first frame
 bool firstMouse = true;
 
-Camera camera(glm::vec3(0.0f, 0.0f, 7.0f));
+Camera camera;
 
 void key_callback (GLFWwindow* window, int key, int scancode, int action, int mode) {
     GLuint new_subroutine;

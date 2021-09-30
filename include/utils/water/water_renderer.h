@@ -22,10 +22,10 @@ private:
 
     GLuint dudvTexture, normalMapTexture;
 
-    void prepareRender (Camera camera, GLfloat deltaTime, glm::vec3 lightPosition, glm::vec3 lightColour) {
+    void prepareRender (Camera & camera, GLfloat deltaTime, glm::vec3 lightPosition, glm::vec3 lightColour) {
         shader.start();
         
-        shader.loadViewMatrix(camera.GetViewMatrix());
+        shader.loadViewMatrix(Renderer::createViewMatrix(camera));
         shader.loadCameraPosition(camera.getPosition());
 
         this->moveFactor += WAVE_SPEED * deltaTime;

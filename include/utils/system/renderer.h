@@ -51,7 +51,7 @@ protected:
         return matrix;
     }
 
-    glm::mat4 createViewMatrix(Camera camera) {
+    glm::mat4 createViewMatrix(Camera& camera) {
         glm::mat4 matrix = glm::mat4(1.0f);
         matrix = glm::rotate(matrix, (GLfloat)glm::radians(camera.getPitch()), glm::vec3(1.0f, 0.0f, 0.0f));
         matrix = glm::rotate(matrix, (GLfloat)glm::radians(camera.getYaw()), glm::vec3(0.0f, 1.0f, 0.0f));

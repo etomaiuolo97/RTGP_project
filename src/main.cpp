@@ -26,7 +26,7 @@ using namespace std;
 #include <utils/system/camera.h>
 #include <utils/system/display.h>
 
-#include <utils/illumination/illumination_renderer.h>
+#include <utils/model/model_renderer.h>
 
 #include <utils/background/background_renderer.h>
 
@@ -53,12 +53,14 @@ int main () {
     // View matrix
     glm::mat4 view = glm::mat4(1.0f);
 
-    IlluminationRenderer illumination_renderer (projection);
+    ModelRenderer model_renderer (projection);
     BackgroundRenderer background_renderer (projection);
     WaterRenderer water_renderer (projection, WIDTH, HEIGHT);
 
     Model fountainModel("./meshes/ball_fountain.obj");
     Model bgModel("./meshes/cube.obj");
+
+    camera.setObjPosition(model_renderer.getPosition());
 
     vector<WaterTile> waters = {WaterTile(0, -4.8, -0.5)};
 
@@ -87,35 +89,35 @@ int main () {
         cameraPos.y -= distance;
         camera.setPosition(cameraPos);
         camera.setPitch(-camera.getPitch());
-        glCall(illumination_renderer.render(fountainModel, textures[0], camera, glm::vec4(0, 1, 0, 0.5 + 1)));
+        glCall(model_renderer.render(fountainModel, textures[0], camera, glm::vec4(0, 1, 0, 0.5 + 1)));
         glCall(background_renderer.render(bgModel, textureCube, camera));
         cameraPos.y += distance;
         camera.setPosition(cameraPos);
         camera.setPitch(-camera.getPitch());
 
         water_renderer.getFbos().bindRefractionFrameBuffer();
-        glCall(illumination_renderer.render(fountainModel, textures[0], camera, glm::vec4(0, -1, 0, -0.5)));
+        glCall(model_renderer.render(fountainModel, textures[0], camera, glm::vec4(0, -1, 0, -0.5)));
         glCall(background_renderer.render(bgModel, textureCube, camera));
 
         glCall(glDisable(GL_CLIP_DISTANCE0));
         water_renderer.getFbos().unbindCurrentFrameBuffer();
-        glCall(illumination_renderer.render(fountainModel, textures[0], camera, glm::vec4(0, -1, 0, 100000)));
+        glCall(model_renderer.render(fountainModel, textures[0], camera, glm::vec4(0, -1, 0, 100000)));
         glCall(background_renderer.render(bgModel, textureCube, camera));
 
         glm::vec3 lightColour;
-        lightColour.x = illumination_renderer.getLightColor()[0];
-        lightColour.y = illumination_renderer.getLightColor()[1];
-        lightColour.z = illumination_renderer.getLightColor()[2];
-        glCall(water_renderer.render(waters, camera, deltaTime, illumination_renderer.getLightPos()[0], lightColour));
+        lightColour.x = model_renderer.getLightColor()[0];
+        lightColour.y = model_renderer.getLightColor()[1];
+        lightColour.z = model_renderer.getLightColor()[2];
+        glCall(water_renderer.render(waters, camera, deltaTime, model_renderer.getLightPos()[0], lightColour));
         
-        particle_renderer.render(deltaTime, camera, illumination_renderer.getLightPos()[0], textureCube);
+        particle_renderer.render(deltaTime, camera, model_renderer.getLightPos()[0], textureCube);
 
         glfwSwapBuffers(window);
     }
 
     particle_renderer.cleanUp();
     water_renderer.getFbos().cleanUp();
-    illumination_renderer.cleanUp();
+    model_renderer.cleanUp();
     background_renderer.cleanUp();
     water_renderer.cleanUp();
 

@@ -22,11 +22,7 @@ const GLfloat SPEED = 4.0f;
 class Camera {
 
 public:
-    
-
     Camera () {};
-
-    Camera (glm::vec3);
 
     ~Camera();
 
@@ -69,16 +65,12 @@ public:
                 this->disFromFountain -= change;
                 break;
         }
-    }
-    
-    glm::mat4 GetViewMatrix() {
+
         GLfloat hDis = this->calculateHorizontalDistance();
         GLfloat vDis = this->calculateVerticalDistance();
         
         this->calculateCameraPos(hDis, vDis);
-        this->yaw = 180 - (this->FountainRot.y + this->angleAroundFountain);
-
-        return glm::lookAt(this->position, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        this->yaw = 180 - (this->angleAroundFountain);
     }
 
     glm::vec3 getPosition () {
@@ -87,6 +79,9 @@ public:
 
     void setPosition (glm::vec3 position) {
         this->position = position;
+
+        this->calculateCameraPos(this->calculateHorizontalDistance(), this->calculateVerticalDistance());
+
     }
 
     GLfloat getPitch (){
@@ -106,9 +101,15 @@ public:
         return this->roll;
     }
 
+    void setObjPosition (glm::vec3 objPosition) {
+        this->objPosition = objPosition;
+        this->calculateCameraPos(this->calculateHorizontalDistance(), this->calculateVerticalDistance());
+    }
+
 private:
-    glm::vec3 position = glm::vec3(0.0f, 0.0f, 7.0f);
-    glm::vec3 FountainRot = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 position = glm::vec3(0.0f, 0.0f, -7.0f);
+    glm::vec3 objPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+
     GLfloat pitch = 30;
     GLfloat yaw = 0;
     GLfloat roll = 0;
@@ -124,21 +125,18 @@ private:
         return (GLfloat) (this->disFromFountain * sin(glm::radians(pitch)));
     }
 
+
     void calculateCameraPos (GLfloat hDis, GLfloat vDis) {
     
         GLfloat offsetX = (GLfloat)(hDis * sin(glm::radians(this->angleAroundFountain)));
         GLfloat offsetZ = (GLfloat)(hDis * cos(glm::radians(this->angleAroundFountain)));
         
     
-        this->position.x = offsetX;
-        this->position.z = offsetZ;
-        this->position.y = vDis;
+        this->position.x = this->objPosition.x - offsetX;
+        this->position.z = this->objPosition.z - offsetZ;
+        this->position.y = this->objPosition.y + vDis;
     }
 };
-
-Camera::Camera(glm::vec3 position) {
-    this->position = position;
-}
 
 Camera::~Camera() {
 }

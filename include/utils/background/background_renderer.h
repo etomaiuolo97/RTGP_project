@@ -18,7 +18,7 @@ public:
     }
 
     void render(Model& model, GLuint texture, Camera & camera) {
-        glm::mat4 view = camera.GetViewMatrix();
+        glm::mat4 view = Renderer::createViewMatrix(camera);
 
         glDepthFunc(GL_LEQUAL);
 
