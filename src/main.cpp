@@ -45,7 +45,7 @@ int main () {
     glCall(glEnable(GL_DEPTH_TEST));
 
     // The clear color for the frame buffer
-    // glCall(glClearColor(0.26f, 0.46f, 0.98f, 1.0f));
+    glCall(glClearColor(0.26f, 0.46f, 0.98f, 1.0f));
 
     // Projection matrix
     glm::mat4 projection = glm::perspective(45.0f, (float)WIDTH/(float)HEIGHT, 0.1f, 10000.0f);
@@ -65,7 +65,10 @@ int main () {
     vector<WaterTile> waters = {WaterTile(0, -4.8, -0.5)};
 
     textureCube = LoadTextureCube("./textures/skybox/");
-    textures.push_back(LoadTexture("./textures/terrain.png"));
+    Texture model_texture;
+    model_texture.id = LoadTexture("./textures/terrain.png");
+    model_texture.shineDamper = 90.0f;
+    model_texture.reflectivity = 1.0f;
     
     // Particles system
     // ParticleTexture particle_texture (LoadTexture("./textures/water_atlas.png"), 4);
@@ -83,34 +86,34 @@ int main () {
 
         glCall(glEnable(GL_CLIP_DISTANCE0));
 
-        water_renderer.getFbos().bindReflectionFrameBuffer();
-        GLfloat distance = 2 * (camera.getPosition().y + 0.5);
-        glm::vec3 cameraPos = camera.getPosition();
-        cameraPos.y -= distance;
-        camera.setPosition(cameraPos);
-        camera.setPitch(-camera.getPitch());
-        glCall(model_renderer.render(fountainModel, textures[0], camera, glm::vec4(0, 1, 0, 0.5 + 1)));
-        glCall(background_renderer.render(bgModel, textureCube, camera));
-        cameraPos.y += distance;
-        camera.setPosition(cameraPos);
-        camera.setPitch(-camera.getPitch());
+        // water_renderer.getFbos().bindReflectionFrameBuffer();
+        // GLfloat distance = 2 * (camera.getPosition().y + 0.5);
+        // glm::vec3 cameraPos = camera.getPosition();
+        // cameraPos.y -= distance;
+        // camera.setPosition(cameraPos);
+        // camera.setPitch(-camera.getPitch());
+        // glCall(model_renderer.render(fountainModel, camera, glm::vec4(0, 1, 0, 0.5 + 1)));
+        // glCall(background_renderer.render(bgModel, textureCube, camera));
+        // cameraPos.y += distance;
+        // camera.setPosition(cameraPos);
+        // camera.setPitch(-camera.getPitch());
 
-        water_renderer.getFbos().bindRefractionFrameBuffer();
-        glCall(model_renderer.render(fountainModel, textures[0], camera, glm::vec4(0, -1, 0, -0.5)));
+        // water_renderer.getFbos().bindRefractionFrameBuffer();
+        // glCall(model_renderer.render(fountainModel, camera, glm::vec4(0, -1, 0, -0.5)));
+        // glCall(background_renderer.render(bgModel, textureCube, camera));
+
+        // glCall(glDisable(GL_CLIP_DISTANCE0));
+        // water_renderer.getFbos().unbindCurrentFrameBuffer();
+        glCall(model_renderer.render(fountainModel, model_texture, camera, glm::vec4(0, -1, 0, 100000)));
         glCall(background_renderer.render(bgModel, textureCube, camera));
 
-        glCall(glDisable(GL_CLIP_DISTANCE0));
-        water_renderer.getFbos().unbindCurrentFrameBuffer();
-        glCall(model_renderer.render(fountainModel, textures[0], camera, glm::vec4(0, -1, 0, 100000)));
-        glCall(background_renderer.render(bgModel, textureCube, camera));
-
-        glm::vec3 lightColour;
-        lightColour.x = model_renderer.getLightColor()[0];
-        lightColour.y = model_renderer.getLightColor()[1];
-        lightColour.z = model_renderer.getLightColor()[2];
-        glCall(water_renderer.render(waters, camera, deltaTime, model_renderer.getLightPos()[0], lightColour));
+        // glm::vec3 lightColour;
+        // lightColour.x = model_renderer.getLightColor()[0];
+        // lightColour.y = model_renderer.getLightColor()[1];
+        // lightColour.z = model_renderer.getLightColor()[2];
+        // glCall(water_renderer.render(waters, camera, deltaTime, model_renderer.getLightPos()[0], lightColour));
         
-        particle_renderer.render(deltaTime, camera, model_renderer.getLightPos()[0], textureCube);
+        // particle_renderer.render(deltaTime, camera, model_renderer.getLightPos()[0], textureCube);
 
         glfwSwapBuffers(window);
     }

@@ -64,8 +64,15 @@ public:
         this->yaw = 180 - (this->angleAroundFountain);
     }
 
-    void ProcessMouseMovement (GLfloat xOffset, GLfloat yOffset) {
+    void calculateZoom (GLfloat offset){
+        if (this->disFromFountain >= 1.0f && this->disFromFountain <= 45.0f)
+            this->disFromFountain -= offset;
+        if (this->disFromFountain <= 1.0f)
+            this->disFromFountain = 1.0f;
+        if (this->disFromFountain >= 45.0f)
+            this->disFromFountain = 45.0f;
 
+        this->calculateCameraPos(this->calculateHorizontalDistance(), this->calculateVerticalDistance());
     }
 
     glm::vec3 getPosition () {
@@ -76,7 +83,6 @@ public:
         this->position = position;
 
         this->calculateCameraPos(this->calculateHorizontalDistance(), this->calculateVerticalDistance());
-
     }
 
     GLfloat getPitch (){

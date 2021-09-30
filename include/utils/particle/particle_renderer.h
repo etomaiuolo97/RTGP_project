@@ -43,9 +43,9 @@ public:
 
         this->generator.getShader().start();
         this->generator.getShader().loadView(view);
-        // camera.setPitch(-camera.getPitch());
+        camera.setPitch(-camera.getPitch());
         this->generator.getShader().loadCameraPosition(camera.getPosition());
-        // camera.setPitch(-camera.getPitch());
+        camera.setPitch(-camera.getPitch());
 
         this->generator.getShader().loadPointLight(lightPosition);
 
