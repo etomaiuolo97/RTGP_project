@@ -35,15 +35,15 @@ private:
         shader.loadLight(lightPosition, lightColour);
 
         glCall(glActiveTexture(GL_TEXTURE0));
-        glCall(glBindTexture(GL_TEXTURE_2D, fbos.getReflectionTexture()));
+        glCall(glBindTexture(GL_TEXTURE_2D, this->fbos.getReflectionTexture()));
         glCall(glActiveTexture(GL_TEXTURE1));
-        glCall(glBindTexture(GL_TEXTURE_2D, fbos.getRefractionTexture()));
+        glCall(glBindTexture(GL_TEXTURE_2D, this->fbos.getRefractionTexture()));
         glCall(glActiveTexture(GL_TEXTURE2));
         glCall(glBindTexture(GL_TEXTURE_2D, this->dudvTexture));
-        // glCall(glActiveTexture(GL_TEXTURE3));
-        // glCall(glBindTexture(GL_TEXTURE_2D, this->normalMapTexture));
-        // glCall(glActiveTexture(GL_TEXTURE4));
-        // glCall(glBindTexture(GL_TEXTURE_2D, this->fbos.getRefractionDepthTexture()));
+        glCall(glActiveTexture(GL_TEXTURE3));
+        glCall(glBindTexture(GL_TEXTURE_2D, this->normalMapTexture));
+        glCall(glActiveTexture(GL_TEXTURE4));
+        glCall(glBindTexture(GL_TEXTURE_2D, this->fbos.getRefractionDepthTexture()));
         
         shader.connectTextureUnits();
 
@@ -65,7 +65,7 @@ public:
           
         this->fbos = WaterFrameBuffers(width, height);
         this->dudvTexture = LoadTexture("./textures/water/DuDv.png", true);
-        this->normalMapTexture = LoadTexture("./textures/water/normalMap.png");
+        this->normalMapTexture = LoadTexture("./textures/water/matchingNormalMap.png", true);
 
         shader.start();
         shader.loadProjectionMatrix(projection);

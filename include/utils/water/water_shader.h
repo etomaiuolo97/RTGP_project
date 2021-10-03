@@ -19,6 +19,10 @@ private:
     GLint dudvMapLocation;
     GLint moveFactorLocation;
     GLint cameraPositionLocation;
+    GLint normalMapLocation;
+    GLint lightColorLocation;
+    GLint lightPositionLocation;
+    GLint depthMapLocation;
 
 public:
 
@@ -48,23 +52,23 @@ public:
         this->dudvMapLocation = Shader::getUniformLocation("u_DuDvMap");
         this->moveFactorLocation = Shader::getUniformLocation("u_MoveFactor");
         this->cameraPositionLocation = Shader::getUniformLocation("u_CameraPosition");
-        // this->normalMapLocation = Shader::getUniformLocation("normalMap");
-        // this->lightColourLocation = Shader::getUniformLocation("lightColour");
-        // this->lightPositionLocation = Shader::getUniformLocation("lightPosition");
-        // this->depthMapLocation = Shader::getUniformLocation("depthMap");
+        this->normalMapLocation = Shader::getUniformLocation("u_NormalMap");
+        this->lightColorLocation = Shader::getUniformLocation("u_LightColor");
+        this->lightPositionLocation = Shader::getUniformLocation("u_LightPosition");
+        this->depthMapLocation = Shader::getUniformLocation("u_DepthMap");
     }
 
     void connectTextureUnits () {
         glCall(glUniform1i(this->reflectionTextureLocation, 0));
         glCall(glUniform1i(this->refractionTextureLocation, 1));
         glCall(glUniform1i(this->dudvMapLocation, 2));
-        // glCall(glUniform1i(this->normalMapLocation, 3));
-        // glCall(glUniform1i(this->depthMapLocation, 4));
+        glCall(glUniform1i(this->normalMapLocation, 3));
+        glCall(glUniform1i(this->depthMapLocation, 4));
     }
 
     void loadLight (glm::vec3 lightPosition, glm::vec3 lightColour){
-        // glCall(glUniform3fv(this->lightPositionLocation, 1, glm::value_ptr(lightPosition)));
-        // glCall(glUniform3fv(this->lightColourLocation, 1, glm::value_ptr(lightColour)));
+        glCall(glUniform3fv(this->lightPositionLocation, 1, glm::value_ptr(lightPosition)));
+        glCall(glUniform3fv(this->lightColorLocation, 1, glm::value_ptr(lightColour)));
     }
 
     void loadCameraPosition (glm::vec3 cameraPos){

@@ -110,10 +110,10 @@ int main () {
         water_renderer.unbindCurrentFrameBuffer();
 
         glCall(glDisable(GL_CLIP_DISTANCE0));
-        glCall(glDisable(GL_DEPTH_TEST));
-        glCall(glClear(GL_COLOR_BUFFER_BIT));
+        glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
         
-        // glCall(model_renderer.render(fountainModel, model_texture, camera, glm::vec4(0, -1, 0, 100000)));
+        glCall(model_renderer.render(fountainModel, model_texture, camera, glm::vec4(0, -1, 0, 100000)));
         glCall(background_renderer.render(bgModel, textureCube, camera));
         glCall(water_renderer.render(camera, deltaTime, model_renderer.getLightPos(), model_renderer.getLightColor()));
         
