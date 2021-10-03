@@ -15,8 +15,13 @@ uniform mat4 u_ViewMatrix;
 
 uniform vec3 u_LightPosition;
 
+uniform vec4 u_ClipPlane;
+
 void main (void) {
     vec4 worldPosition = u_ModelMatrix * vec4(a_Position, 1.0f);
+    
+    gl_ClipDistance[0] = dot(worldPosition, u_ClipPlane);
+    
     gl_Position = u_ProjectionMatrix * u_ViewMatrix * worldPosition;
 
     textureCoords = a_TextureCoords;

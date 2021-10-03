@@ -15,8 +15,9 @@ private:
     const GLfloat WAVE_SPEED = 0.03f;
 
     WaterShader shader;
-    Model quad;
     WaterFrameBuffers fbos;
+    WaterTile tile = WaterTile (0.0f, -5.0f, 0.1f);
+    Model quad;
 
     GLfloat moveFactor = 0;
 
@@ -37,12 +38,14 @@ private:
         glCall(glBindTexture(GL_TEXTURE_2D, fbos.getReflectionTexture()));
         glCall(glActiveTexture(GL_TEXTURE1));
         glCall(glBindTexture(GL_TEXTURE_2D, fbos.getRefractionTexture()));
-        glCall(glActiveTexture(GL_TEXTURE2));
-        glCall(glBindTexture(GL_TEXTURE_2D, this->dudvTexture));
-        glCall(glActiveTexture(GL_TEXTURE3));
-        glCall(glBindTexture(GL_TEXTURE_2D, this->normalMapTexture));
-        glCall(glActiveTexture(GL_TEXTURE3));
-        glCall(glBindTexture(GL_TEXTURE_2D, this->fbos.getRefractionDepthTexture()));
+        // glCall(glActiveTexture(GL_TEXTURE2));
+        // glCall(glBindTexture(GL_TEXTURE_2D, this->dudvTexture));
+        // glCall(glActiveTexture(GL_TEXTURE3));
+        // glCall(glBindTexture(GL_TEXTURE_2D, this->normalMapTexture));
+        // glCall(glActiveTexture(GL_TEXTURE4));
+        // glCall(glBindTexture(GL_TEXTURE_2D, this->fbos.getRefractionDepthTexture()));
+        
+        shader.connectTextureUnits();
 
         glCall(glEnable(GL_BLEND));
         glCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
@@ -65,34 +68,46 @@ public:
         this->normalMapTexture = LoadTexture("./textures/water/normalMap.png");
 
         shader.start();
-        shader.connectTextureUnits();
         shader.loadProjectionMatrix(projection);
         shader.stop();
         quad = Model("./meshes/circle.obj");
     }
 
-    WaterFrameBuffers getFbos(){
-        return this->fbos;
-    }
-
-    void render(vector<WaterTile> water, Camera & camera, GLfloat deltaTime, glm::vec3 lightPosition, glm::vec3 lightColour) {
+    void render(Camera & camera, GLfloat deltaTime, glm::vec3 lightPosition, glm::vec3 lightColour) {
         prepareRender(camera, deltaTime, lightPosition, lightColour);
 
-        for (WaterTile tile: water){
-            glm::mat4 modelMatrix = Renderer::createTransformationMatrix(
-                glm::vec3(tile.getX(), tile.getHeight(), tile.getZ()),
-                0, 0, 0, tile.TILE_SIZE
-            );
-            shader.loadModelMatrix(modelMatrix);
-            quad.Draw();
-        }
+        glm::mat4 modelMatrix = Renderer::createTransformationMatrix(
+            glm::vec3(this->tile.getX(), this->tile.getHeight(), this->tile.getZ()),
+            0, 0, 0, this->tile.TILE_SIZE
+        );
+        shader.loadModelMatrix(modelMatrix);
+
+        quad.Draw();
 
         unbind();
     }
 
+    void bindReflectionFrameBuffer () {
+        this->fbos.bindReflectionFrameBuffer();
+    }
+
+    void unbindCurrentFrameBuffer () {
+        this->fbos.unbindCurrentFrameBuffer();
+    }
+
+    void bindRefractionFrameBuffer (){
+        this->fbos.bindRefractionFrameBuffer();
+    }
+
     void cleanUp(){
         shader.cleanUp();
+        fbos.cleanUp();
     }
+
+    GLfloat getWaterHeight() {
+        return this->tile.getHeight();
+    }
+
 };
 
 #endif

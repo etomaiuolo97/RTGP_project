@@ -35,6 +35,7 @@ private:
     GLint lightColorLocation;
     GLint shineDamperLocation;
     GLint reflectivityLocation;
+    GLint clipPlaneLocation;
 
 public:
 
@@ -65,6 +66,11 @@ public:
         this->lightColorLocation = Shader::getUniformLocation("u_LightColor");
         this->shineDamperLocation = Shader::getUniformLocation("u_ShineDamper");
         this->reflectivityLocation = Shader::getUniformLocation("u_Reflectivity");
+        this->clipPlaneLocation = Shader::getUniformLocation("u_ClipPlane");
+    }
+
+    void loadClipPlane (glm::vec4& clipPlane) {
+        glCall(glUniform4fv(this->clipPlaneLocation, 1, glm::value_ptr(clipPlane)));
     }
 
     void loadLight (Light& light) {

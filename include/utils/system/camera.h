@@ -79,10 +79,8 @@ public:
         return this->position;
     }
 
-    void setPosition (glm::vec3 position) {
-        this->position = position;
-
-        this->calculateCameraPos(this->calculateHorizontalDistance(), this->calculateVerticalDistance());
+    void setPosition (glm::vec3& position) {
+        this->position = glm::vec3(position.x, position.y, position.z);
     }
 
     GLfloat getPitch (){
@@ -95,7 +93,6 @@ public:
 
     void setPitch (GLfloat pitch) {
         this->pitch = pitch;
-        this->calculateCameraPos(this->calculateHorizontalDistance(), this->calculateVerticalDistance());
     }
 
     GLfloat getRoll () {

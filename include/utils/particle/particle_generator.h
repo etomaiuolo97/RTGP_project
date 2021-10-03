@@ -53,8 +53,8 @@ public:
                     particle.velocity.y += gravity * deltaTime;
                     particle.position.y += particle.velocity.y * (GLfloat) deltaTime;
 
-                    if (particle.position.y < -0.3)
-                        particle.position.y = -0.3;
+                    if (particle.position.y < 0.0)
+                        particle.position.y = 0.0;
                     else {
                         particle.position.x += particle.velocity.x * (GLfloat) deltaTime;
                         particle.position.z += particle.velocity.z * (GLfloat) deltaTime;

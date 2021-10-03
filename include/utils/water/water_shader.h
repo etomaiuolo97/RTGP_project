@@ -13,16 +13,9 @@ class WaterShader: public Shader {
 private:
     GLint viewMatrixLocation;
     GLint modelMatrixLocation;
-    GLint projectionMatLocation;
+    GLint projectionMatrixLocation;
     GLint reflectionTextureLocation;
     GLint refractionTextureLocation;
-    GLint dudvMapLocation;
-    GLint moveFactorLocation;
-    GLint cameraPositionLocation;
-    GLint normalMapLocation;
-    GLint lightColourLocation;
-    GLint lightPositionLocation;
-    GLint depthMapLocation;
 
 public:
 
@@ -40,54 +33,54 @@ public:
 
 
     void bindAttributes () {
-        Shader::bindAttribute(0, "position");
+        Shader::bindAttribute(0, "a_Position");
     }
     
     void getAllUniformLocations () {
-        this->projectionMatLocation = Shader::getUniformLocation("projectionMatrix");
-        this->viewMatrixLocation = Shader::getUniformLocation("viewMatrix");
-        this->modelMatrixLocation = Shader::getUniformLocation("modelMatrix");
-        this->reflectionTextureLocation = Shader::getUniformLocation("reflectionTexture");
-        this->refractionTextureLocation = Shader::getUniformLocation("refractionTexture");
-        this->dudvMapLocation = Shader::getUniformLocation("dudvMap");
-        this->moveFactorLocation = Shader::getUniformLocation("moveFactor");
-        this->cameraPositionLocation = Shader::getUniformLocation("cameraPosition");
-        this->normalMapLocation = Shader::getUniformLocation("normalMap");
-        this->lightColourLocation = Shader::getUniformLocation("lightColour");
-        this->lightPositionLocation = Shader::getUniformLocation("lightPosition");
-        this->depthMapLocation = Shader::getUniformLocation("depthMap");
+        this->projectionMatrixLocation = Shader::getUniformLocation("u_ProjectionMatrix");
+        this->viewMatrixLocation = Shader::getUniformLocation("u_ViewMatrix");
+        this->modelMatrixLocation = Shader::getUniformLocation("u_ModelMatrix");
+        this->reflectionTextureLocation = Shader::getUniformLocation("u_ReflectionTexture");
+        this->refractionTextureLocation = Shader::getUniformLocation("u_RefractionTexture");
+        // this->dudvMapLocation = Shader::getUniformLocation("dudvMap");
+        // this->moveFactorLocation = Shader::getUniformLocation("moveFactor");
+        // this->cameraPositionLocation = Shader::getUniformLocation("cameraPosition");
+        // this->normalMapLocation = Shader::getUniformLocation("normalMap");
+        // this->lightColourLocation = Shader::getUniformLocation("lightColour");
+        // this->lightPositionLocation = Shader::getUniformLocation("lightPosition");
+        // this->depthMapLocation = Shader::getUniformLocation("depthMap");
     }
 
     void connectTextureUnits () {
         glCall(glUniform1i(this->reflectionTextureLocation, 0));
         glCall(glUniform1i(this->refractionTextureLocation, 1));
-        glCall(glUniform1i(this->dudvMapLocation, 2));
-        glCall(glUniform1i(this->normalMapLocation, 3));
-        glCall(glUniform1i(this->depthMapLocation, 4));
+        // glCall(glUniform1i(this->dudvMapLocation, 2));
+        // glCall(glUniform1i(this->normalMapLocation, 3));
+        // glCall(glUniform1i(this->depthMapLocation, 4));
     }
 
     void loadLight (glm::vec3 lightPosition, glm::vec3 lightColour){
-        glCall(glUniform3fv(this->lightPositionLocation, 1, glm::value_ptr(lightPosition)));
-        glCall(glUniform3fv(this->lightColourLocation, 1, glm::value_ptr(lightColour)));
+        // glCall(glUniform3fv(this->lightPositionLocation, 1, glm::value_ptr(lightPosition)));
+        // glCall(glUniform3fv(this->lightColourLocation, 1, glm::value_ptr(lightColour)));
     }
 
     void loadCameraPosition (glm::vec3 cameraPos){
-        glCall(glUniform3fv(this->cameraPositionLocation, 1, glm::value_ptr(cameraPos)));
+        // glCall(glUniform3fv(this->cameraPositionLocation, 1, glm::value_ptr(cameraPos)));
     }
 
     void loadMoveFactor (GLfloat factor) {
-        glCall(glUniform1f(this->moveFactorLocation, factor));
+        // glCall(glUniform1f(this->moveFactorLocation, factor));
     }
 
-    void loadModelMatrix (glm::mat4 matrix) {
+    void loadModelMatrix (glm::mat4& matrix) {
         glCall(glUniformMatrix4fv(this->modelMatrixLocation, 1, GL_FALSE, glm::value_ptr(matrix)));
     }
 
-    void loadProjectionMatrix (glm::mat4 matrix){
-        glCall(glUniformMatrix4fv(this->projectionMatLocation, 1, GL_FALSE, glm::value_ptr(matrix)));
+    void loadProjectionMatrix (glm::mat4& matrix){
+        glCall(glUniformMatrix4fv(this->projectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(matrix)));
     }
 
-    void loadViewMatrix(glm::mat4 matrix){
+    void loadViewMatrix(glm::mat4& matrix){
         glCall(glUniformMatrix4fv(this->viewMatrixLocation, 1, GL_FALSE, glm::value_ptr(matrix)));
     }  
 };

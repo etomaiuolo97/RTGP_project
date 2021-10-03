@@ -30,12 +30,12 @@ public:
             this->particle.sizeVariation = 0.01f;
             this->particle.sizeEnd = 0.1f;
 
-            this->particle.life = 1.1f;
+            this->particle.life = 1.5f;
 
             this->particle.velocity = {0.0f, 0.0f, 0.0f};
             this->particle.velocityVariation = 4.0f;
 
-            this->particle.position = {0.0f, 3.1f, -5.0f};
+            this->particle.position = {0.0f, 4.5f, -5.0f};
     }
 
     void render(GLfloat deltaTime, Camera & camera, glm::vec3 lightPosition, GLint tCube) {

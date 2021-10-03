@@ -34,6 +34,7 @@ public:
 
         shader.loadLight(this->light);
         shader.loadViewMatrix(view);
+        shader.loadClipPlane(clipPlane);
 
         glCall(glActiveTexture(GL_TEXTURE0));
         glCall(glBindTexture(GL_TEXTURE_2D, texture.id));

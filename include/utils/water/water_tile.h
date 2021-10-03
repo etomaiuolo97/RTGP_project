@@ -11,7 +11,7 @@ private:
     GLfloat x, z;
 
 public:
-    const GLfloat TILE_SIZE = 2;
+    const GLfloat TILE_SIZE = 2.8;
 
     WaterTile (GLfloat centerX, GLfloat centerZ, GLfloat height) {
         this->x = centerX;
