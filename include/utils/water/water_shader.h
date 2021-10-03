@@ -18,6 +18,7 @@ private:
     GLint refractionTextureLocation;
     GLint dudvMapLocation;
     GLint moveFactorLocation;
+    GLint cameraPositionLocation;
 
 public:
 
@@ -46,7 +47,7 @@ public:
         this->refractionTextureLocation = Shader::getUniformLocation("u_RefractionTexture");
         this->dudvMapLocation = Shader::getUniformLocation("u_DuDvMap");
         this->moveFactorLocation = Shader::getUniformLocation("u_MoveFactor");
-        // this->cameraPositionLocation = Shader::getUniformLocation("cameraPosition");
+        this->cameraPositionLocation = Shader::getUniformLocation("u_CameraPosition");
         // this->normalMapLocation = Shader::getUniformLocation("normalMap");
         // this->lightColourLocation = Shader::getUniformLocation("lightColour");
         // this->lightPositionLocation = Shader::getUniformLocation("lightPosition");
@@ -67,7 +68,7 @@ public:
     }
 
     void loadCameraPosition (glm::vec3 cameraPos){
-        // glCall(glUniform3fv(this->cameraPositionLocation, 1, glm::value_ptr(cameraPos)));
+        glCall(glUniform3fv(this->cameraPositionLocation, 1, glm::value_ptr(cameraPos)));
     }
 
     void loadMoveFactor (GLfloat factor) {
