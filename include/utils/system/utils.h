@@ -79,7 +79,7 @@ GLint LoadTextureCube (string path) {
     return textureImage;
 }
 
-GLint LoadTexture(const char* path) {
+GLint LoadTexture(const char* path, bool repeat = false) {
     GLuint textureImage;
     int w, h, channels;
     unsigned char* image;
@@ -100,8 +100,15 @@ GLint LoadTexture(const char* path) {
     glCall(glGenerateMipmap(GL_TEXTURE_2D));
 
     // we set how to consider UVs outside [0,1] range
-    glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-    glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+    if (repeat) {
+        glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+        glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+    }
+    else {
+        glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+        glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+    }
+    
 
     // we set the filtering for minification and magnification
     glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));

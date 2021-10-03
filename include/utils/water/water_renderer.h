@@ -12,7 +12,7 @@
 
 class WaterRenderer : public Renderer{
 private:
-    const GLfloat WAVE_SPEED = 0.03f;
+    const GLfloat WAVE_SPEED = 0.1f;
 
     WaterShader shader;
     WaterFrameBuffers fbos;
@@ -38,8 +38,8 @@ private:
         glCall(glBindTexture(GL_TEXTURE_2D, fbos.getReflectionTexture()));
         glCall(glActiveTexture(GL_TEXTURE1));
         glCall(glBindTexture(GL_TEXTURE_2D, fbos.getRefractionTexture()));
-        // glCall(glActiveTexture(GL_TEXTURE2));
-        // glCall(glBindTexture(GL_TEXTURE_2D, this->dudvTexture));
+        glCall(glActiveTexture(GL_TEXTURE2));
+        glCall(glBindTexture(GL_TEXTURE_2D, this->dudvTexture));
         // glCall(glActiveTexture(GL_TEXTURE3));
         // glCall(glBindTexture(GL_TEXTURE_2D, this->normalMapTexture));
         // glCall(glActiveTexture(GL_TEXTURE4));
@@ -64,7 +64,7 @@ public:
         Renderer::SetupShaders(shader.getProgram());
           
         this->fbos = WaterFrameBuffers(width, height);
-        this->dudvTexture = LoadTexture("./textures/water/DuDv.png");
+        this->dudvTexture = LoadTexture("./textures/water/DuDv.png", true);
         this->normalMapTexture = LoadTexture("./textures/water/normalMap.png");
 
         shader.start();

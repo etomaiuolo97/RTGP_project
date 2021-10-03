@@ -16,6 +16,8 @@ private:
     GLint projectionMatrixLocation;
     GLint reflectionTextureLocation;
     GLint refractionTextureLocation;
+    GLint dudvMapLocation;
+    GLint moveFactorLocation;
 
 public:
 
@@ -42,8 +44,8 @@ public:
         this->modelMatrixLocation = Shader::getUniformLocation("u_ModelMatrix");
         this->reflectionTextureLocation = Shader::getUniformLocation("u_ReflectionTexture");
         this->refractionTextureLocation = Shader::getUniformLocation("u_RefractionTexture");
-        // this->dudvMapLocation = Shader::getUniformLocation("dudvMap");
-        // this->moveFactorLocation = Shader::getUniformLocation("moveFactor");
+        this->dudvMapLocation = Shader::getUniformLocation("u_DuDvMap");
+        this->moveFactorLocation = Shader::getUniformLocation("u_MoveFactor");
         // this->cameraPositionLocation = Shader::getUniformLocation("cameraPosition");
         // this->normalMapLocation = Shader::getUniformLocation("normalMap");
         // this->lightColourLocation = Shader::getUniformLocation("lightColour");
@@ -54,7 +56,7 @@ public:
     void connectTextureUnits () {
         glCall(glUniform1i(this->reflectionTextureLocation, 0));
         glCall(glUniform1i(this->refractionTextureLocation, 1));
-        // glCall(glUniform1i(this->dudvMapLocation, 2));
+        glCall(glUniform1i(this->dudvMapLocation, 2));
         // glCall(glUniform1i(this->normalMapLocation, 3));
         // glCall(glUniform1i(this->depthMapLocation, 4));
     }
@@ -69,7 +71,7 @@ public:
     }
 
     void loadMoveFactor (GLfloat factor) {
-        // glCall(glUniform1f(this->moveFactorLocation, factor));
+        glCall(glUniform1f(this->moveFactorLocation, factor));
     }
 
     void loadModelMatrix (glm::mat4& matrix) {
