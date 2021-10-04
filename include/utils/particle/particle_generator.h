@@ -78,7 +78,7 @@ public:
                 
                 GLfloat blend = glm::lerp(1.0f, 0.0f, life);
 
-                shader.loadTransform(this->createModelMatrix(particle.position, particle.rotation, size, viewMatrix));
+                shader.loadModelMatrix(this->createModelMatrix(particle.position, particle.rotation, size, viewMatrix));
 
                 this->waterDrop.Draw();
             }
