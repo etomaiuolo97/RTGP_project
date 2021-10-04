@@ -63,6 +63,10 @@ public:
         return this->light.color;
     }
 
+    Light getLight () {
+        return this->light;
+    }
+
 };
 
 #endif

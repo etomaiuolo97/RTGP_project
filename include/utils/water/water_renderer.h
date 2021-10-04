@@ -8,7 +8,7 @@
 
 #include "utils/water/water_shader.h"
 #include "utils/water/water_tile.h"
-#include "utils/water/waterframe_buffers.h"
+#include "utils/water/water_framebuffers.h"
 
 class WaterRenderer : public Renderer{
 private:

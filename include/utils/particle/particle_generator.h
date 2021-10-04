@@ -78,7 +78,6 @@ public:
                 
                 GLfloat blend = glm::lerp(1.0f, 0.0f, life);
 
-                shader.loadColor(glm::vec4(color.x, color.y, color.z, 1.0));
                 shader.loadTransform(this->createModelMatrix(particle.position, particle.rotation, size, viewMatrix));
 
                 this->waterDrop.Draw();
@@ -133,7 +132,6 @@ private:
         GLfloat lifeTime = 1.0f;
         GLfloat lifeRemaining = 0.0f;
 
-        ParticleTexture texture;
         GLfloat blend;
         glm::vec2 texOffset1;
         glm::vec2 texOffset2;
@@ -203,16 +201,6 @@ private:
         GLfloat y = (GLfloat) (rootMinusZSquared * glm::sin(theta));
 
         return glm::vec3 (x, y, z);
-    }
-
-    glm::vec2 setTextureOffset (GLint index, ParticleTexture& texture) {
-        GLint column = index % texture.getNumRows();
-        GLint row = index / texture.getNumRows();
-        
-        GLfloat x = (GLfloat) column / texture.getNumRows();
-        GLfloat y = (GLfloat) row / texture.getNumRows();
-        
-        return glm::vec2(x, y);
     }
 
 };

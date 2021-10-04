@@ -7,13 +7,17 @@ uniform mat4 u_View;
 uniform mat4 u_Projection;
 uniform mat4 u_Transform;
 
-out vec4 worldPosition;
 out vec3 worldNormal;
+out vec4 worldPosition;
+out vec4 clipSpace;
 
 void main()
 {
-	worldPosition = u_Transform * vec4(a_Position, 1.0);
-	worldNormal = mat3(transpose(inverse(u_Transform))) * a_Normal;
+	worldPosition = u_Transform * vec4(a_Position, 1.0f);
+    clipSpace = u_Projection * u_View * worldPosition;
 
-	gl_Position = u_Projection * u_View * worldPosition;
+    worldNormal = mat3(transpose(inverse(u_Transform))) * a_Normal;
+
+    gl_Position = clipSpace;
+
 }

@@ -2,45 +2,72 @@
 
 layout (location = 0) out vec4 o_Color;
 
-in vec4 worldPosition;
 in vec3 worldNormal;
+in vec4 worldPosition;
+in vec4 clipSpace;
 
-uniform vec4 u_Color;
-
-uniform samplerCube u_TCube;
+uniform sampler2D u_ReflectionTexture;
+uniform sampler2D u_RefractionTexture;
+uniform sampler2D u_DepthMap;
 uniform vec3 u_CameraPosition;
-uniform vec3 u_PointLightPosition;
+uniform vec3 u_LightPosition;
+
+const float eta = 0.4f;
+const float fresnelPower = 3.0f;
+
+const float shineDamper = 10.0f;
+const float reflectivity = 0.2f;
 
 void main()
 {
-	// Vertex-Camera vector in world coordinates
-    // worldNormal = vec3(worldNormal.x, worldNormal.y, -worldNormal.z);
-    vec3 N = normalize(vec3(worldNormal.x, worldNormal.y, -worldNormal.z));
+	vec3 N = normalize(worldNormal);
+
+    // Vector from vertex to camera in world coordinates
     vec3 V = normalize(worldPosition.xyz - u_CameraPosition);
 
-    // Reflection vector of I w.r.t. normal
-    vec3 R = reflect(V, normalize(worldNormal));
-    vec3 L = normalize(worldPosition.xyz - u_PointLightPosition);
+    // Incidence light direction in world coordinates
+    vec3 L = normalize(worldPosition.xyz - u_LightPosition);
+
+    // Half vector in world coordinates
     vec3 H = normalize(L + V);
 
-    // Sample the texture cube using the components of reflection vector as texture coordinates
-    vec4 reflectedCol =  texture(u_TCube, R);
-	
-	float Eta = 1.0f;
-	vec3 refractDir[3];
-    refractDir[0] = refract(V, N, Eta);
-    refractDir[1] = refract(V, N, Eta * 0.99);
-    refractDir[2] = refract(V, N, Eta * 0.98);
+    // Reflection vector of V with respect to normal
+    vec3 R = reflect(V, N);
+ 
+	vec2 ndc = (clipSpace.xy / clipSpace.w) / 2.0f + 0.5f;
 
-	vec4 refractedCol = vec4(1.0);
-    refractedCol.r = texture(u_TCube, refractDir[0]).r;
-    refractedCol.g = texture(u_TCube, refractDir[1]).g;
-    refractedCol.b = texture(u_TCube, refractDir[2]).b;
+	float near = 0.1f;
+	float far = 10000.0f;
+	float depth = texture(u_DepthMap, vec2(ndc.x, ndc.y)).r;
+	float floorDistance = 2.0f * near * far / (far + near - (2.0f * depth - 1.0f) * (far - near));
 
-	float mFresnelPower = 10.0f;
-    float F0 = ((1.0 - Eta) * (1.0 - Eta)) / ((1.0 + Eta) * (1.0 + Eta));
-    float ratio = F0 + (1.0 - F0) * pow(1.0 - max(dot(V, H), 0.0), mFresnelPower);
+    depth = gl_FragCoord.z;
+	float waterDistance = 2.0f * near * far / (far + near - (2.0f * depth - 1.0f) * (far - near));
+	float waterDepth = floorDistance - waterDistance;
 
-    vec4 out_Color = mix(refractedCol, reflectedCol, clamp(ratio, 0.0, 1.0));
-    o_Color = vec4(out_Color.xyz, 0.5);
+	float refractiveFactor = dot(V, N);
+	refractiveFactor = pow(refractiveFactor, 0.8f);
+
+	// Light reflection
+	vec3 reflectedLight = reflect(-L, N);
+	float specular = max(dot(reflectedLight, V), 0.0f);
+	specular = pow(specular, shineDamper);
+	vec3 specularHighlights = vec3(1.0f) * specular * reflectivity * clamp(depth / 1.0, 0.2f, 0.8f);
+
+    // we sample the texture cube using the components of the reflection vector as texture coordinates.
+    vec4 refractedColor = texture(u_RefractionTexture, vec2(ndc.x, ndc.y));
+    vec4 reflectedColor = texture(u_ReflectionTexture, vec2(ndc.x, ndc.y));
+
+    // Fresnel equation with Schlik's approximation
+    // F(0°) factor
+    float F0 = ((1.0 - eta) * (1.0 - eta)) / ((1.0 + eta) * (1.0 + eta));
+    // ratio between reflection and refraction
+    float Ratio = F0 + (1.0 - F0) * pow(1.0 - max(dot(V, H), 0.0), fresnelPower);
+
+    // we merge the 2 colors, using the ratio calculated with the Fresnel equation
+    
+    o_Color = mix(refractedColor, reflectedColor, clamp(Ratio, 0.0, 1.0));
+    // o_Color = mix(refractedColor, reflectedColor, refractiveFactor);
+    o_Color += vec4(specularHighlights, 0.2f);
+    o_Color.a = clamp(depth / 1.0, 0.5, 1.0f);
 }

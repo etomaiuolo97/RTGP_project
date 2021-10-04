@@ -87,21 +87,32 @@ public:
         return this->pitch;
     }
 
+    void setPitch (GLfloat pitch) {
+        this->pitch = pitch;
+    }
+    
     GLfloat getYaw () {
         return this->yaw;
     }
 
-    void setPitch (GLfloat pitch) {
-        this->pitch = pitch;
+    void setYaw (GLfloat yaw) {
+        this->yaw = glm::mod(yaw, 360.0f);
     }
 
     GLfloat getRoll () {
         return this->roll;
     }
 
+    void setRoll (GLfloat roll) {
+        this->roll = roll;
+    }
+
+    glm::vec3 getObjPosition () {
+        return this->objPosition;
+    }
+
     void setObjPosition (glm::vec3 objPosition) {
         this->objPosition = objPosition;
-        this->calculateCameraPos(this->calculateHorizontalDistance(), this->calculateVerticalDistance());
     }
 
 private:

@@ -64,11 +64,11 @@ void main(void) {
 	vec3 reflectedLight = reflect(normalize(fromLightVector), normal);
 	float specular = max(dot(reflectedLight, viewVector), 0.0f);
 	specular = pow(specular, shineDamper);
-	vec3 specularHighlights = u_LightColor * specular * reflectivity * clamp(waterDepth / 2.0, 0.2f, 1.0f);
+	vec3 specularHighlights = u_LightColor * specular * reflectivity * clamp(waterDepth / 3.0, 0.2f, 1.0f);
 
 	o_Color = mix(reflectColor, refractColor, refractiveFactor);
 	o_Color = mix(o_Color, vec4(0.0f, 0.3f, 0.5f, 1.0f), 0.1f);
 	o_Color += vec4(specularHighlights, 0.0f);
-	o_Color.a = clamp(waterDepth / 2.0, 0.2f, 1.0f);
+	o_Color.a = clamp(waterDepth / 3.0, 0.2f, 1.0f);
 
 }

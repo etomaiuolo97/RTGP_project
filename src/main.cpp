@@ -30,10 +30,8 @@ using namespace std;
 
 #include <utils/background/background_renderer.h>
 
-#include <utils/water/waterframe_buffers.h>
 #include <utils/water/water_renderer.h>
 
-#include <utils/particle/particle_texture.h>
 #include <utils/particle/particle_renderer.h>
 
 int main () {
@@ -110,14 +108,40 @@ int main () {
         water_renderer.unbindCurrentFrameBuffer();
 
         glCall(glDisable(GL_CLIP_DISTANCE0));
-        glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
+        particle_renderer.bindReflectionFrameBuffer();
+
+        glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+        
+        camera.setPitch(-camera.getPitch());
+        camera.setYaw(camera.getYaw() + 180.0f);
+        glm::vec3 objPosition = camera.getObjPosition();
+        objPosition.y += distance*3;
+        camera.setPosition(objPosition);
+        
+        glCall(water_renderer.render(camera, deltaTime, model_renderer.getLightPos(), model_renderer.getLightColor()));
+        glCall(background_renderer.render(bgModel, textureCube, camera));
+
+        camera.setPitch(-camera.getPitch());
+        camera.setYaw(camera.getYaw() - 180.0f);
+        camera.setPosition(cameraPos);
+
+        particle_renderer.bindRefractionFrameBuffer();
+
+        glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         
         glCall(model_renderer.render(fountainModel, model_texture, camera, glm::vec4(0, -1, 0, 100000)));
         glCall(background_renderer.render(bgModel, textureCube, camera));
         glCall(water_renderer.render(camera, deltaTime, model_renderer.getLightPos(), model_renderer.getLightColor()));
-        
-        // particle_renderer.render(deltaTime, camera, model_renderer.getLightPos(), textureCube);
+        particle_renderer.unbindCurrentFrameBuffer();
+
+        glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
+        glCall(model_renderer.render(fountainModel, model_texture, camera, glm::vec4(0, -1, 0, 100000)));
+        glCall(background_renderer.render(bgModel, textureCube, camera));
+        glCall(water_renderer.render(camera, deltaTime, model_renderer.getLightPos(), model_renderer.getLightColor()));
+
+        particle_renderer.render(deltaTime, camera, model_renderer.getLight(), textureCube);
 
         glfwSwapBuffers(window);
     }

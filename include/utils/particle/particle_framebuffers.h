@@ -1,14 +1,17 @@
-// #include <glad.h>
-#ifndef WATER_FRAMEBUFFER
-#define WATER_FRAMEBUFFER
+#ifndef PARTICLE_FRAMEBUFFER
+#define PARTICLE_FRAMEBUFFER
 
-class WaterFrameBuffers {
+#include <glad/glad.h>
+
+#include <utils/system/utils.h>
+
+class ParticleFrameBuffers {
 protected:
-    static const int REFLECTION_WIDTH = 1000;
-    static const int REFLECTION_HEIGHT = 1000;
+    static const int REFLECTION_WIDTH = 500;
+    static const int REFLECTION_HEIGHT = 500;
 
-    static const int REFRACTION_WIDTH = 1000;
-    static const int REFRACTION_HEIGHT = 1000;
+    static const int REFRACTION_WIDTH = 500;
+    static const int REFRACTION_HEIGHT = 500;
 
 private:
 
@@ -84,9 +87,9 @@ private:
     }
 
 public:
-    WaterFrameBuffers(){}
+    ParticleFrameBuffers(){}
 
-    WaterFrameBuffers(GLint screenWidth, GLint screenHeight) {
+    ParticleFrameBuffers(GLint screenWidth, GLint screenHeight) {
         this->screenWidth = screenWidth;
         this->screenHeight = screenHeight;
 

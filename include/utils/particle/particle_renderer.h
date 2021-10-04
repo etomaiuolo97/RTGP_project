@@ -5,13 +5,13 @@
 
 #include "utils/system/renderer.h"
 #include "utils/particle/particle_generator.h"
+#include "utils/particle/particle_framebuffers.h"
 
 class ParticleRenderer : public Renderer{
 private:
     ParticleGenerator generator;
     ParticleProps particle;
-
-    
+    ParticleFrameBuffers fbos;
 
 public:
 
@@ -36,18 +36,16 @@ public:
             this->particle.velocityVariation = 4.0f;
 
             this->particle.position = {0.0f, 4.5f, -5.0f};
+
+            this->fbos = ParticleFrameBuffers(WIDTH, HEIGHT);
     }
 
-    void render(GLfloat deltaTime, Camera & camera, glm::vec3 lightPosition, GLint tCube) {
+    void render(GLfloat deltaTime, Camera & camera, Light light, GLint tCube) {
         glm::mat4 view = Renderer::createViewMatrix(camera);
 
         this->generator.getShader().start();
         this->generator.getShader().loadView(view);
-        camera.setPitch(-camera.getPitch());
-        this->generator.getShader().loadCameraPosition(camera.getPosition());
-        camera.setPitch(-camera.getPitch());
-
-        this->generator.getShader().loadPointLight(lightPosition);
+        this->generator.getShader().loadLight(light);
 
         glCall(glEnable(GL_BLEND));
         glCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
@@ -58,9 +56,16 @@ public:
         }
 
         glCall(glActiveTexture(GL_TEXTURE0));
-        glCall(glBindTexture(GL_TEXTURE_CUBE_MAP, tCube));
+        glCall(glBindTexture(GL_TEXTURE_2D, fbos.getReflectionTexture()));
+        
+        glCall(glActiveTexture(GL_TEXTURE1));
+        glCall(glBindTexture(GL_TEXTURE_2D, fbos.getRefractionTexture()));
 
-        this->generator.getShader().loadTCube(0);
+        glCall(glActiveTexture(GL_TEXTURE2));
+        glCall(glBindTexture(GL_TEXTURE_2D, fbos.getRefractionDepthTexture()));
+
+        this->generator.getShader().connectTextureUnits();
+
         this->generator.update(deltaTime);
         this->generator.Draw(view);
 
@@ -70,8 +75,21 @@ public:
         generator.getShader().stop();        
     }
 
+    void bindReflectionFrameBuffer () {
+        this->fbos.bindReflectionFrameBuffer();
+    }
+
+    void unbindCurrentFrameBuffer () {
+        this->fbos.unbindCurrentFrameBuffer();
+    }
+
+    void bindRefractionFrameBuffer (){
+        this->fbos.bindRefractionFrameBuffer();
+    }
+
     void cleanUp(){
-        generator.cleanUp();
+        this->fbos.cleanUp();
+        this->generator.cleanUp();
     }
 };
 
