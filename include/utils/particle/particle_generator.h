@@ -68,6 +68,8 @@ public:
     }
 
     void Draw (glm::mat4& viewMatrix) {
+        shader.loadViewMatrix(viewMatrix);
+
         for (auto& particle: this->particles) {
             if (particle.active){
                 GLfloat life = particle.lifeRemaining / particle.lifeTime;
@@ -78,7 +80,8 @@ public:
                 
                 GLfloat blend = glm::lerp(1.0f, 0.0f, life);
 
-                shader.loadModelMatrix(this->createModelMatrix(particle.position, particle.rotation, size, viewMatrix));
+                glm::mat4 model = this->createModelMatrix(particle.position, particle.rotation, size, viewMatrix);
+                shader.loadModelMatrix(model);
 
                 this->waterDrop.Draw();
             }

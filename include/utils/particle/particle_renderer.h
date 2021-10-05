@@ -22,7 +22,6 @@ private:
     void prepareRender (Camera & camera, GLfloat deltaTime, Light & light) {
         this->generator.getShader().start();
         
-        this->generator.getShader().loadViewMatrix(Renderer::createViewMatrix(camera));
         this->generator.getShader().loadCameraPosition(camera.getPosition());
 
         this->moveFactor += WAVE_SPEED * deltaTime;
@@ -81,12 +80,14 @@ public:
     void render(GLfloat deltaTime, Camera & camera, Light light, GLint tCube) {
         prepareRender(camera, deltaTime, light);
 
+        glm::mat4 view = Renderer::createViewMatrix(camera);
+
         for (GLuint i = 0; i < 10; i++){
             this->generator.emit(particle);
         }
         
         this->generator.update(deltaTime);
-        this->generator.Draw(Renderer::createViewMatrix(camera));
+        this->generator.Draw(view);
 
         glCall(glDepthMask(true));
         glCall(glDisable(GL_BLEND));
