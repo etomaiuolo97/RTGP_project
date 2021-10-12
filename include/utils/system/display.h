@@ -58,22 +58,6 @@ void apply_camera_movements () {
         camera.ProcessKeyboard(BACKWARD, deltaTime);
 }
 
-void mouse_callback (GLFWwindow* window, double xpos, double ypos) {
-    if (firstMouse) {
-        lastX = xpos;
-        lastY = ypos;
-        firstMouse = false;
-    }
-
-    GLfloat xoffset = xpos - lastX;
-    GLfloat yoffset = lastY - ypos;
-
-    lastX = xpos;
-    lastY = ypos;
-
-    // camera.ProcessMouseMovement(xoffset, yoffset);
-}
-
 void scroll_callback (GLFWwindow* window, double xoffset, double yoffset){
     camera.calculateZoom(yoffset);
 }
@@ -85,7 +69,7 @@ GLFWwindow* createDisplay() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
     GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Project", nullptr, nullptr);
@@ -99,7 +83,6 @@ GLFWwindow* createDisplay() {
     glfwMakeContextCurrent(window);
 
     glfwSetKeyCallback(window, key_callback);
-    glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
     
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {

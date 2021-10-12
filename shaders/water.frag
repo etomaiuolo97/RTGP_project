@@ -27,6 +27,7 @@ void main(void) {
 	vec2 refractionTexCoords = vec2(ndc.x, ndc.y);
 	vec2 reflectionTexCoords = vec2(ndc.x, -ndc.y);
 
+	// Water depth calculation
 	float near = 0.1f;
 	float far = 10000.0f;
 	float depth = texture(u_DepthMap, refractionTexCoords).r;

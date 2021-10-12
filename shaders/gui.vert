@@ -1,13 +1,19 @@
 #version 410
 
-in vec2 position;
+layout (location = 0) in vec2 position;
+layout (location = 1) in vec3 normal;
 
-out vec2 textureCoords;
+out vec4 worldPosition;
+out vec3 worldNormal;
 
 uniform mat4 transformationMatrix;
 
 void main(void){
 
-	gl_Position = transformationMatrix * vec4(position, 0.0, 1.0);
-	textureCoords = vec2((position.x+1.0)/2.0, 1 - (position.y+1.0)/2.0);
+	worldPosition = transformationMatrix * vec4(position, 0.0, 1.0);
+
+	worldNormal = mat3(transpose(inverse(transformationMatrix))) * normal;
+	
+	gl_Position = worldPosition;
+
 }

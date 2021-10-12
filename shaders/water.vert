@@ -4,7 +4,9 @@ layout (location = 0) in vec2 a_Position;
 
 out vec4 clipSpace;
 out vec2 textureCoords;
+// Vector from the water to the camera
 out vec3 toCameraVector;
+// Vector from the water to the light
 out vec3 fromLightVector;
 
 uniform mat4 u_ProjectionMatrix;

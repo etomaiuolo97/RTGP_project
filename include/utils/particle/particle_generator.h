@@ -74,12 +74,8 @@ public:
             if (particle.active){
                 GLfloat life = particle.lifeRemaining / particle.lifeTime;
 
-                glm::vec4 color = glm::lerp(particle.colorEnd, particle.colorBegin, life);
-
                 GLfloat size = glm::lerp(particle.sizeEnd, particle.sizeBegin, life);
                 
-                GLfloat blend = glm::lerp(1.0f, 0.0f, life);
-
                 glm::mat4 model = this->createModelMatrix(particle.position, particle.rotation, size, viewMatrix);
                 shader.loadModelMatrix(model);
 
@@ -95,17 +91,9 @@ public:
         particle.position = particleProps.position;
         particle.rotation = Random::Float() * 2.0f * glm::pi<float>();
 
-        if (particleProps.direction != glm::vec3(0.0f, 0.0f, 1.0f)) {
-            particle.velocity = generateRandomUnitVectorWithinCone(particleProps.direction, particleProps.directionDev);
-        }
-        else {
-            particle.velocity = generateRandomUnitVector();
-        }
+        particle.velocity = generateRandomUnitVectorWithinCone(particleProps.direction, particleProps.directionDev);
         particle.velocity = glm::normalize(particle.velocity);
         particle.velocity *= particleProps.velocityVariation;
-
-        particle.colorBegin = particleProps.colorBegin;
-        particle.colorEnd = particleProps.colorEnd;
 
         particle.lifeTime = particleProps.life;
         particle.lifeRemaining = particleProps.life;
@@ -125,19 +113,20 @@ public:
 
 private:
     struct Particle {
+        // Position in the world
         glm::vec3 position;
+
+        // Speed and direction the particle is moving to
+        //  - a 3D vector contains the direction
+        //  - the length of the vectore describes the speed
         glm::vec3 velocity;
-        glm::vec4 colorBegin, colorEnd;
 
         GLfloat rotation = 0.0f;
         GLfloat sizeBegin, sizeEnd;
 
+        // How long the particle should stay alive for
         GLfloat lifeTime = 1.0f;
         GLfloat lifeRemaining = 0.0f;
-
-        GLfloat blend;
-        glm::vec2 texOffset1;
-        glm::vec2 texOffset2;
 
         bool active = false;
     };
@@ -147,7 +136,7 @@ private:
 
     ParticleShader shader;
 
-    GLfloat gravity = -7.81f;
+    GLfloat gravity = -7.81f;   // The gravity influence on the particles
 
     Model waterDrop = Model ("./meshes/circle.obj");
 
@@ -156,6 +145,7 @@ private:
 
         modelMatrix = glm::translate(modelMatrix, position);
 
+        // Deleting the rotation
         modelMatrix[0][0] = viewMatrix[0][0];
         modelMatrix[0][1] = viewMatrix[1][0];
         modelMatrix[0][2] = viewMatrix[2][0];
@@ -194,16 +184,6 @@ private:
         }
 
         return glm::vec3(direction);
-    }
-
-    glm::vec3 generateRandomUnitVector () {
-        GLfloat theta = (GLfloat) (Random::Float() * 2.0f * glm::pi<float>());
-        GLfloat z = (Random::Float() * 2.0f - 1.0f);
-        GLfloat rootMinusZSquared = (GLfloat) glm::sqrt(1 - z * z);
-        GLfloat x = (GLfloat) (rootMinusZSquared * glm::cos(theta));
-        GLfloat y = (GLfloat) (rootMinusZSquared * glm::sin(theta));
-
-        return glm::vec3 (x, y, z);
     }
 
 };

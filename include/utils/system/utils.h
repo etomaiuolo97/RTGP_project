@@ -35,7 +35,7 @@ void checkErrors (){
 #ifdef _WIN32
     #define ASSERT(x) if (!x) __debugbreak();
 #else
-    #define ASSERT(x) if (!x) __builtin_debugtrap(); //or __builtin_trap();
+    #define ASSERT(x) if (!x) __builtin_debugtrap();
 #endif
 
 #define glCall(x) clearErrors(); x; ASSERT(logCall(#x, __FILE__, __LINE__));
@@ -99,7 +99,7 @@ GLint LoadTexture(const char* path, bool repeat = false) {
 
     glCall(glGenerateMipmap(GL_TEXTURE_2D));
 
-    // we set how to consider UVs outside [0,1] range
+    // Set how to consider UVs outside [0,1] range
     if (repeat) {
         glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
         glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
@@ -110,14 +110,14 @@ GLint LoadTexture(const char* path, bool repeat = false) {
     }
     
 
-    // we set the filtering for minification and magnification
+    // Set the filtering for minification and magnification
     glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
     glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 
-    // we free the memory once we have created an OpenGL texture
+    // Free the memory once we have created an OpenGL texture
     stbi_image_free(image);
 
-    // we set the binding to 0 once we have finished
+    // Set the binding to 0 once we have finished
     glCall(glBindTexture(GL_TEXTURE_2D, 0));
 
     return textureImage;

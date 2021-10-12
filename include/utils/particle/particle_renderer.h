@@ -56,9 +56,6 @@ public:
             this->generator.getShader().loadProjectionMatrix(this->projection);
             this->generator.getShader().stop();
 
-            this->particle.colorBegin = {0.8f, 0.8f, 1.0f, 1.0f};
-            this->particle.colorEnd = {1.0f, 1.0f, 1.0f, 1.0f};
-
             this->particle.sizeBegin = 0.01f;
             this->particle.sizeVariation = 0.01f;
             this->particle.sizeEnd = 0.1f;
