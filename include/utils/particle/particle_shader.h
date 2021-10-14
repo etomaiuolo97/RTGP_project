@@ -26,7 +26,7 @@ private:
 public:
 
     ParticleShader() : 
-    Shader("./shaders/particle.vert", "./shaders/particle.frag"){
+    Shader("shaders/particle.vert", "shaders/particle.frag"){
         bindAttributes();
         
         glCall(glLinkProgram(getProgram()));

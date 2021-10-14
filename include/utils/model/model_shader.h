@@ -40,7 +40,7 @@ private:
 public:
 
     ModelShader()
-    :Shader("./shaders/model.vert", "./shaders/model.frag"){
+    :Shader("shaders/model.vert", "shaders/model.frag"){
         bindAttributes();
 
         glCall(glLinkProgram(getProgram()));

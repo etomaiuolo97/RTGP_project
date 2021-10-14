@@ -56,16 +56,16 @@ int main () {
     ParticleRenderer particle_renderer (projection);
 
     // Models
-    Model fountainModel("./meshes/ball_fountain.obj");
-    Model bgModel("./meshes/cube.obj");
+    Model fountainModel("meshes/ball_fountain.obj");
+    Model bgModel("meshes/cube.obj");
 
     camera.setObjPosition(model_renderer.getPosition());
 
     // Textures
-    textureCube = LoadTextureCube("./textures/skybox/");
+    textureCube = LoadTextureCube("textures/skybox/");
     
     Texture model_texture;
-    model_texture.id = LoadTexture("./textures/fountain/fountain_tex.png");
+    model_texture.id = LoadTexture("textures/fountain/fountain_tex.png");
     model_texture.shineDamper = 90.0f;
     model_texture.reflectivity = 1.0f;
     
