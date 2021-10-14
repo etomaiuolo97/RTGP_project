@@ -34,11 +34,14 @@ void checkErrors (){
 
 #ifdef _WIN32
     #define ASSERT(x) if (!x) __debugbreak();
+    #define PATH "./"
 #else
     #define ASSERT(x) if (!x) __builtin_debugtrap();
+    #define PATH "../"
 #endif
 
 #define glCall(x) clearErrors(); x; ASSERT(logCall(#x, __FILE__, __LINE__));
+
 
 void LoadTextureCubeSide (string path, string side_img, GLuint side_name) {
     int w, h;
@@ -59,6 +62,8 @@ GLint LoadTextureCube (string path) {
     glCall(glGenTextures(1, &textureImage));
     glCall(glActiveTexture(GL_TEXTURE0));
     glCall(glBindTexture(GL_TEXTURE_CUBE_MAP, textureImage));
+
+    path = PATH + path;
 
     LoadTextureCubeSide(path, std::string("posx.jpg"), GL_TEXTURE_CUBE_MAP_POSITIVE_X);
     LoadTextureCubeSide(path, std::string("negx.jpg"), GL_TEXTURE_CUBE_MAP_NEGATIVE_X);

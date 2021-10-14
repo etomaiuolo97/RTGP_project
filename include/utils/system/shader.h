@@ -44,13 +44,17 @@ private:
     GLuint program;
 
     GLuint loadShader (const GLchar* file, GLint type){
+        
         string code;
         ifstream shaderFile;
 
         shaderFile.exceptions(ifstream::failbit | ifstream::badbit);
         
+        string path = PATH;
+        path.append(file);
+
         try{
-            shaderFile.open(file);
+            shaderFile.open(path.c_str());
             
             stringstream shaderStream;
 
