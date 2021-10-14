@@ -65,7 +65,7 @@ int main () {
     textureCube = LoadTextureCube("./textures/skybox/");
     
     Texture model_texture;
-    model_texture.id = LoadTexture("./textures/fountain/terrain.png");
+    model_texture.id = LoadTexture("./textures/fountain/fountain_tex.png");
     model_texture.shineDamper = 90.0f;
     model_texture.reflectivity = 1.0f;
     
