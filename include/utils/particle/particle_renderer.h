@@ -69,8 +69,8 @@ public:
 
             this->fbos = ParticleFrameBuffers(WIDTH, HEIGHT);
 
-            this->dudvTexture = LoadTexture("./textures/water/DuDv.png", true);
-            this->normalMapTexture = LoadTexture("./textures/water/matchingNormalMap.png", true);
+            this->dudvTexture = LoadTexture("textures/water/DuDv.png", true);
+            this->normalMapTexture = LoadTexture("textures/water/matchingNormalMap.png", true);
 
     }
 

@@ -138,7 +138,7 @@ private:
 
     GLfloat gravity = -7.81f;   // The gravity influence on the particles
 
-    Model waterDrop = Model ("./meshes/circle.obj");
+    Model waterDrop = Model ("meshes/circle.obj");
 
     glm::mat4 createModelMatrix (glm::vec3 position, GLfloat rotation, GLfloat scale, glm::mat4 & viewMatrix) {
         glm::mat4 modelMatrix (1.0f);

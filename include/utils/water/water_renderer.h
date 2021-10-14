@@ -66,13 +66,13 @@ public:
         Renderer::SetupShaders(shader.getProgram());
           
         this->fbos = WaterFrameBuffers(width, height);
-        this->dudvTexture = LoadTexture("./textures/water/DuDv.png", true);
-        this->normalMapTexture = LoadTexture("./textures/water/matchingNormalMap.png", true);
+        this->dudvTexture = LoadTexture("textures/water/DuDv.png", true);
+        this->normalMapTexture = LoadTexture("textures/water/matchingNormalMap.png", true);
 
         shader.start();
         shader.loadProjectionMatrix(projection);
         shader.stop();
-        quad = Model("./meshes/circle.obj");
+        quad = Model("meshes/circle.obj");
     }
 
     void render(Camera & camera, GLfloat deltaTime, glm::vec3 lightPosition, glm::vec3 lightColour) {

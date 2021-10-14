@@ -46,6 +46,9 @@ private:
 
     void loadModel(string path) {
         Assimp::Importer importer;
+
+        path = PATH + path;
+
         const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_FlipUVs | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
 
         // Check for errors (see comment above)
