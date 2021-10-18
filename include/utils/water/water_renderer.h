@@ -31,9 +31,12 @@ private:
         shader.loadViewMatrix(view);
         shader.loadCameraPosition(camera.getPosition());
 
+        // Change the moveFactor over time with a speed of WAVE_SPEED
         this->moveFactor += WAVE_SPEED * deltaTime;
+        // Make the moveFactor looping between 0 and 1
         this->moveFactor = glm::mod(this->moveFactor, 1.0f);
         shader.loadMoveFactor(this->moveFactor);
+
         shader.loadLight(lightPosition, lightColour);
 
         glCall(glActiveTexture(GL_TEXTURE0));
