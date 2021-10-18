@@ -27,14 +27,21 @@ void main(void) {
 	vec2 refractionTexCoords = vec2(ndc.x, ndc.y);
 	vec2 reflectionTexCoords = vec2(ndc.x, -ndc.y);
 
-	// Water depth calculation
+	// WATER DEPTH CALCULATION:
 	float near = 0.1f;
 	float far = 10000.0f;
+
+	// - taking the red component it gives us the depth information: a value between 0 and 1
 	float depth = texture(u_DepthMap, refractionTexCoords).r;
+	// - distance from the camera of the fountain under the water
 	float floorDistance = 2.0f * near * far / (far + near - (2.0f * depth - 1.0f) * (far - near));
 
+	// - the z component of gl_FragCoord gives us a depth information: a value between 0 and 1
 	depth = gl_FragCoord.z;
+	// - distance from the camera of the water
 	float waterDistance = 2.0f * near * far / (far + near - (2.0f * depth - 1.0f) * (far - near));
+
+	// - depth of the water
 	float waterDepth = floorDistance - waterDistance;
 
 	// DuDv map distortion
@@ -70,6 +77,8 @@ void main(void) {
 	o_Color = mix(reflectColor, refractColor, refractiveFactor);
 	o_Color = mix(o_Color, vec4(0.0f, 0.3f, 0.5f, 1.0f), 0.1f);
 	o_Color += vec4(specularHighlights, 0.0f);
+
+	// Making water transparent at the edges:
 	o_Color.a = clamp(waterDepth / 3.0, 0.2f, 1.0f);
 
 }
