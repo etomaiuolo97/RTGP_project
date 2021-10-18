@@ -110,6 +110,10 @@ public:
         return this->tile.getHeight();
     }
 
+    WaterFrameBuffers getFbo() {
+        return this->fbos;
+    }
+
 };
 
 #endif
