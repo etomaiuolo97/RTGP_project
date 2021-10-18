@@ -1,6 +1,6 @@
 #version 410
 
-layout (location = 0) in vec2 position;
+layout (location = 0) in vec3 position;
 layout (location = 1) in vec3 normal;
 
 out vec4 worldPosition;
@@ -10,7 +10,7 @@ uniform mat4 transformationMatrix;
 
 void main(void){
 
-	worldPosition = transformationMatrix * vec4(position, 0.0, 1.0);
+	worldPosition = transformationMatrix * vec4(position, 1.0);
 
 	worldNormal = mat3(transpose(inverse(transformationMatrix))) * normal;
 	
