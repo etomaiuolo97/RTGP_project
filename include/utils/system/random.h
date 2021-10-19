@@ -1,3 +1,4 @@
+// Based on: https://github.com/TheCherno/OneHourParticleSystem/blob/master/OpenGL-Sandbox/src/Random.h
 #pragma once
 
 #ifndef RANDOM
