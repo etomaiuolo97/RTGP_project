@@ -1,3 +1,5 @@
+// Adaptation of https://www.youtube.com/watch?v=4w7lNF8dnYw&list=PLRIWtICgwaX0u7Rf9zkZhLoLuZVfUksDP&index=5&ab_channel=ThinMatrix
+
 #pragma once
 
 #ifndef SHADER
