@@ -7,11 +7,11 @@
 
 class ParticleFrameBuffers {
 protected:
-    static const int REFLECTION_WIDTH = 1000;
-    static const int REFLECTION_HEIGHT = 1000;
+    static const int REFLECTION_WIDTH = 400;
+    static const int REFLECTION_HEIGHT = 300;
 
-    static const int REFRACTION_WIDTH = 1000;
-    static const int REFRACTION_HEIGHT = 1000;
+    static const int REFRACTION_WIDTH = 400;
+    static const int REFRACTION_HEIGHT = 300;
 
 private:
 

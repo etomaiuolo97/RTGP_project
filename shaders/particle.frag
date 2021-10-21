@@ -48,31 +48,27 @@ void main(void) {
 	refractionTexCoords = clamp(refractionTexCoords, 0.001, 0.999);
 
 	reflectionTexCoords += totalDistortion;
-	reflectionTexCoords.x = clamp(reflectionTexCoords.x, 0.001, 0.999);
-	reflectionTexCoords.y = clamp(reflectionTexCoords.y, -0.999, -0.001);
+	reflectionTexCoords = clamp(reflectionTexCoords, 0.001, 0.999);
 
 	vec4 reflectColor = texture(u_ReflectionTexture, reflectionTexCoords);
 	vec4 refractColor = texture(u_RefractionTexture, refractionTexCoords);
 
 	// Fresnel effect
 	vec4 normalMapColor = texture(u_NormalMap, distortedTexCoords);
-	vec3 normal = vec3(normalMapColor.r * 2.0f - 1.0f, normalMapColor.b * 3.0f, normalMapColor.g * 2.0f - 1.0f);
-	// vec3 normal = normalize(toCameraVector);
-	// vec3 reflectedLight = reflect(normalize(fromLightVector), normal);
+	vec3 normal = vec3(normalMapColor.r * 2.0f - 1.0f, normalMapColor.b, normalMapColor.g * 2.0f - 1.0f);
 	
 	vec3 viewVector = normalize(toCameraVector);
-	float refractiveFactor = dot(viewVector, normal);
+	float refractiveFactor = dot(viewVector, normal) * 2.0;
 	refractiveFactor = pow(refractiveFactor, 0.5f);
 
 	// Light reflection
 	vec3 reflectedLight = reflect(normalize(fromLightVector), normal);
-	float specular = max(dot(reflectedLight, viewVector), 0.0f);
+	float specular = max(dot(reflectedLight, viewVector), 0.0f) * 0.8;
 	specular = pow(specular, shineDamper);
-	vec3 specularHighlights = u_LightColor * specular * reflectivity * clamp(waterDepth / 0.3, 0.5f, 1.0f);
+	vec3 specularHighlights = u_LightColor * specular * reflectivity;
 
 	o_Color = mix(reflectColor, refractColor, refractiveFactor);
-	o_Color = mix(o_Color, vec4(0.0f, 0.3f, 0.5f, 1.0f), 0.1f);
 	o_Color += vec4(specularHighlights, 0.0f);
-	// o_Color.a = clamp(waterDepth / 5.0, 0.5f, 1.0f);
+	o_Color.a = clamp(waterDepth / 5.0, 0.5f, 1.0f);
 
 }
