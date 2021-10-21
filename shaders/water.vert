@@ -6,7 +6,7 @@ out vec4 clipSpace;
 out vec2 textureCoords;
 // Vector from the water to the camera
 out vec3 toCameraVector;
-// Vector from the water to the light
+// Vector from the light to the water
 out vec3 fromLightVector;
 
 uniform mat4 u_ProjectionMatrix;
@@ -15,7 +15,7 @@ uniform mat4 u_ModelMatrix;
 uniform vec3 u_CameraPosition;
 uniform vec3 u_LightPosition;
 
-const float tiling = 0.8f;
+const float tiling = 1.0f;
 
 void main(void) {
 

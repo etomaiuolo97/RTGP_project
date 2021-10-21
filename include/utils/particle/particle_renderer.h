@@ -79,7 +79,8 @@ public:
 
         glm::mat4 view = Renderer::createViewMatrix(camera);
 
-        for (GLuint i = 0; i < 10; i++){
+        // Emit 15 particle per frame
+        for (GLuint i = 0; i < 15; i++){
             this->generator.emit(particle);
         }
         

@@ -92,7 +92,7 @@ GLint LoadTexture(const char* path, bool repeat = false) {
     std::string filepath = PATH;
     filepath.append(path);
 
-    image = stbi_load(filepath.c_str(), &w, &h, &channels, STBI_rgb_alpha);
+    image = stbi_load(filepath.c_str(), &w, &h, &channels, STBI_rgb);
 
     if (image == nullptr)
         std::cout << "Failed to load texture!" << std::endl;
@@ -121,7 +121,7 @@ GLint LoadTexture(const char* path, bool repeat = false) {
 
     // Set the filtering for minification and magnification
     glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
-    glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+    glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 
     // Free the memory once we have created an OpenGL texture
     stbi_image_free(image);

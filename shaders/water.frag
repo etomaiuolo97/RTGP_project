@@ -12,13 +12,14 @@ uniform sampler2D u_RefractionTexture;
 
 // The DuDv map is a texture
 uniform sampler2D u_DuDvMap;
+// The normal map is a texture
 uniform sampler2D u_NormalMap;
 uniform sampler2D u_DepthMap;
 uniform vec3 u_LightColor;
 
 uniform float u_MoveFactor;
 
-const float waveStrength = 0.02f;
+const float waveStrength = 0.04f;
 const float shineDamper = 20.0f;
 const float reflectivity = 0.6f;
 
@@ -34,9 +35,10 @@ void main(void) {
 	// WATER DEPTH CALCULATION:
 	float near = 0.1f;
 	float far = 10000.0f;
+	// - sample the depth texture before the texture coords are distorted
 	// - taking the red component it gives us the depth information: a value between 0 and 1
 	float depth = texture(u_DepthMap, refractionTexCoords).r;
-	// - distance from the camera of the fountain under the water
+	// - distance from the camera to the fountain under the water
 	float floorDistance = 2.0f * near * far / (far + near - (2.0f * depth - 1.0f) * (far - near));
 	// - the z component of gl_FragCoord gives us a depth information: a value between 0 and 1
 	depth = gl_FragCoord.z;
@@ -48,11 +50,12 @@ void main(void) {
 	// DUDV MAP DISTORTION (https://www.youtube.com/watch?v=6B7IF6GOu7s&list=PLRIWtICgwaX23jiqVByUs0bqhnalNTNZh&index=5):
 	// - get the distortion using the red and green values
 	// - make the distortion moving adding the u_MoveFactor
-	vec2 distortedTexCoords = texture(u_DuDvMap, vec2(textureCoords.x + u_MoveFactor, textureCoords.y)).rg * 0.1;
+	vec2 repeatedTexCoords = mod(textureCoords, 1.0f);
+	vec2 distortedTexCoords = texture(u_DuDvMap, vec2(repeatedTexCoords.x + u_MoveFactor, repeatedTexCoords.y)).rg * 0.1;
 	// - apply more than one distortion to make the effect more realistic
-	distortedTexCoords = textureCoords + vec2(distortedTexCoords.x, distortedTexCoords.y + u_MoveFactor);
-	// - apply the waveStrength to reduce the strength of the distortion
-	vec2 totalDistortion = (texture(u_DuDvMap, distortedTexCoords).rg * 2.0f - 1.0f) * waveStrength;
+	distortedTexCoords = repeatedTexCoords + vec2(distortedTexCoords.x, distortedTexCoords.y + u_MoveFactor);
+	// - apply the waveStrength and the water depth to reduce the strength of the distortion
+	vec2 totalDistortion = (texture(u_DuDvMap, distortedTexCoords).rg * 2.0f - 1.0f) * waveStrength * clamp(waterDepth / 20.0, 0.2f, 1.0f);
 	
 	// - deleting the glitch effect for the refraction distortion
 	refractionTexCoords += totalDistortion;
@@ -67,28 +70,33 @@ void main(void) {
 	vec4 refractColor = texture(u_RefractionTexture, refractionTexCoords);
 
 	// FRESNEL EFFECT (https://www.youtube.com/watch?v=LgnLB07HDSw&list=PLRIWtICgwaX23jiqVByUs0bqhnalNTNZh&index=6):
+	//  - sample the normal map at the distorted texture coords
 	vec4 normalMapColor = texture(u_NormalMap, distortedTexCoords);
+	//  - extract the normal from the color of the normal map
 	vec3 normal = vec3(normalMapColor.r * 2.0f - 1.0f, normalMapColor.b, normalMapColor.g * 2.0f - 1.0f);
+	//  - make sure it is a unit vector
 	normal = normalize(normal);
 	
 	vec3 viewVector = normalize(toCameraVector);
-	// - how transparent should be the water
+	//  - how transparent should be the water
 	float refractiveFactor = dot(viewVector, normal);
-	// - the more we pow the refractiveFactor the more is reflective the water
+	//  - the more we pow the refractiveFactor the more is reflective the water
 	refractiveFactor = pow(refractiveFactor, 0.5f);
 
-	// Light reflection
+	// LIGHT REFLECTION (https://www.youtube.com/watch?v=7T5o4vZXAvI&t=2s):
 	vec3 reflectedLight = reflect(normalize(fromLightVector), normal);
 	float specular = max(dot(reflectedLight, viewVector), 0.0f);
 	specular = pow(specular, shineDamper);
-	vec3 specularHighlights = u_LightColor * specular * reflectivity * clamp(waterDepth / 3.0, 0.2f, 1.0f);
+	vec3 specularHighlights = u_LightColor * specular * reflectivity * clamp(waterDepth / 5.0, 0.0f, 1.0f);
 
 	o_Color = mix(reflectColor, refractColor, refractiveFactor);
 	// Adding blue tint
-	o_Color = mix(o_Color, vec4(0.0f, 0.3f, 0.5f, 1.0f), 0.1f);
+	o_Color = mix(o_Color, vec4(0.0f, 0.3f, 0.5f, 1.0f), 0.2f);
+	
+	// Adding specular highlights depending on the direction of the light
 	o_Color += vec4(specularHighlights, 0.0f);
 
-	// Making water transparent at the edges:
+	// Making water transparent at the edges
 	o_Color.a = clamp(waterDepth / 3.0, 0.2f, 1.0f);
 
 }

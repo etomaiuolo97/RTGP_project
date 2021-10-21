@@ -52,6 +52,7 @@ private:
         
         shader.connectTextureUnits();
 
+        // Enable the blend to soft the edges of the water
         glCall(glEnable(GL_BLEND));
         glCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     }

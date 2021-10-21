@@ -39,6 +39,7 @@ struct ParticleVertex {
 class ParticleGenerator {
 public:
     ParticleGenerator (){
+        // Resize the pool to have 10000 particles
         this->particles.resize(10000);
     }
 
@@ -67,10 +68,12 @@ public:
         }
     }
 
+    // Render the particles
     void Draw (glm::mat4& viewMatrix) {
         shader.loadViewMatrix(viewMatrix);
 
         for (auto& particle: this->particles) {
+            // Render only the active particles
             if (particle.active){
                 GLfloat life = particle.lifeRemaining / particle.lifeTime;
 
@@ -79,18 +82,24 @@ public:
                 glm::mat4 model = this->createModelMatrix(particle.position, particle.rotation, size, viewMatrix);
                 shader.loadModelMatrix(model);
 
+                // Render the particle
                 this->waterDrop.Draw();
             }
         }
-
     }
 
-    void emit(const ParticleProps& particleProps) {        
+    // Create a particle
+    void emit(const ParticleProps& particleProps) {  
+        // Recycle a particle existing in the pool      
         Particle& particle = this->particles[index];
+        // Activate the particle to get it rendered
         particle.active = true;
+
+        // Position
         particle.position = particleProps.position;
         particle.rotation = Random::Float() * 2.0f * glm::pi<float>();
 
+        // Velocity
         particle.velocity = generateRandomUnitVectorWithinCone(particleProps.direction, particleProps.directionDev);
         particle.velocity = glm::normalize(particle.velocity);
         particle.velocity *= particleProps.velocityVariation;
@@ -100,6 +109,7 @@ public:
         particle.sizeBegin = particleProps.sizeBegin - particleProps.sizeVariation * (Random::Float() - 0.5f);
         particle.sizeEnd = particleProps.sizeEnd;
 
+        // The index is decremented and cycled between 0 and 9999
         index = --index % this->particles.size();
     }
 
@@ -112,6 +122,7 @@ public:
     }
 
 private:
+    // Particle structure reworked from https://www.youtube.com/watch?v=6PkjU9LaDTQ&list=PLRIWtICgwaX0u7Rf9zkZhLoLuZVfUksDP&index=34
     struct Particle {
         // Position in the world
         glm::vec3 position;
@@ -132,7 +143,7 @@ private:
     };
 
     std::vector<Particle> particles;
-    GLuint index = 999;
+    GLuint index = 9999;
 
     ParticleShader shader;
 
@@ -140,6 +151,7 @@ private:
 
     Model waterDrop = Model ("meshes/circle.obj");
 
+    // Code source translated in cpp from https://www.youtube.com/watch?v=6PkjU9LaDTQ&list=PLRIWtICgwaX0u7Rf9zkZhLoLuZVfUksDP&index=34
     glm::mat4 createModelMatrix (glm::vec3 position, GLfloat rotation, GLfloat scale, glm::mat4 & viewMatrix) {
         glm::mat4 modelMatrix (1.0f);
 
@@ -155,13 +167,17 @@ private:
         modelMatrix[2][0] = viewMatrix[0][2];
         modelMatrix[2][1] = viewMatrix[1][2];
         modelMatrix[2][2] = viewMatrix[2][2];
-
+        
+        // Apply rotation among the z axes but the particle faces always the camera
         modelMatrix = glm::rotate(modelMatrix, (GLfloat)glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+
+        // Scale the particle
         modelMatrix = glm::scale(modelMatrix, glm::vec3(scale, scale, scale));
 
         return modelMatrix;
     }
 
+    // Code source translated in cpp from https://www.dropbox.com/sh/ichvdjpiqvdo8gw/AAC1mQUUakosx_NJnVuiMBzOa?dl=0&preview=ParticleSystem.java
     glm::vec3 generateRandomUnitVectorWithinCone (glm::vec3 coneDirection, GLfloat angle) {
         GLfloat cosAngle = (GLfloat) glm::cos(glm::radians(angle));
         GLfloat theta = Random::Float() * 2.0f * glm::pi<float>();

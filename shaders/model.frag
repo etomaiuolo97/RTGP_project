@@ -14,7 +14,8 @@ uniform float u_Reflectivity;
 
 void main (void) {
 
-    vec4 ambient = vec4(u_LightColor, 0.2f) * texture(u_Texture, textureCoords);
+    vec2 repeatedTexCoords = mod(textureCoords * 5.0f, 1.0f);
+    vec4 ambient = vec4(u_LightColor, 0.2f) * texture(u_Texture, repeatedTexCoords);
 
     vec3 unitNormal = normalize(surfaceNormal);
     vec3 unitLightVector = normalize(toLightVector);
@@ -32,5 +33,5 @@ void main (void) {
     float dampedFactor = pow(specularFactor, u_ShineDamper);
     vec3 finalSpecular = dampedFactor * u_Reflectivity * u_LightColor;
 
-    o_Color = 0.2f * ambient + 0.8f * vec4(diffuse, 1.0f) * texture(u_Texture, textureCoords) + vec4(finalSpecular, 1.0f);
+    o_Color = 0.2f * ambient + 0.8f * vec4(diffuse, 1.0f) * texture(u_Texture, repeatedTexCoords) + vec4(finalSpecular, 1.0f);
 }

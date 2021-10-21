@@ -65,7 +65,7 @@ int main () {
     textureCube = LoadTextureCube("textures/skybox/");
     
     Texture model_texture;
-    model_texture.id = LoadTexture("textures/fountain/fountain_tex.png");
+    model_texture.id = LoadTexture("textures/fountain/fountain_tex.png", true);
     model_texture.shineDamper = 90.0f;
     model_texture.reflectivity = 1.0f;
     
@@ -129,7 +129,7 @@ int main () {
         camera.setYaw(camera.getYaw() - 180.0f);
         camera.setPosition(cameraPos);
 
-        // Render the refraction of the water
+        // Render the refraction of the particle
         particle_renderer.bindRefractionFrameBuffer();
 
         glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
