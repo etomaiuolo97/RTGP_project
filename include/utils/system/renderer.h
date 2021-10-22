@@ -26,12 +26,31 @@ protected:
     // Index of the currente shader (= 0  in the beginning)
     GLuint current_subroutine = 0;
 
+    /**
+     * @brief Create a Normal Matrix object
+     * 
+     * @param view 
+     * @param modelMatrix 
+     * @return glm::mat3 
+     */
     glm::mat3 createNormalMatrix (glm::mat4 view, glm::mat4 modelMatrix) {
         glm::mat3 matrix = glm::mat3(1.0f);
         glm::inverseTranspose(glm::mat3(view * modelMatrix));
         return matrix;
     }
 
+    /**
+     * @brief Create a Transformation Matrix object. In this method we initialize a matrix that will be translated 
+     * by the coordinates that indicates the position of the object, and then rotate along the radians given in 
+     * input. Finally, it is scaled and returned.
+     * 
+     * @param translation 
+     * @param rx 
+     * @param ry 
+     * @param rz 
+     * @param scale 
+     * @return glm::mat4 
+     */
     glm::mat4 createTransformationMatrix(glm::vec3 translation, GLfloat rx, GLfloat ry, GLfloat rz, GLfloat scale) {
         glm::mat4 matrix = glm::mat4(1.0f);
         matrix = glm::translate(matrix, translation);
@@ -43,6 +62,13 @@ protected:
         return matrix;
     }
 
+    /**
+     * @brief Create a Transformation Matrix object
+     * 
+     * @param translation 
+     * @param scale 
+     * @return glm::mat4 
+     */
     glm::mat4 createTransformationMatrix(glm::vec2 translation, glm::vec2 scale) {
         glm::mat4 matrix = glm::mat4(1.0f);
         matrix = glm::translate(matrix, glm::vec3(translation.x, translation.y, 0.0f));
@@ -51,6 +77,12 @@ protected:
         return matrix;
     }
 
+    /**
+     * @brief Create a View Matrix object
+     * 
+     * @param camera 
+     * @return glm::mat4 
+     */
     glm::mat4 createViewMatrix(Camera& camera) {
         glm::mat4 matrix = glm::mat4(1.0f);
         matrix = glm::rotate(matrix, (GLfloat)glm::radians(camera.getPitch()), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -64,6 +96,13 @@ protected:
         return matrix;
     }
 
+    /**
+     * @brief This function subroutines parameters of the system and the uniforms. With a loop we activate a 
+     * subroutine calling by the name of the uniform. we calculate the number of subroutines and then with 
+     * another loop we add the subroutine to the shader vector.
+     * 
+     * @param program 
+     */
     void SetupShaders(int program) {
         int maxSub,maxSubU,countActiveSU;
         GLchar name[256];

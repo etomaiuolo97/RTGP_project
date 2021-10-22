@@ -1,3 +1,6 @@
+/**
+ * Adaptation of https://github.com/JoeyDeVries/LearnOpenGL/blob/master/includes/learnopengl/camera.h
+ */
 #pragma once
 
 #ifndef CAMERA
@@ -7,7 +10,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #define PI 3.141592653
-
+// It defines several possible options for camera movement.
 enum Camera_Movement {
     UP,
     DOWN,
@@ -27,7 +30,13 @@ public:
     };
 
     ~Camera() {};
-
+    /**
+     * @brief processes input received from any keyboard-like input system. Accepts input parameter in the
+     *  form of camera defined ENUM (to abstract it from windowing systems)
+     * 
+     * @param direction options for camera movement
+     * @param deltaTime time
+     */
     void ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime) {
         GLfloat change = deltaTime * SPEED;
         
@@ -63,7 +72,11 @@ public:
         this->calculateCameraPos(hDis, vDis);
         this->yaw = 180 - (this->angleAroundFountain);
     }
-
+    /**
+     * @brief processes input received from a mouse scroll-wheel event. It only requires input on the vertical wheel-axis
+     * @param offset 
+     * 
+     */
     void calculateZoom (GLfloat offset){
         if (this->disFromFountain >= 1.0f && this->disFromFountain <= 45.0f)
             this->disFromFountain -= offset;
@@ -125,16 +138,21 @@ private:
 
     GLfloat disFromFountain = 30;
     GLfloat angleAroundFountain = 0;
-
+    
     GLfloat calculateHorizontalDistance() {
         return (GLfloat) (this->disFromFountain * cos(glm::radians(pitch)));
     }
-
+    
     GLfloat calculateVerticalDistance() {
         return (GLfloat) (this->disFromFountain * sin(glm::radians(pitch)));
     }
 
-
+    /**
+     * @brief Calculate position of the camera through trigonometry
+     * 
+     * @param hDis is the horizontal distance
+     * @param vDis is the vertical distance
+     */
     void calculateCameraPos (GLfloat hDis, GLfloat vDis) {
         GLfloat offsetX = (GLfloat)(hDis * sin(glm::radians(this->angleAroundFountain)));
         GLfloat offsetZ = (GLfloat)(hDis * cos(glm::radians(this->angleAroundFountain)));
