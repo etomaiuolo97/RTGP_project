@@ -37,8 +37,6 @@ private:
         glCall(glBindTexture(GL_TEXTURE_2D, this->dudvTexture));
         glCall(glActiveTexture(GL_TEXTURE3));
         glCall(glBindTexture(GL_TEXTURE_2D, this->normalMapTexture));
-        glCall(glActiveTexture(GL_TEXTURE4));
-        glCall(glBindTexture(GL_TEXTURE_2D, this->fbos.getRefractionDepthTexture()));
         
         this->generator.getShader().connectTextureUnits();
 
@@ -56,6 +54,7 @@ public:
             this->generator.getShader().loadProjectionMatrix(this->projection);
             this->generator.getShader().stop();
 
+            // Initialization of the particle
             this->particle.sizeBegin = 0.01f;
             this->particle.sizeVariation = 0.01f;
             this->particle.sizeEnd = 0.1f;
@@ -69,6 +68,7 @@ public:
 
             this->fbos = ParticleFrameBuffers(WIDTH, HEIGHT);
 
+            // Load the textures
             this->dudvTexture = LoadTexture("textures/water/DuDv.png", true);
             this->normalMapTexture = LoadTexture("textures/water/matchingNormalMap.png", true);
 

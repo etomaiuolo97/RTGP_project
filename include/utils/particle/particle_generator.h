@@ -104,8 +104,11 @@ public:
         particle.velocity = glm::normalize(particle.velocity);
         particle.velocity *= particleProps.velocityVariation;
 
+        // Lifetime
         particle.lifeTime = particleProps.life;
         particle.lifeRemaining = particleProps.life;
+
+        // Size
         particle.sizeBegin = particleProps.sizeBegin - particleProps.sizeVariation * (Random::Float() - 0.5f);
         particle.sizeEnd = particleProps.sizeEnd;
 

@@ -1,3 +1,5 @@
+// Same functionalities of the Water FrameBuffer
+
 #ifndef PARTICLE_FRAMEBUFFER
 #define PARTICLE_FRAMEBUFFER
 
