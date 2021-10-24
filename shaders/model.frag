@@ -1,3 +1,5 @@
+// Based on https://www.youtube.com/watch?v=GZ_1xOm-3qU&list=PLRIWtICgwaX0u7Rf9zkZhLoLuZVfUksDP&index=12&ab_channel=ThinMatrix
+
 #version 410 core
 
 in vec2 textureCoords;
