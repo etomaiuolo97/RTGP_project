@@ -8,6 +8,7 @@ layout (location = 2) in vec2 a_TextureCoords;
 
 out vec2 textureCoords;
 out vec3 surfaceNormal;
+// Vector from surface to light source
 out vec3 toLightVector;
 // Vector from the model to the camera
 out vec3 toCameraVector;
@@ -27,9 +28,10 @@ void main (void) {
     gl_ClipDistance[0] = dot(worldPosition, u_ClipPlane);
     
     gl_Position = u_ProjectionMatrix * u_ViewMatrix * worldPosition;
-    // coord of the texture
+    // Coord of the texture
     textureCoords = a_TextureCoords;
-    // the normal is rotated following the u_ModelMatrix
+    
+    // The normal is rotated following the u_ModelMatrix
     surfaceNormal = (u_ModelMatrix * vec4(a_Normal, 0.0f)).xyz;
     toLightVector = u_LightPosition - worldPosition.xyz;
     toCameraVector = (inverse (u_ViewMatrix) * vec4(0.0f, 0.0f, 0.0f, 1.0f)).xyz - worldPosition.xyz;
