@@ -1,4 +1,4 @@
-// Same functionalities as water.frag but with some parameter changed
+// Same functionalities as water.frag but with some parameter changed and with no depth map
 
 #version 410 core
 
@@ -49,11 +49,13 @@ void main(void) {
 	vec3 normal = vec3(normalMapColor.r * 2.0f - 1.0f, normalMapColor.b, normalMapColor.g * 2.0f - 1.0f);
 	
 	vec3 viewVector = normalize(toCameraVector);
+	// - multiply the refractive factor to make the water more transparent
 	float refractiveFactor = dot(viewVector, normal) * 2.0;
 	refractiveFactor = pow(refractiveFactor, 0.5f);
 
 	// Light reflection
 	vec3 reflectedLight = reflect(normalize(fromLightVector), normal);
+	// - multiply the specular factor to make the water less specular
 	float specular = max(dot(reflectedLight, viewVector), 0.0f) * 0.8;
 	specular = pow(specular, shineDamper);
 	vec3 specularHighlights = u_LightColor * specular * reflectivity;
