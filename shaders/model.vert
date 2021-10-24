@@ -21,7 +21,7 @@ uniform vec3 u_LightPosition;
 uniform vec4 u_ClipPlane;
 
 void main (void) {
-    // Position
+    // Position of current vertex
     vec4 worldPosition = u_ModelMatrix * vec4(a_Position, 1.0f);
     
     gl_ClipDistance[0] = dot(worldPosition, u_ClipPlane);
@@ -29,6 +29,7 @@ void main (void) {
     gl_Position = u_ProjectionMatrix * u_ViewMatrix * worldPosition;
     // coord of the texture
     textureCoords = a_TextureCoords;
+    // the normal is rotated following the u_ModelMatrix
     surfaceNormal = (u_ModelMatrix * vec4(a_Normal, 0.0f)).xyz;
     toLightVector = u_LightPosition - worldPosition.xyz;
     toCameraVector = (inverse (u_ViewMatrix) * vec4(0.0f, 0.0f, 0.0f, 1.0f)).xyz - worldPosition.xyz;
