@@ -42,26 +42,32 @@ public:
         
         switch(direction){
             case UP:
+                // the pitch angle is increased and the camera is higher up
                 this->pitch += change;
                 break;
             
             case DOWN:
+                // the pitch angle is decreased by change and the camera is lower down
                 this->pitch -= change;
                 break;
             
             case RIGHT:
+                // the angle around the fountain is increased by change and the camera is moved to the right
                 this->angleAroundFountain += change;
                 break;
             
             case LEFT:
+                // the angle around the fountain is decreased by change and the camera is moved to the left
                 this->angleAroundFountain -= change;
                 break;
             
             case BACKWARD:
+                // the distance from the fountain is increased by change and the camera is moved backward
                 this->disFromFountain += change;
                 break;
             
             case FORWARD:
+                // the distance from the fountain is decreased by change and the camera is moved forward
                 this->disFromFountain -= change;
                 break;
         }
@@ -131,7 +137,8 @@ public:
 private:
     glm::vec3 position = glm::vec3(0.0f, 0.0f, -7.0f);
     glm::vec3 objPosition = glm::vec3(0.0f, -3.0f, -5.0f);
-
+    
+    // Eular Angles
     GLfloat pitch = 30;
     GLfloat yaw = 180;
     GLfloat roll = 0;
