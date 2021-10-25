@@ -31,9 +31,9 @@ void main (void) {
     vec3 unitNormal = normalize(surfaceNormal);
     vec3 unitLightVector = normalize(toLightVector);
 
-    //  - ot product: how bright the pixel should be
+    //  - dot product: how bright the pixel should be
     float nDotl = dot(unitNormal, unitLightVector);
-    //  - se the min value of brightness value on 0
+    //  - set the min value of brightness value on 0
     float brightness = max(nDotl, 0.0f);
     vec3 diffuse = brightness * u_LightColor;
 
