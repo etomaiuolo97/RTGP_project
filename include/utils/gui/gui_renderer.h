@@ -20,18 +20,15 @@ public:
         quad = Model ("meshes/quad.obj");
     }
 
-    void render(vector<GuiTexture> guis, Camera & camera, Light & light) {
+    void render(vector<GuiTexture> guis, Camera & camera) {
         shader.start();
         for (GuiTexture gui: guis){
             glCall(glActiveTexture(GL_TEXTURE0));
             glCall(glBindTexture(GL_TEXTURE_2D, gui.getTexture()));
-
             shader.combineTextures();
-            shader.loadCameraPosition(camera.getPosition());
-            shader.loadLightPosition(light.position);
 
             glm::mat4 matrix = createTransformationMatrix(gui.getPosition(), gui.getScale());
-            shader.loadTansformationMatrix(matrix);
+            shader.loadModelMatrix(matrix);
             quad.Draw();
         }
         shader.stop();

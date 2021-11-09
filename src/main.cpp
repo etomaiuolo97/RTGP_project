@@ -35,6 +35,12 @@ using namespace std;
 #include <utils/particle/particle_renderer.h>
 #include <utils/particle/particle_framebuffers.h>
 
+#include <utils/gui/gui_renderer.h>
+
+#include <utils/button/button.h>
+#include <utils/button/button_handler.h>
+#include <utils/button/button_function.h>
+
 int main () {
     std::cout << "Starting GLFW context" << std::endl;
 
@@ -54,9 +60,10 @@ int main () {
     BackgroundRenderer background_renderer (projection);
     WaterRenderer water_renderer (projection, WIDTH, HEIGHT);
     ParticleRenderer particle_renderer (projection);
+    GuiRenderer gui_renderer;
 
     // Models
-    Model fountainModel("meshes/ball_fountain.obj");
+    Model fountainModel("meshes/fountain_ball.obj");
     Model bgModel("meshes/cube.obj");
 
     camera.setObjPosition(model_renderer.getPosition());
@@ -68,6 +75,13 @@ int main () {
     model_texture.id = LoadTexture("textures/fountain/fountain_tex.png", true);
     model_texture.shineDamper = 90.0f;
     model_texture.reflectivity = 1.0f;
+
+    GuiTexture btnTexture (LoadTexture("textures/button/blue_button.png"), glm::vec2(-0.5f, -0.5f), glm::vec2(0.2f, 0.1f));
+    Button btn (btnTexture);
+    // void(*btn.onClick)() = &btnProva;
+
+    ButtonHandler btn_handler;
+    btn_handler.registerButton(btn);
     
     while(!glfwWindowShouldClose(window)) {
         GLfloat currentFrame = glfwGetTime();
@@ -78,6 +92,8 @@ int main () {
         
         // Apply FPS camera movements
         apply_camera_movements();
+
+        btn_handler.update();
 
         // Render the reflection of the water
         water_renderer.bindReflectionFrameBuffer();
@@ -145,8 +161,8 @@ int main () {
         model_renderer.render(fountainModel, model_texture, camera, glm::vec4(0, -1, 0, 100000));
         background_renderer.render(bgModel, textureCube, camera);
         water_renderer.render(camera, deltaTime, model_renderer.getLightPos(), model_renderer.getLightColor());
-
         particle_renderer.render(deltaTime, camera, model_renderer.getLight(), textureCube);
+        gui_renderer.render(btn_handler.getGuiTextures(), camera);
 
         glfwSwapBuffers(window);
     }
@@ -155,6 +171,7 @@ int main () {
     model_renderer.cleanUp();
     background_renderer.cleanUp();
     water_renderer.cleanUp();
+    gui_renderer.cleanUp();
 
     glfwTerminate();
     return 0;

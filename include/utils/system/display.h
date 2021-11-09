@@ -12,21 +12,29 @@
 
 #include <utils/system/camera.h>
 
-// define paramenter of the window
+// Define paramenter of the window
 const GLuint WIDTH = 800;
 const GLuint HEIGHT = 600;
-// boolean to activate/deactivate wireframe rendering
+
+// Boolean to activate/deactivate wireframe rendering
 GLboolean wireframe = GL_FALSE;
-// this initializes an array of booleans for each keybord key
-bool keys[1024];
+
 // parameters for time calculation (for animations)
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
-// this line stores the previous mouse position to calculate the offset with the current frame
+
+// This initializes an array of booleans for each keybord key
+bool keys[1024];
+
+// This line stores the previous mouse position to calculate the offset with the current frame
 GLfloat lastX, lastY;
+double xCursor, yCursor;
 
 // To manage the mouse position in the first frame
 bool firstMouse = true;
+bool cursorInWindow = false;
+vector<glm::vec2> cursorPos;
+bool isClicked = false;
 
 Camera camera;
 
@@ -43,6 +51,39 @@ void key_callback (GLFWwindow* window, int key, int scancode, int action, int mo
         keys[key] = true;
     else if (action == GLFW_RELEASE)
         keys[key] = false;
+}
+
+/**
+ * @brief The display is zoomed and we pass the coordinate of the mouse to calculate the zoom
+ * 
+ * @param window 
+ * @param xoffset 
+ * @param yoffset y coordinate of the mouse
+ */
+void scroll_callback (GLFWwindow* window, double xoffset, double yoffset){
+    camera.calculateZoom(yoffset);
+}
+
+void cursorPos_callback (GLFWwindow* window, double xoffset, double yoffset) {
+    xCursor = xoffset;
+    yCursor = yoffset;
+}
+
+void cursorEnter_callback (GLFWwindow* window, int entered){
+    if (entered)
+        cursorInWindow = true;
+    else
+        cursorInWindow = false;
+}
+
+void mouse_callback (GLFWwindow* window, int button, int action, int mods) {
+    if (cursorInWindow && button == GLFW_MOUSE_BUTTON_LEFT)
+        if (action == GLFW_PRESS){
+            isClicked = true;
+        }
+        else if (action == GLFW_RELEASE){
+            isClicked = false;
+        }
 }
 
 // The camera is moved in base of the keyboard arrows and if W or S is pressed
@@ -64,17 +105,6 @@ void apply_camera_movements () {
 
     if (keys[GLFW_KEY_S])
         camera.ProcessKeyboard(BACKWARD, deltaTime);
-}
-
-/**
- * @brief The display is zoomed and we pass the coordinate of the mouse to calculate the zoom
- * 
- * @param window 
- * @param xoffset 
- * @param yoffset y coordinate of the mouse
- */
-void scroll_callback (GLFWwindow* window, double xoffset, double yoffset){
-    camera.calculateZoom(yoffset);
 }
 
 // Creation of the display
@@ -108,6 +138,10 @@ GLFWwindow* createDisplay() {
     // here the code puts in relation the window and the callbacks
     glfwSetKeyCallback(window, key_callback);
     glfwSetScrollCallback(window, scroll_callback);
+    glfwSetCursorEnterCallback(window, cursorEnter_callback);
+    glfwSetCursorPosCallback(window, cursorPos_callback);
+    glfwSetMouseButtonCallback(window, mouse_callback);
+
     // GLAD tries to load the context set by GLFW
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         std::cout << "Failed to initialize OpenGL context" << std::endl;
@@ -137,6 +171,14 @@ void prepareDisplay(GLboolean wireframe){
     
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+}
+
+
+glm::vec2 getNormalizedMouseCoordinates (double x, double y) {
+    GLfloat normalizedX = -1.0f + 2.0f * (GLfloat) x / (GLfloat) WIDTH;
+    GLfloat normalizedY = -1.0f + 2.0f * (GLfloat) y / (GLfloat) HEIGHT;
+
+    return glm::vec2(normalizedX, normalizedY);
 }
 
 #endif

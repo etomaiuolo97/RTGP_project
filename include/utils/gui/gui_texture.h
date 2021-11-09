@@ -13,6 +13,8 @@ private:
     glm::vec2 scale;
 
 public:
+    GuiTexture () {};
+    
     GuiTexture (GLint texture, glm::vec2 position, glm::vec2 scale){
         this->texture = texture;
         this->position = position;
@@ -29,6 +31,10 @@ public:
 
     glm::vec2 getScale(){
         return this->scale;
+    }
+
+    void setScale (glm::vec2 scale){
+        this->scale = scale;
     }
 
 };
