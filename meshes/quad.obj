@@ -8,10 +8,10 @@ mtllib material.lib
 # object obj_17228702
 #
 
-v -2 0 -2
-v 2 0 -2
-v -2 0 2
-v 2 0 2
+v -1 -1 0
+v 1 -1 0
+v -1 1 0
+v 1 1 0
 # 4 vertices
 
 vn 0 1 0
