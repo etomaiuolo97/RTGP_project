@@ -130,7 +130,6 @@ GLint LoadTexture(const char* path, bool repeat = false) {
 
     // Set the binding to 0 once we have finished
     glCall(glBindTexture(GL_TEXTURE_2D, 0));
-
     return textureImage;
 }
 
