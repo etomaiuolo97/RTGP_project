@@ -4,7 +4,8 @@
 #define WATER_RENDERER
 
 #include "utils/system/renderer.h"
-#include "utils/system/model.h"
+
+#include "utils/model/model.h"
 
 #include "utils/water/water_shader.h"
 #include "utils/water/water_tile.h"
@@ -17,7 +18,6 @@ private:
     WaterShader shader;
     WaterFrameBuffers fbos;
     WaterTile tile = WaterTile (0.0f, -5.0f, 0.1f);
-    Model quad;
 
     GLfloat moveFactor = 0;
 
@@ -76,15 +76,18 @@ public:
         shader.start();
         shader.loadProjectionMatrix(projection);
         shader.stop();
-        quad = Model("meshes/circle.obj");
     }
 
-    void render(Camera & camera, GLfloat deltaTime, glm::vec3 lightPosition, glm::vec3 lightColour) {
+    void render(Model & quad, Camera & camera, GLfloat deltaTime, glm::vec3 lightPosition, glm::vec3 lightColour) {
         prepareRender(camera, deltaTime, lightPosition, lightColour);
 
+        // glm::mat4 modelMatrix = Renderer::createTransformationMatrix(
+        //     glm::vec3(this->tile.getX(), this->tile.getHeight(), this->tile.getZ()),
+        //     0, 0, 0, this->tile.TILE_SIZE
+        // );
         glm::mat4 modelMatrix = Renderer::createTransformationMatrix(
-            glm::vec3(this->tile.getX(), this->tile.getHeight(), this->tile.getZ()),
-            0, 0, 0, this->tile.TILE_SIZE
+            quad.getPosition(),
+            quad.getRotation(), quad.getScale()
         );
         shader.loadModelMatrix(modelMatrix);
 

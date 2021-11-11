@@ -36,6 +36,11 @@ private:
         this->isHidden = GL_FALSE;
         this->isHovering = GL_FALSE;
     }
+
+    void onClick (){
+        fountainIndex = (fountainIndex + 1) % numFountains;
+    }
+
 public:
     Button (GuiTexture texture) {
         this->initialize(texture);

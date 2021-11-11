@@ -4,7 +4,7 @@
 #define GUI_RENDERER
 
 #include "utils/system/renderer.h"
-#include "utils/system/model.h"
+#include "utils/model/model.h"
 #include "utils/gui/gui_texture.h"
 #include "utils/gui/gui_shader.h"
 

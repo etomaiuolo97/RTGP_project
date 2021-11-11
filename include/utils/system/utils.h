@@ -4,6 +4,15 @@
 #define UTILS
 
 #define STB_IMAGE_IMPLEMENTATION
+
+#ifdef _WIN32
+    #define ASSERT(x) if (!x) __debugbreak();
+    #define PATH "./"
+#else
+    #define ASSERT(x) if (!x) __builtin_debugtrap();
+    #define PATH "../"
+#endif
+
 #include <stb_image/stb_image.h>
 
 #include <string>
@@ -15,10 +24,16 @@ GLuint textureCube;
 
 vector <GLuint> textures;
 
+int numFountains = 0;
+// Index of the fountain visible on the screen
+int fountainIndex = 0;
+
+// Discard all the errors found before
 void clearErrors() {
     while(glGetError() != GL_NO_ERROR);
 }
 
+// Print the line error
 bool logCall (const char* function, const char* file, int line) {
     while (GLenum error = glGetError()){
         std::cout << "[OpenGL_Error] (" << error << "): " << function <<
@@ -28,23 +43,18 @@ bool logCall (const char* function, const char* file, int line) {
     return true;
 }
 
+// Print the error
 void checkErrors (){
     while (GLenum error = glGetError()){
         std::cout << "[OpenGL_Error] (" << error << std::endl;
     }
 }
 
-#ifdef _WIN32
-    #define ASSERT(x) if (!x) __debugbreak();
-    #define PATH "./"
-#else
-    #define ASSERT(x) if (!x) __builtin_debugtrap();
-    #define PATH "../"
-#endif
+
 
 #define glCall(x) clearErrors(); x; ASSERT(logCall(#x, __FILE__, __LINE__));
 
-
+// Function to load the texture for a side of the cubemap
 void LoadTextureCubeSide (string path, string side_img, GLuint side_name) {
     int w, h;
     unsigned char * image;
@@ -58,6 +68,7 @@ void LoadTextureCubeSide (string path, string side_img, GLuint side_name) {
     stbi_image_free(image);
 }
 
+// Function to load the texture for the cubemap
 GLint LoadTextureCube (string path) {
     GLuint textureImage;
 

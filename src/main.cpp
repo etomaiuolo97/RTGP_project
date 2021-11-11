@@ -21,12 +21,13 @@
 
 using namespace std;
 
+
 #include <utils/system/utils.h>
-#include <utils/system/model.h>
 #include <utils/system/camera.h>
 #include <utils/system/display.h>
 
 #include <utils/model/model_renderer.h>
+#include <utils/model/model.h>
 
 #include <utils/background/background_renderer.h>
 
@@ -63,10 +64,21 @@ int main () {
     GuiRenderer gui_renderer;
 
     // Models
-    Model fountainModel("meshes/fountain_ball.obj");
     Model bgModel("meshes/cube.obj");
+    // List of fountains
+    vector<Model> fountain_models;
+    fountain_models.push_back(Model("meshes/fountain_ball.obj", glm::vec3(0.0f, -3.0f, -5.0f), glm::vec3(-90.0f, 0.0f, 0.0f), 1.0f));
+    fountain_models.push_back(Model("meshes/fountain_child.obj", glm::vec3(0.0f, -3.0f, -2.0f), glm::vec3(-90.0f, 0.0f, 180.0f), 0.08f));
+    fountain_models.push_back(Model("meshes/fountain_classic.obj", glm::vec3(0.0f, -4.0f, -3.0f), glm::vec3(-90.0f, 0.0f, 0.0f), 0.15f));
+    // List of water models
+    vector<Model> water_models;
+    water_models.push_back(Model("meshes/circle.obj", glm::vec3(0.0f, -0.1f, -5.0f), glm::vec3(0.0f), 2.8f));
+    water_models.push_back(Model("meshes/circle.obj", glm::vec3(0.0f, -1.0f, -2.0f), glm::vec3(0.0f), 3.0f));
+    water_models.push_back(Model("meshes/exagon.obj", glm::vec3(0.0f, -1.5f, -3.0f), glm::vec3(0.0f), 3.0f));
 
-    camera.setObjPosition(model_renderer.getPosition());
+    numFountains = fountain_models.size();
+
+    camera.setObjPosition(fountain_models[fountainIndex].getPosition());
 
     // Textures
     textureCube = LoadTextureCube("textures/skybox/");
@@ -78,7 +90,6 @@ int main () {
 
     GuiTexture btnTexture (LoadTexture("textures/button/blue_button.png"), glm::vec2(-0.5f, -0.5f), glm::vec2(0.2f, 0.1f));
     Button btn (btnTexture);
-    // void(*btn.onClick)() = &btnProva;
 
     ButtonHandler btn_handler;
     btn_handler.registerButton(btn);
@@ -102,7 +113,7 @@ int main () {
         glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         glCall(glEnable(GL_DEPTH_TEST));
 
-        GLfloat distance = 2 * (camera.getPosition().y - water_renderer.getWaterHeight());
+        GLfloat distance = 2 * (camera.getPosition().y - water_models[fountainIndex].getPosition().y);
         glm::vec3 cameraPos = camera.getPosition();
 
         cameraPos.y -= distance;
@@ -110,8 +121,8 @@ int main () {
         camera.setPitch(-camera.getPitch());
 
         background_renderer.render(bgModel, textureCube, camera);
-        model_renderer.render(fountainModel, model_texture, camera, 
-                glm::vec4(0, 1, 0, -water_renderer.getWaterHeight()));
+        model_renderer.render(fountain_models[fountainIndex], model_texture, camera, 
+                glm::vec4(0, 1, 0, -water_models[fountainIndex].getPosition().y));
 
         cameraPos.y += distance;
         camera.setPosition(cameraPos);
@@ -122,7 +133,8 @@ int main () {
 
         glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-        model_renderer.render(fountainModel, model_texture, camera, glm::vec4(0, -1, 0, water_renderer.getWaterHeight()));
+        model_renderer.render(fountain_models[fountainIndex], model_texture, camera, 
+                glm::vec4(0, -1, 0, water_models[fountainIndex].getPosition().y));
         background_renderer.render(bgModel, textureCube, camera);
         water_renderer.unbindCurrentFrameBuffer();
 
@@ -150,17 +162,17 @@ int main () {
 
         glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         
-        model_renderer.render(fountainModel, model_texture, camera, glm::vec4(0, -1, 0, 100000));
+        model_renderer.render(fountain_models[fountainIndex], model_texture, camera, glm::vec4(0, -1, 0, 100000));
         background_renderer.render(bgModel, textureCube, camera);
-        water_renderer.render(camera, deltaTime, model_renderer.getLightPos(), model_renderer.getLightColor());
+        water_renderer.render(water_models[fountainIndex], camera, deltaTime, model_renderer.getLightPos(), model_renderer.getLightColor());
         particle_renderer.unbindCurrentFrameBuffer();
 
         // Render the scene
         glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-        model_renderer.render(fountainModel, model_texture, camera, glm::vec4(0, -1, 0, 100000));
         background_renderer.render(bgModel, textureCube, camera);
-        water_renderer.render(camera, deltaTime, model_renderer.getLightPos(), model_renderer.getLightColor());
+        model_renderer.render(fountain_models[fountainIndex], model_texture, camera, glm::vec4(0, -1, 0, 100000));
+        water_renderer.render(water_models[fountainIndex], camera, deltaTime, model_renderer.getLightPos(), model_renderer.getLightColor());
         particle_renderer.render(deltaTime, camera, model_renderer.getLight(), textureCube);
         gui_renderer.render(btn_handler.getGuiTextures(), camera);
 

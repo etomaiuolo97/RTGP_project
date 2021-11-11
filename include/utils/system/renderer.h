@@ -6,7 +6,8 @@
 #include <iostream>
 #include <vector>
 
-#include <utils/system/model.h>
+#include <utils/model/model.h>
+
 #include <utils/system/camera.h>
 #include <utils/system/shader.h>
 
@@ -51,12 +52,12 @@ protected:
      * @param scale 
      * @return glm::mat4 
      */
-    glm::mat4 createTransformationMatrix(glm::vec3 translation, GLfloat rx, GLfloat ry, GLfloat rz, GLfloat scale) {
+    glm::mat4 createTransformationMatrix(glm::vec3 translation, glm::vec3 rotation, GLfloat scale) {
         glm::mat4 matrix = glm::mat4(1.0f);
         matrix = glm::translate(matrix, translation);
-        matrix = glm::rotate(matrix, (GLfloat)glm::radians(rx), glm::vec3(1.0f, 0.0f, 0.0f));
-        matrix = glm::rotate(matrix, (GLfloat)glm::radians(ry), glm::vec3(0.0f, 1.0f, 0.0f));
-        matrix = glm::rotate(matrix, (GLfloat)glm::radians(rz), glm::vec3(0.0f, 0.0f, 1.0f));
+        matrix = glm::rotate(matrix, (GLfloat)glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        matrix = glm::rotate(matrix, (GLfloat)glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        matrix = glm::rotate(matrix, (GLfloat)glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
         matrix = glm::scale(matrix, glm::vec3(scale, scale, scale));
 
         return matrix;

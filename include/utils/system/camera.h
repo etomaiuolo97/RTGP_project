@@ -132,11 +132,12 @@ public:
 
     void setObjPosition (glm::vec3 objPosition) {
         this->objPosition = objPosition;
+        this->calculateCameraPos(this->calculateHorizontalDistance(), this->calculateVerticalDistance());
     }
 
 private:
     glm::vec3 position = glm::vec3(0.0f, 0.0f, -7.0f);
-    glm::vec3 objPosition = glm::vec3(0.0f, -3.0f, -5.0f);
+    glm::vec3 objPosition;
     
     // Eular Angles
     GLfloat pitch = 30;

@@ -10,7 +10,6 @@ class ModelRenderer : public Renderer{
 private:
     ModelShader shader;
     Light light;
-    glm::vec3 position = {0.0f, -3.0f, -5.0f};
 
 public:
 
@@ -40,7 +39,7 @@ public:
         glCall(glBindTexture(GL_TEXTURE_2D, texture.id));
         
         shader.loadTexture(texture);
-        shader.loadModelMatrix(Renderer::createTransformationMatrix(position, -90.0f, 0.0f, 0.0f, 1.0f));
+        shader.loadModelMatrix(Renderer::createTransformationMatrix(model.getPosition(), model.getRotation(), model.getScale()));
 
         model.Draw();
 
@@ -49,10 +48,6 @@ public:
 
     void cleanUp(){
         shader.cleanUp();
-    }
-
-    glm::vec3 getPosition() {
-        return this->position;
     }
 
     glm::vec3 getLightPos () {

@@ -5,6 +5,7 @@
 
 using namespace std;
 
+#include <glad/glad.h>
 // GLM data structures to convert data in the Assimp data structures in a data structures suited for VBO, VAO and EBO buffers
 #include <glm/glm.hpp>
 
@@ -32,7 +33,14 @@ public:
     Model(){}
 
     // Constructor
-    Model(const string& path) {
+    Model(const string& path, glm::vec3 position = glm::vec3(0.0f), glm::vec3 rotation = glm::vec3(0.0f), GLfloat scale = 1.0f) {
+        initialize (path, position, rotation, scale);
+    }
+    
+    void initialize (const string& path, glm::vec3 position = glm::vec3(0.0f), glm::vec3 rotation = glm::vec3(0.0f), GLfloat scale = 1.0f){
+        this->scale = scale;
+        this->rotation = rotation;
+        this->position = position;
         this->loadModel(path);
     }
 
@@ -42,7 +50,22 @@ public:
             this->meshes[i].Draw();
     }
 
+    glm::vec3 getPosition () {
+        return this->position;
+    }
+
+    glm::vec3 getRotation () {
+        return this->rotation;
+    }
+
+    GLfloat getScale () {
+        return this->scale;
+    }
+
 private:
+    glm::vec3 position;
+    glm::vec3 rotation;
+    GLfloat scale;
 
     void loadModel(string path) {
         Assimp::Importer importer;
