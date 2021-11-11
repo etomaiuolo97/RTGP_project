@@ -74,7 +74,11 @@ public:
 
     }
 
-    void render(GLfloat deltaTime, Camera & camera, Light light, GLint tCube) {
+    void render(particle_prop_t particle_props, GLfloat deltaTime, Camera & camera, Light light, GLint tCube) {
+        this->particle.position = particle_props.position;
+        this->particle.directionDev = particle_props.angle;
+        this->particle.life = particle_props.life;
+
         prepareRender(camera, deltaTime, light);
 
         glm::mat4 view = Renderer::createViewMatrix(camera);
@@ -84,7 +88,7 @@ public:
             this->generator.emit(particle);
         }
         
-        this->generator.update(deltaTime);
+        this->generator.update(deltaTime, particle_props.water_height);
         this->generator.Draw(view);
 
         glCall(glDepthMask(true));

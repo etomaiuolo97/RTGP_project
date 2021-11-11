@@ -24,6 +24,13 @@ GLuint textureCube;
 
 vector <GLuint> textures;
 
+typedef struct {
+    glm::vec3 position;
+    float water_height;
+    float angle;
+    float life;
+} particle_prop_t;
+
 int numFountains = 0;
 // Index of the fountain visible on the screen
 int fountainIndex = 0;

@@ -68,13 +68,37 @@ int main () {
     // List of fountains
     vector<Model> fountain_models;
     fountain_models.push_back(Model("meshes/fountain_ball.obj", glm::vec3(0.0f, -3.0f, -5.0f), glm::vec3(-90.0f, 0.0f, 0.0f), 1.0f));
-    fountain_models.push_back(Model("meshes/fountain_child.obj", glm::vec3(0.0f, -3.0f, -2.0f), glm::vec3(-90.0f, 0.0f, 180.0f), 0.08f));
-    fountain_models.push_back(Model("meshes/fountain_classic.obj", glm::vec3(0.0f, -4.0f, -3.0f), glm::vec3(-90.0f, 0.0f, 0.0f), 0.15f));
+    fountain_models.push_back(Model("meshes/fountain_child.obj", glm::vec3(0.0f, -3.0f, -5.0f), glm::vec3(-90.0f, 0.0f, 180.0f), 0.08f));
+    fountain_models.push_back(Model("meshes/fountain_classic.obj", glm::vec3(0.0f, -4.0f, -5.0f), glm::vec3(-90.0f, 0.0f, 0.0f), 0.15f));
     // List of water models
     vector<Model> water_models;
     water_models.push_back(Model("meshes/circle.obj", glm::vec3(0.0f, -0.1f, -5.0f), glm::vec3(0.0f), 2.8f));
-    water_models.push_back(Model("meshes/circle.obj", glm::vec3(0.0f, -1.0f, -2.0f), glm::vec3(0.0f), 3.0f));
-    water_models.push_back(Model("meshes/exagon.obj", glm::vec3(0.0f, -1.5f, -3.0f), glm::vec3(0.0f), 3.0f));
+    water_models.push_back(Model("meshes/circle.obj", glm::vec3(0.0f, -1.0f, -5.0f), glm::vec3(0.0f), 3.0f));
+    water_models.push_back(Model("meshes/exagon.obj", glm::vec3(0.0f, -1.5f, -5.0f), glm::vec3(0.0f), 3.0f));
+    // List of begin of fountain
+    vector<particle_prop_t> particle_props;
+
+    particle_prop_t temp;
+    temp.position = glm::vec3(0.0f, 4.5f, -5.0f);
+    temp.water_height = water_models[0].getPosition().y + 0.1f;
+    temp.angle = 90.0f;
+    temp.life = 1.5f;
+
+    particle_props.push_back(temp);
+
+    temp.position = glm::vec3(0.0f, 7.5f, -5.0f);
+    temp.water_height = water_models[1].getPosition().y + 0.1f;
+    temp.angle = 40.0f;
+    temp.life = 2.0f;
+
+    particle_props.push_back(temp);
+
+    temp.position = glm::vec3(0.0f, 4.5f, -5.0f);
+    temp.water_height = water_models[2].getPosition().y + 0.1f;
+    temp.angle = 120.0f;
+    temp.life = 1.2f;
+
+    particle_props.push_back(temp);
 
     numFountains = fountain_models.size();
 
@@ -147,7 +171,7 @@ int main () {
         
         camera.setPitch(-camera.getPitch());
         camera.setYaw(camera.getYaw() + 180.0f);
-        glm::vec3 objPosition = camera.getObjPosition();
+        glm::vec3 objPosition = fountain_models[fountainIndex].getPosition();
         objPosition.y += distance;
         camera.setPosition(objPosition);
         
@@ -173,7 +197,7 @@ int main () {
         background_renderer.render(bgModel, textureCube, camera);
         model_renderer.render(fountain_models[fountainIndex], model_texture, camera, glm::vec4(0, -1, 0, 100000));
         water_renderer.render(water_models[fountainIndex], camera, deltaTime, model_renderer.getLightPos(), model_renderer.getLightColor());
-        particle_renderer.render(deltaTime, camera, model_renderer.getLight(), textureCube);
+        particle_renderer.render(particle_props[fountainIndex], deltaTime, camera, model_renderer.getLight(), textureCube);
         gui_renderer.render(btn_handler.getGuiTextures(), camera);
 
         glfwSwapBuffers(window);
