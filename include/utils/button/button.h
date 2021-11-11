@@ -16,8 +16,10 @@ private:
     glm::vec4 color;
     GLboolean isHidden;
     GLboolean isHovering;
+    GLboolean onClickStart;
 
     int lastTextureIndex;
+    int buttonId;
 
     void startRender (vector<GuiTexture> guiTextures) {
         lastTextureIndex = guiTextures.size();
@@ -28,26 +30,34 @@ private:
         guiTextures.erase(guiTextures.begin() + lastTextureIndex);
     }
 
-    void initialize (GuiTexture texture) {
+    void initialize (GuiTexture texture, int buttonId) {
         this->guiTexture = texture;
         this->position = texture.getPosition();
         this->scale = texture.getScale();
         this->color = glm::vec4(1, 1, 1, 1);
         this->isHidden = GL_FALSE;
         this->isHovering = GL_FALSE;
+        this->onClickStart = GL_FALSE;
+
+        this->buttonId = buttonId;
     }
 
     void onClick (){
-        fountainIndex = (fountainIndex + 1) % numFountains;
+        switch (buttonId){
+            case 0:
+                fountainIndex = (fountainIndex + 1) % numFountains;
+                break;
+
+        }    
     }
 
 public:
-    Button (GuiTexture texture) {
-        this->initialize(texture);
+    Button (GuiTexture texture, int buttonId) {
+        this->initialize(texture, buttonId);
     }
 
-    Button (GuiTexture texture, glm::vec4 color) {
-        this->initialize(texture);
+    Button (GuiTexture texture, glm::vec4 color, int buttonId) {
+        this->initialize(texture, buttonId);
         this->color = color;
     }
 
@@ -67,8 +77,13 @@ public:
                 }
                 
                 if (isClicked) {
-                    onClick();
-                    isClicked = false;
+                    playerClickAnimation(0.01f);
+                    if (isReleased) {
+                        onClick();
+                        isReleased = false;
+                        isClicked = false;
+                        startHover();
+                    }
                 }
             }
             else {
@@ -76,9 +91,16 @@ public:
                     isHovering = GL_FALSE;
                     stopHover();
                 }
-                guiTexture.setScale(this->scale);
             }
         }
+    }
+
+    void startHover () {
+        playHoverAnimation(0.02f);
+    }
+
+    void stopHover () {
+        guiTexture.setScale(this->scale);
     }
 
     void playHoverAnimation (GLfloat scaleFactor) {

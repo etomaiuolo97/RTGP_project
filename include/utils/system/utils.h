@@ -104,15 +104,18 @@ GLint LoadTextureCube (string path) {
     return textureImage;
 }
 
-GLint LoadTexture(const char* path, bool repeat = false) {
+GLint LoadTexture(const char* path, bool repeat = false, bool rgba = false) {
     GLuint textureImage;
     int w, h, channels;
     unsigned char* image;
 
     std::string filepath = PATH;
     filepath.append(path);
-
-    image = stbi_load(filepath.c_str(), &w, &h, &channels, STBI_rgb);
+    
+    if (rgba)
+        image = stbi_load(filepath.c_str(), &w, &h, &channels, STBI_rgb_alpha);
+    else
+        image = stbi_load(filepath.c_str(), &w, &h, &channels, STBI_rgb);
 
     if (image == nullptr)
         std::cout << "Failed to load texture!" << std::endl;

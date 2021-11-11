@@ -112,11 +112,22 @@ int main () {
     model_texture.shineDamper = 90.0f;
     model_texture.reflectivity = 1.0f;
 
-    GuiTexture btnTexture (LoadTexture("textures/button/blue_button.png"), glm::vec2(-0.5f, -0.5f), glm::vec2(0.2f, 0.1f));
-    Button btn (btnTexture);
+    GuiTexture btnModelTexture (LoadTexture("textures/button/fountain_button.png", false, true), 
+        glm::vec2(-0.75f, -0.75f), glm::vec2(0.0f, 0.0f), glm::vec2(0.12f, 0.15f));
+    Button btnModel (btnModelTexture, 0);
+
+    GuiTexture btnDayNightTexture (LoadTexture("textures/button/day_night_button.png", false, true), 
+        glm::vec2(0.0f, -0.75f), glm::vec2(0.0f, 0.0f), glm::vec2(0.12f, 0.15f));
+    Button btnDayNight (btnDayNightTexture, 1);
+
+    GuiTexture btnSceneTexture (LoadTexture("textures/button/scene_button.png", false, true), 
+        glm::vec2(0.75f, -0.75f), glm::vec2(0.0f, 0.0f), glm::vec2(0.12f, 0.15f));
+    Button btnScene (btnSceneTexture, 2);
 
     ButtonHandler btn_handler;
-    btn_handler.registerButton(btn);
+    btn_handler.registerButton(&btnModel);
+    btn_handler.registerButton(&btnDayNight);
+    btn_handler.registerButton(&btnScene);
     
     while(!glfwWindowShouldClose(window)) {
         GLfloat currentFrame = glfwGetTime();

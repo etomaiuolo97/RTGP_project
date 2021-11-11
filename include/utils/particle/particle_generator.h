@@ -54,6 +54,7 @@ public:
                     particle.velocity.y += gravity * deltaTime;
                     particle.position.y += particle.velocity.y * (GLfloat) deltaTime;
 
+                    // The particle stops at the water height
                     if (particle.position.y < waterHeight)
                         particle.position.y = waterHeight;
                     else {

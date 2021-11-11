@@ -22,15 +22,19 @@ public:
 
     void render(vector<GuiTexture> guis, Camera & camera) {
         shader.start();
+        glCall(glEnable(GL_BLEND));
+        glCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+
         for (GuiTexture gui: guis){
             glCall(glActiveTexture(GL_TEXTURE0));
             glCall(glBindTexture(GL_TEXTURE_2D, gui.getTexture()));
             shader.combineTextures();
 
-            glm::mat4 matrix = createTransformationMatrix(gui.getPosition(), gui.getScale());
+            glm::mat4 matrix = createTransformationMatrix(gui.getPosition(), gui.getRotation(), gui.getScale());
             shader.loadModelMatrix(matrix);
             quad.Draw();
         }
+        glCall(glEnable(GL_BLEND));
         shader.stop();
     }
 

@@ -34,7 +34,7 @@ double xCursor, yCursor;
 bool firstMouse = true;
 bool cursorInWindow = false;
 vector<glm::vec2> cursorPos;
-bool isClicked = false;
+bool isClicked = false, isReleased = false;
 
 Camera camera;
 
@@ -82,7 +82,7 @@ void mouse_callback (GLFWwindow* window, int button, int action, int mods) {
             isClicked = true;
         }
         else if (action == GLFW_RELEASE){
-            isClicked = false;
+            isReleased = true;
         }
 }
 
