@@ -14,11 +14,15 @@ private:
 
 public:
 
-    ModelRenderer (glm::mat4 projection)
+    ModelRenderer (glm::mat4 projection, bool night)
         : Renderer(projection){
         
         light.position = glm::vec3(-10.0f, 20.0f, -60.0f);
-        light.color = glm::vec3(1.0f, 1.0f, 1.0f);
+
+        if(night)
+            light.color = glm::vec3(0.6f, 0.6f, 0.6f);
+        else
+            light.color = glm::vec3(1.0f, 1.0f, 1.0f);
 
         shader.start();
         shader.loadProjectionMatrix(this->projection);
