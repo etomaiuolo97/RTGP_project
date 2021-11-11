@@ -29,6 +29,7 @@ GLfloat lastX, lastY;
 bool firstMouse = true;
 
 Camera camera;
+bool night=true;
 
 // callback function for keyboard events
 void key_callback (GLFWwindow* window, int key, int scancode, int action, int mode) {
@@ -37,7 +38,27 @@ void key_callback (GLFWwindow* window, int key, int scancode, int action, int mo
     // If ESC is pressed, it closes the application
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
-    
+
+    // 1 : beach, 2 : parc
+    if(key == GLFW_KEY_1 && action == GLFW_PRESS){
+        std::cout << "\t1 - Beach" << std::endl;
+        textureCube = LoadTextureCube("textures/skybox/");
+    }else if(key == GLFW_KEY_2 && action == GLFW_PRESS){
+        std::cout << "\t2 - Parc" << std::endl;
+        textureCube = LoadTextureCube("textures/skybox1/");
+    }
+
+    // 3: day , 4 : night
+    if(key == GLFW_KEY_3 && action == GLFW_PRESS){
+        std::cout << "\t3 - Day" << std::endl;
+        textureCube = LoadTextureCube("textures/skyboxDay/");
+        night=false;
+    }else if(key == GLFW_KEY_4 && action == GLFW_PRESS){
+        std::cout << "\t4 - Night" << std::endl;
+        textureCube = LoadTextureCube("textures/skyboxNight/");
+        night=true;
+    }
+  
     // Keep trace of the pressed keys
     if (action == GLFW_PRESS)
         keys[key] = true;
