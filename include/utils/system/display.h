@@ -19,7 +19,7 @@ const GLuint HEIGHT = 600;
 // Boolean to activate/deactivate wireframe rendering
 GLboolean wireframe = GL_FALSE;
 
-// parameters for time calculation (for animations)
+// Parameters for time calculation (for animations)
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
 
@@ -28,12 +28,12 @@ bool keys[1024];
 
 // This line stores the previous mouse position to calculate the offset with the current frame
 GLfloat lastX, lastY;
+// These variables stores the actual mouse position
 double xCursor, yCursor;
 
-// To manage the mouse position in the first frame
-bool firstMouse = true;
+// cursorInWindow: True if the cursor is within the window limits
 bool cursorInWindow = false;
-vector<glm::vec2> cursorPos;
+// Variable to check if the mouse was clicked or not
 bool isClicked = false, isReleased = false;
 
 Camera camera;
