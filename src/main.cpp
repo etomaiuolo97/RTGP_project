@@ -187,7 +187,7 @@ int main () {
         objPosition.y += distance;
         camera.setPosition(objPosition);
         
-        background_renderer.render(bgModel, textureCube, camera, deltaTime);
+        background_renderer.render(bgModel, textureCube, camera);
 
         camera.setPitch(-camera.getPitch());
         camera.setYaw(camera.getYaw() - 180.0f);

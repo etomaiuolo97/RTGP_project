@@ -63,9 +63,7 @@ public:
         glUniformMatrix4fv(this->projectionMatLocation, 1, GL_FALSE, glm::value_ptr(matrix));
     }
 
-    void loadViewMatrix(glm::mat4 matrix, float deltaTime){
-        //rotation += ROTATE_SPEED * deltaTime;
-        //matrix = glm::rotate(matrix, (GLfloat)glm::radians(rotation), glm::vec3(0.0f,1.0f,0.0f));
+    void loadViewMatrix(glm::mat4 matrix){
         glUniformMatrix4fv(this->viewMatrixLocation, 1, GL_FALSE, glm::value_ptr(matrix));
     }
 

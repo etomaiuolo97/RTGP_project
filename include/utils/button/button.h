@@ -16,9 +16,11 @@ private:
     glm::vec4 color;
     GLboolean isHidden;
     GLboolean isHovering;
-    GLboolean onClickStart;
+
+    vector<GLint> cubeTextures;
 
     int lastTextureIndex;
+    int cubeTexIndex;
     int buttonId;
 
     void startRender (vector<GuiTexture> guiTextures) {
@@ -37,9 +39,14 @@ private:
         this->color = glm::vec4(1, 1, 1, 1);
         this->isHidden = GL_FALSE;
         this->isHovering = GL_FALSE;
-        this->onClickStart = GL_FALSE;
 
         this->buttonId = buttonId;
+
+        if (buttonId == 2) {
+            this->cubeTexIndex = 0;
+            cubeTextures.push_back(LoadTextureCube("textures/skybox/"));
+            cubeTextures.push_back(LoadTextureCube("textures/skybox1/"));
+        }
     }
 
     void onClick (){
@@ -47,7 +54,10 @@ private:
             case 0:
                 fountainIndex = (fountainIndex + 1) % numFountains;
                 break;
-
+            case 2:
+                cubeTexIndex = (cubeTexIndex + 1) % cubeTextures.size();
+                textureCube = cubeTextures[cubeTexIndex];
+                break;
         }    
     }
 

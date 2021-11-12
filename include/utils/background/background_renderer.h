@@ -17,7 +17,7 @@ public:
             Renderer::SetupShaders(shader.getProgram());
     }
 
-    void render(Model& model, GLuint texture, Camera & camera, float deltaTime) {
+    void render(Model& model, GLuint texture, Camera & camera) {
         glm::mat4 view = Renderer::createViewMatrix(camera);
 
         glDepthFunc(GL_LEQUAL);
@@ -31,16 +31,7 @@ public:
 
         view = glm::mat4(glm::mat3(view));
 
-/*
-        float RED = 0.5444f;
-        float GREEN = 0.62f;
-        float BLUE = 0.69f;
-        shader.loadFogColour(RED, GREEN, BLUE);
-        shader.connectTextureUnits();
-        shader.loadBlendFactor(0.7f);
-        */
-
-        shader.loadViewMatrix(view, deltaTime);
+        shader.loadViewMatrix(view);
         shader.loadtCube(0);
 
         model.Draw();
