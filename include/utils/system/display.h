@@ -37,7 +37,11 @@ vector<glm::vec2> cursorPos;
 bool isClicked = false, isReleased = false;
 
 Camera camera;
-bool night=true;
+bool night=false;
+
+bool setNight(bool night){
+    return !night;
+}
 
 // callback function for keyboard events
 void key_callback (GLFWwindow* window, int key, int scancode, int action, int mode) {
@@ -50,6 +54,7 @@ void key_callback (GLFWwindow* window, int key, int scancode, int action, int mo
     // 1 : beach, 2 : parc
     if(key == GLFW_KEY_1 && action == GLFW_PRESS){
         std::cout << "\t1 - Beach" << std::endl;
+
         textureCube = LoadTextureCube("textures/skybox/");
     }else if(key == GLFW_KEY_2 && action == GLFW_PRESS){
         std::cout << "\t2 - Parc" << std::endl;
@@ -60,11 +65,9 @@ void key_callback (GLFWwindow* window, int key, int scancode, int action, int mo
     if(key == GLFW_KEY_3 && action == GLFW_PRESS){
         std::cout << "\t3 - Day" << std::endl;
         textureCube = LoadTextureCube("textures/skyboxDay/");
-        night=false;
     }else if(key == GLFW_KEY_4 && action == GLFW_PRESS){
         std::cout << "\t4 - Night" << std::endl;
         textureCube = LoadTextureCube("textures/skyboxNight/");
-        night=true;
     }
   
     // Keep trace of the pressed keys
@@ -73,6 +76,7 @@ void key_callback (GLFWwindow* window, int key, int scancode, int action, int mo
     else if (action == GLFW_RELEASE)
         keys[key] = false;
 }
+
 
 /**
  * @brief The display is zoomed and we pass the coordinate of the mouse to calculate the zoom

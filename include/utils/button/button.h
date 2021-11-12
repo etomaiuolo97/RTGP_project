@@ -47,6 +47,9 @@ private:
             case 0:
                 fountainIndex = (fountainIndex + 1) % numFountains;
                 break;
+            case 1:
+                night = setNight(night);
+                break;
 
         }    
     }

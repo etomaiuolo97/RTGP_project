@@ -17,7 +17,7 @@ public:
             Renderer::SetupShaders(shader.getProgram());
     }
 
-    void render(Model& model, GLuint texture, Camera & camera, float deltaTime) {
+    void render(Model& model, GLuint texture, Camera & camera) {
         glm::mat4 view = Renderer::createViewMatrix(camera);
 
         glDepthFunc(GL_LEQUAL);

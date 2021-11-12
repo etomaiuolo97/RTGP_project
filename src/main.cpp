@@ -57,7 +57,7 @@ int main () {
     glm::mat4 projection = glm::perspective(45.0f, (float)WIDTH/(float)HEIGHT, 0.1f, 10000.0f);
     
     // Renderers
-    ModelRenderer model_renderer (projection, night);
+    ModelRenderer model_renderer (projection,night);
     BackgroundRenderer background_renderer (projection);
     WaterRenderer water_renderer (projection, WIDTH, HEIGHT);
     ParticleRenderer particle_renderer (projection);
@@ -141,6 +141,12 @@ int main () {
 
         btn_handler.update();
 
+        if(night){
+            model_renderer.setLightColor(glm::vec3(0.6f, 0.6f, 0.6f));
+        }else{
+            model_renderer.setLightColor(glm::vec3(1.0f, 1.0f, 1.0f));
+        }
+
         // Render the reflection of the water
         water_renderer.bindReflectionFrameBuffer();
 
@@ -187,7 +193,7 @@ int main () {
         objPosition.y += distance;
         camera.setPosition(objPosition);
         
-        background_renderer.render(bgModel, textureCube, camera, deltaTime);
+        background_renderer.render(bgModel, textureCube, camera);
 
         camera.setPitch(-camera.getPitch());
         camera.setYaw(camera.getYaw() - 180.0f);
@@ -215,6 +221,8 @@ int main () {
 
         glfwSwapBuffers(window);
     }
+
+    
 
     particle_renderer.cleanUp();
     model_renderer.cleanUp();
