@@ -11,9 +11,7 @@
 
 class GuiShader: public Shader {
 private:
-    GLint transformationMatrixLocation;
-    GLint cameraPositionLocation;
-    GLint lightPositionLocation;
+    GLint modelMatrixLocation;
     GLint guiTextureLocation;
 
 public:
@@ -32,30 +30,21 @@ public:
 
 
     void bindAttributes () {
-        Shader::bindAttribute(0, "position");
+        Shader::bindAttribute(0, "a_Position");
+        Shader::bindAttribute(2, "a_TextureCoords");
     }
     
     void getAllUniformLocations () {
-        this->transformationMatrixLocation = Shader::getUniformLocation("transformationMatrix");
-        this->cameraPositionLocation = Shader::getUniformLocation("u_CameraPosition");
-        this->lightPositionLocation = Shader::getUniformLocation("u_LightPosition");
-        this->guiTextureLocation = Shader::getUniformLocation("guiTexture");
+        this->modelMatrixLocation = Shader::getUniformLocation("u_ModelMatrix");
+        this->guiTextureLocation = Shader::getUniformLocation("u_GuiTexture");
     }
 
     void combineTextures () {
         glCall(glUniform1i(this->guiTextureLocation, 0));
     }
 
-    void loadCameraPosition (glm::vec3 cameraPos) {
-        glCall(glUniform3fv(this->cameraPositionLocation, 1, glm::value_ptr(cameraPos)));
-    }
-
-    void loadLightPosition (glm::vec3 lightPos) {
-        glCall(glUniform3fv(this->lightPositionLocation, 1, glm::value_ptr(lightPos)));
-    }
-
-    void loadTansformationMatrix (glm::mat4 matrix) {
-        glCall(glUniformMatrix4fv(this->transformationMatrixLocation, 1, GL_FALSE, glm::value_ptr(matrix)));
+    void loadModelMatrix (glm::mat4 matrix) {
+        glCall(glUniformMatrix4fv(this->modelMatrixLocation, 1, GL_FALSE, glm::value_ptr(matrix)));
     }
 };
 

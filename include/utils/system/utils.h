@@ -4,6 +4,15 @@
 #define UTILS
 
 #define STB_IMAGE_IMPLEMENTATION
+
+#ifdef _WIN32
+    #define ASSERT(x) if (!x) __debugbreak();
+    #define PATH "./"
+#else
+    #define ASSERT(x) if (!x) __builtin_debugtrap();
+    #define PATH "../"
+#endif
+
 #include <stb_image/stb_image.h>
 
 #include <string>
@@ -15,10 +24,23 @@ GLuint textureCube;
 
 vector <GLuint> textures;
 
+typedef struct {
+    glm::vec3 position;
+    float water_height;
+    float angle;
+    float life;
+} particle_prop_t;
+
+int numFountains = 0;
+// Index of the fountain visible on the screen
+int fountainIndex = 0;
+
+// Discard all the errors found before
 void clearErrors() {
     while(glGetError() != GL_NO_ERROR);
 }
 
+// Print the line error
 bool logCall (const char* function, const char* file, int line) {
     while (GLenum error = glGetError()){
         std::cout << "[OpenGL_Error] (" << error << "): " << function <<
@@ -28,23 +50,18 @@ bool logCall (const char* function, const char* file, int line) {
     return true;
 }
 
+// Print the error
 void checkErrors (){
     while (GLenum error = glGetError()){
         std::cout << "[OpenGL_Error] (" << error << std::endl;
     }
 }
 
-#ifdef _WIN32
-    #define ASSERT(x) if (!x) __debugbreak();
-    #define PATH "./"
-#else
-    #define ASSERT(x) if (!x) __builtin_debugtrap();
-    #define PATH "../"
-#endif
+
 
 #define glCall(x) clearErrors(); x; ASSERT(logCall(#x, __FILE__, __LINE__));
 
-
+// Function to load the texture for a side of the cubemap
 void LoadTextureCubeSide (string path, string side_img, GLuint side_name) {
     int w, h;
     unsigned char * image;
@@ -58,6 +75,7 @@ void LoadTextureCubeSide (string path, string side_img, GLuint side_name) {
     stbi_image_free(image);
 }
 
+// Function to load the texture for the cubemap
 GLint LoadTextureCube (string path) {
     GLuint textureImage;
 
@@ -86,15 +104,18 @@ GLint LoadTextureCube (string path) {
     return textureImage;
 }
 
-GLint LoadTexture(const char* path, bool repeat = false) {
+GLint LoadTexture(const char* path, bool repeat = false, bool rgba = false) {
     GLuint textureImage;
     int w, h, channels;
     unsigned char* image;
 
     std::string filepath = PATH;
     filepath.append(path);
-
-    image = stbi_load(filepath.c_str(), &w, &h, &channels, STBI_rgb);
+    
+    if (rgba)
+        image = stbi_load(filepath.c_str(), &w, &h, &channels, STBI_rgb_alpha);
+    else
+        image = stbi_load(filepath.c_str(), &w, &h, &channels, STBI_rgb);
 
     if (image == nullptr)
         std::cout << "Failed to load texture!" << std::endl;
@@ -130,7 +151,6 @@ GLint LoadTexture(const char* path, bool repeat = false) {
 
     // Set the binding to 0 once we have finished
     glCall(glBindTexture(GL_TEXTURE_2D, 0));
-
     return textureImage;
 }
 

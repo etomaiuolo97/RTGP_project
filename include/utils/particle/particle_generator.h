@@ -43,7 +43,7 @@ public:
         this->particles.resize(10000);
     }
 
-    void update (GLfloat deltaTime){
+    void update (GLfloat deltaTime, GLfloat waterHeight){
         for (auto& particle : this->particles) {
             if (particle.active){
                 if (particle.lifeRemaining <= 0.0f) {
@@ -54,8 +54,9 @@ public:
                     particle.velocity.y += gravity * deltaTime;
                     particle.position.y += particle.velocity.y * (GLfloat) deltaTime;
 
-                    if (particle.position.y < 0.0)
-                        particle.position.y = 0.0;
+                    // The particle stops at the water height
+                    if (particle.position.y < waterHeight)
+                        particle.position.y = waterHeight;
                     else {
                         particle.position.x += particle.velocity.x * (GLfloat) deltaTime;
                         particle.position.z += particle.velocity.z * (GLfloat) deltaTime;

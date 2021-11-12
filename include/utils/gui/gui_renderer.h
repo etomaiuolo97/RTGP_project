@@ -4,7 +4,7 @@
 #define GUI_RENDERER
 
 #include "utils/system/renderer.h"
-#include "utils/system/model.h"
+#include "utils/model/model.h"
 #include "utils/gui/gui_texture.h"
 #include "utils/gui/gui_shader.h"
 
@@ -20,20 +20,21 @@ public:
         quad = Model ("meshes/quad.obj");
     }
 
-    void render(vector<GuiTexture> guis, Camera & camera, Light & light) {
+    void render(vector<GuiTexture> guis, Camera & camera) {
         shader.start();
+        glCall(glEnable(GL_BLEND));
+        glCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+
         for (GuiTexture gui: guis){
             glCall(glActiveTexture(GL_TEXTURE0));
             glCall(glBindTexture(GL_TEXTURE_2D, gui.getTexture()));
-
             shader.combineTextures();
-            shader.loadCameraPosition(camera.getPosition());
-            shader.loadLightPosition(light.position);
 
-            glm::mat4 matrix = createTransformationMatrix(gui.getPosition(), gui.getScale());
-            shader.loadTansformationMatrix(matrix);
+            glm::mat4 matrix = createTransformationMatrix(gui.getPosition(), gui.getRotation(), gui.getScale());
+            shader.loadModelMatrix(matrix);
             quad.Draw();
         }
+        glCall(glEnable(GL_BLEND));
         shader.stop();
     }
 
