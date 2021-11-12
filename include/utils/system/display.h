@@ -47,15 +47,6 @@ void key_callback (GLFWwindow* window, int key, int scancode, int action, int mo
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
 
-    // 1 : beach, 2 : parc
-    if(key == GLFW_KEY_1 && action == GLFW_PRESS){
-        std::cout << "\t1 - Beach" << std::endl;
-        textureCube = LoadTextureCube("textures/skybox/");
-    }else if(key == GLFW_KEY_2 && action == GLFW_PRESS){
-        std::cout << "\t2 - Parc" << std::endl;
-        textureCube = LoadTextureCube("textures/skybox1/");
-    }
-
     // 3: day , 4 : night
     if(key == GLFW_KEY_3 && action == GLFW_PRESS){
         std::cout << "\t3 - Day" << std::endl;
@@ -194,7 +185,12 @@ void prepareDisplay(GLboolean wireframe){
 
 }
 
-
+/**
+ * @brief Obtain the normalized mouse coordinates.
+ * 
+ * @param x x-coordinate of the mouse pointer
+ * @param y y-coordinate of the mouse pointer
+ */
 glm::vec2 getNormalizedMouseCoordinates (double x, double y) {
     GLfloat normalizedX = -1.0f + 2.0f * (GLfloat) x / (GLfloat) WIDTH;
     GLfloat normalizedY = -1.0f + 2.0f * (GLfloat) y / (GLfloat) HEIGHT;

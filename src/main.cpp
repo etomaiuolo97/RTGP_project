@@ -65,17 +65,20 @@ int main () {
 
     // Models
     Model bgModel("meshes/cube.obj");
+
     // List of fountains
     vector<Model> fountain_models;
     fountain_models.push_back(Model("meshes/fountain_ball.obj", glm::vec3(0.0f, -3.0f, -5.0f), glm::vec3(-90.0f, 0.0f, 0.0f), 1.0f));
     fountain_models.push_back(Model("meshes/fountain_child.obj", glm::vec3(0.0f, -3.0f, -5.0f), glm::vec3(-90.0f, 0.0f, 180.0f), 0.08f));
     fountain_models.push_back(Model("meshes/fountain_classic.obj", glm::vec3(0.0f, -4.0f, -5.0f), glm::vec3(-90.0f, 0.0f, 0.0f), 0.15f));
+
     // List of water models
     vector<Model> water_models;
     water_models.push_back(Model("meshes/circle.obj", glm::vec3(0.0f, -0.1f, -5.0f), glm::vec3(0.0f), 2.8f));
     water_models.push_back(Model("meshes/circle.obj", glm::vec3(0.0f, -1.0f, -5.0f), glm::vec3(0.0f), 3.0f));
     water_models.push_back(Model("meshes/exagon.obj", glm::vec3(0.0f, -1.5f, -5.0f), glm::vec3(0.0f), 3.0f));
-    // List of begin of fountain
+    
+    // List of begin properties of fountain
     vector<particle_prop_t> particle_props;
 
     particle_prop_t temp;
@@ -95,7 +98,7 @@ int main () {
 
     temp.position = glm::vec3(0.0f, 4.5f, -5.0f);
     temp.water_height = water_models[2].getPosition().y + 0.1f;
-    temp.angle = 120.0f;
+    temp.angle = 180.0f;
     temp.life = 1.2f;
 
     particle_props.push_back(temp);
@@ -112,6 +115,7 @@ int main () {
     model_texture.shineDamper = 90.0f;
     model_texture.reflectivity = 1.0f;
 
+    // GUI Buttons
     GuiTexture btnModelTexture (LoadTexture("textures/button/fountain_button.png", false, true), 
         glm::vec2(-0.75f, -0.75f), glm::vec2(0.0f, 0.0f), glm::vec2(0.12f, 0.15f));
     Button btnModel (btnModelTexture, 0);

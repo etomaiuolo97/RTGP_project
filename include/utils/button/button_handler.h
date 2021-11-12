@@ -1,3 +1,5 @@
+// Cpp version of the code https://www.youtube.com/watch?v=GmmR37-LBPQ
+
 #ifndef BUTTON_HANDLER
 #define BUTTON_HANDLER
 
@@ -13,16 +15,20 @@ using namespace std;
 class ButtonHandler {
 private:
     
+    // List of buttons to manage
     vector <Button*> buttons;
 
 public:
     ButtonHandler () {}
 
+    /**
+     * @brief Check the mouse position
+    */
     void update () {
         for (Button* button: buttons)
             button->checkHover();
     }
-
+    
     void registerButton (Button* button) {
         buttons.push_back(button);
     }

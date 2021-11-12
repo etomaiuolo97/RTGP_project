@@ -1,3 +1,5 @@
+// Cpp version of the code https://www.youtube.com/watch?v=GmmR37-LBPQ
+
 #ifndef BUTTON
 #define BUTTON
 
@@ -6,42 +8,39 @@ using namespace std;
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
-#include <utils/button/button_interface.h>
 #include <utils/system/display.h>
 
-class Button : public ButtonInterface {
+class Button {
 private:
+
+    // guiTexture: texture of the button
     GuiTexture guiTexture;
+    // position, scale: position and scale of the button
     glm::vec2 position, scale;
-    glm::vec4 color;
-    GLboolean isHidden;
+    // isHovering: True if the mouse pointer is on the button
     GLboolean isHovering;
 
+    // cubeTextures: list of cubemap textures
     vector<GLint> cubeTextures;
-
-    int lastTextureIndex;
+    
+    // cubeTexIndex: keep trace of the cubemap is actually rendered 
     int cubeTexIndex;
+    
+    // buttonId: id to set the onClick function:
+    //  - 0: model change
+    //  - 1: day/night version
+    //  - 2: scene change
     int buttonId;
-
-    void startRender (vector<GuiTexture> guiTextures) {
-        lastTextureIndex = guiTextures.size();
-        guiTextures.push_back(guiTexture);
-    }
-
-    void stopRender (vector<GuiTexture> guiTextures) {
-        guiTextures.erase(guiTextures.begin() + lastTextureIndex);
-    }
 
     void initialize (GuiTexture texture, int buttonId) {
         this->guiTexture = texture;
         this->position = texture.getPosition();
         this->scale = texture.getScale();
-        this->color = glm::vec4(1, 1, 1, 1);
-        this->isHidden = GL_FALSE;
         this->isHovering = GL_FALSE;
 
         this->buttonId = buttonId;
 
+        // Initialize the list of cubemaps and the index in case of scene-change button
         if (buttonId == 2) {
             this->cubeTexIndex = 0;
             cubeTextures.push_back(LoadTextureCube("textures/skybox/"));
@@ -52,10 +51,13 @@ private:
     void onClick (){
         switch (buttonId){
             case 0:
+                // Cycle on the fountain vector index
                 fountainIndex = (fountainIndex + 1) % numFountains;
                 break;
             case 2:
+                // Cycle on the cubemap vector index
                 cubeTexIndex = (cubeTexIndex + 1) % cubeTextures.size();
+                // Set the cubemap to render
                 textureCube = cubeTextures[cubeTexIndex];
                 break;
         }    
@@ -66,90 +68,85 @@ public:
         this->initialize(texture, buttonId);
     }
 
-    Button (GuiTexture texture, glm::vec4 color, int buttonId) {
-        this->initialize(texture, buttonId);
-        this->color = color;
-    }
-
+    /**
+     * @brief Check if the mouse pointer is on the button.
+    */
     void checkHover () {
-        if (!this->isHidden) {
-            glm::vec2 location = guiTexture.getPosition();
-            glm::vec2 scale = guiTexture.getScale();
-            glm::vec2 mouseCoords = getNormalizedMouseCoordinates(xCursor, yCursor);
+        glm::vec2 location = guiTexture.getPosition();
+        glm::vec2 scale = guiTexture.getScale();
 
-            if (location.y + scale.y > -mouseCoords.y && location.y - scale.y < -mouseCoords.y 
-                    && location.x + scale.x > mouseCoords.x && location.x - scale.x < mouseCoords.x) {
-                whileHover();
+        // Get the normalized mouse coordinates taken from the mouse callback
+        glm::vec2 mouseCoords = getNormalizedMouseCoordinates(xCursor, yCursor);
 
-                if (!this->isHovering) {
-                    isHovering = true;
+        // Check if the mouse position is within the limit coordinates of the button
+        if (location.y + scale.y > -mouseCoords.y && location.y - scale.y < -mouseCoords.y 
+                && location.x + scale.x > mouseCoords.x && location.x - scale.x < mouseCoords.x) {
+            
+            // Change the status of the button
+            if (!this->isHovering) {
+                isHovering = true;
+                startHover();
+            }
+            
+            // Check if the mouse is clicked
+            if (isClicked) {
+                playerClickAnimation(0.01f);
+                // Do the onClick function only when the mouse button is released
+                if (isReleased) {
+                    onClick();
+                    isReleased = false;
+                    isClicked = false;
                     startHover();
                 }
-                
-                if (isClicked) {
-                    playerClickAnimation(0.01f);
-                    if (isReleased) {
-                        onClick();
-                        isReleased = false;
-                        isClicked = false;
-                        startHover();
-                    }
-                }
             }
-            else {
-                if (this->isHovering) {
-                    isHovering = GL_FALSE;
-                    stopHover();
-                }
+        }
+        else {
+            // Change the status of the button if the mouse is exiting the button
+            if (this->isHovering) {
+                isHovering = GL_FALSE;
+                stopHover();
             }
         }
     }
 
+    /**
+     * @brief Zooming the button of scaleFactor of 0.02f
+     */
     void startHover () {
         playHoverAnimation(0.02f);
     }
 
+    /**
+     * @brief Reset the button size
+     */
     void stopHover () {
         guiTexture.setScale(this->scale);
     }
 
+    /**
+     * @brief Zooming the button.
+     * 
+     * @param scaleFactor zoom in factor
+     */
     void playHoverAnimation (GLfloat scaleFactor) {
         guiTexture.setScale(glm::vec2(scale.x + scaleFactor, scale.y + scaleFactor));
     }
 
+    /**
+     * @brief Reduce the button size
+     * 
+     * @param scaleFactor zoom out factor
+     */
     void playerClickAnimation (GLfloat scaleFactor) {
         guiTexture.setScale(glm::vec2(scale.x - (scaleFactor * 2), scale.y - (scaleFactor * 2)));
-    }
-
-    void hide (vector<GuiTexture> guiTextures) {
-        stopRender(guiTextures);
-        this->isHidden = GL_TRUE;
-    }
-
-    void show (vector<GuiTexture> guiTextures) {
-        startRender(guiTextures);
-        this->isHidden = GL_FALSE;
-    }
-
-    void reopen (vector<GuiTexture> guiTextures) {
-        hide(guiTextures);
-        show(guiTextures);
     }
 
     GLboolean getIsHovering () {
         return this->isHovering;
     }
 
-    GLboolean getIsHidden () {
-        return this->isHidden;
-    }
-
     GuiTexture getGuiTexture () {
         return this->guiTexture;
-    }
-
-    glm::vec4 getColor () {
-        return this->color;
     }
 
     glm::vec2 getScale () {
@@ -158,10 +155,6 @@ public:
 
     glm::vec2 getPosition () {
         return this->position;
-    }
-
-    void setColor (glm::vec4 color) {
-        this->color = color;
     }
 
     void setScale (glm::vec2 scale) {

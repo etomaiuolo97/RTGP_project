@@ -22,6 +22,7 @@ public:
 
     void render(vector<GuiTexture> guis, Camera & camera) {
         shader.start();
+        // Enable blend for the transparency in the aplha factor
         glCall(glEnable(GL_BLEND));
         glCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
