@@ -57,7 +57,7 @@ int main () {
     glm::mat4 projection = glm::perspective(45.0f, (float)WIDTH/(float)HEIGHT, 0.1f, 10000.0f);
     
     // Renderers
-    ModelRenderer model_renderer (projection,night);
+    ModelRenderer model_renderer (projection);
     BackgroundRenderer background_renderer (projection);
     WaterRenderer water_renderer (projection, WIDTH, HEIGHT);
     ParticleRenderer particle_renderer (projection);
@@ -105,7 +105,22 @@ int main () {
     camera.setObjPosition(fountain_models[fountainIndex].getPosition());
 
     // Textures
-    textureCube = LoadTextureCube("textures/skybox/");
+    //textureCube = LoadTextureCube("textures/skybox/");
+    // List of skyboxes
+    vector<GLint> textureCubeList;
+    GLint tmp = LoadTextureCube("textures/skybox/");
+    textureCubeList.push_back(tmp);
+    
+    tmp = LoadTextureCube("textures/skybox1/");
+    textureCubeList.push_back(tmp);
+
+    tmp = LoadTextureCube("textures/skyboxDay/");
+    textureCubeList.push_back(tmp);
+
+    tmp = LoadTextureCube("textures/skyboxNight/");
+    textureCubeList.push_back(tmp);
+
+    numCubes = textureCubeList.size();
     
     Texture model_texture;
     model_texture.id = LoadTexture("textures/fountain/fountain_tex.png", true);
@@ -142,6 +157,7 @@ int main () {
         btn_handler.update();
 
         if(night){
+            cubeIndex = numCubes - 1;
             model_renderer.setLightColor(glm::vec3(0.6f, 0.6f, 0.6f));
         }else{
             model_renderer.setLightColor(glm::vec3(1.0f, 1.0f, 1.0f));
@@ -161,7 +177,7 @@ int main () {
         camera.setPosition(cameraPos);
         camera.setPitch(-camera.getPitch());
 
-        background_renderer.render(bgModel, textureCube, camera);
+        background_renderer.render(bgModel, textureCubeList[cubeIndex], camera);
         model_renderer.render(fountain_models[fountainIndex], model_texture, camera, 
                 glm::vec4(0, 1, 0, -water_models[fountainIndex].getPosition().y));
 
@@ -176,7 +192,7 @@ int main () {
 
         model_renderer.render(fountain_models[fountainIndex], model_texture, camera, 
                 glm::vec4(0, -1, 0, water_models[fountainIndex].getPosition().y));
-        background_renderer.render(bgModel, textureCube, camera);
+        background_renderer.render(bgModel, textureCubeList[cubeIndex], camera);
 
         water_renderer.unbindCurrentFrameBuffer();
 
@@ -193,7 +209,7 @@ int main () {
         objPosition.y += distance;
         camera.setPosition(objPosition);
         
-        background_renderer.render(bgModel, textureCube, camera);
+        background_renderer.render(bgModel, textureCubeList[cubeIndex], camera);
 
         camera.setPitch(-camera.getPitch());
         camera.setYaw(camera.getYaw() - 180.0f);
@@ -205,7 +221,7 @@ int main () {
         glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         
         model_renderer.render(fountain_models[fountainIndex], model_texture, camera, glm::vec4(0, -1, 0, 100000));
-        background_renderer.render(bgModel, textureCube, camera);
+        background_renderer.render(bgModel, textureCubeList[cubeIndex], camera);
         water_renderer.render(water_models[fountainIndex], camera, deltaTime, model_renderer.getLightPos(), model_renderer.getLightColor());
 
         particle_renderer.unbindCurrentFrameBuffer();
@@ -213,10 +229,10 @@ int main () {
         // Render the scene
         glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-        background_renderer.render(bgModel, textureCube, camera);
+        background_renderer.render(bgModel, textureCubeList[cubeIndex], camera);
         model_renderer.render(fountain_models[fountainIndex], model_texture, camera, glm::vec4(0, -1, 0, 100000));
         water_renderer.render(water_models[fountainIndex], camera, deltaTime, model_renderer.getLightPos(), model_renderer.getLightColor());
-        particle_renderer.render(particle_props[fountainIndex], deltaTime, camera, model_renderer.getLight(), textureCube);
+        particle_renderer.render(particle_props[fountainIndex], deltaTime, camera, model_renderer.getLight(), textureCubeList[cubeIndex]);
         gui_renderer.render(btn_handler.getGuiTextures(), camera);
 
         glfwSwapBuffers(window);

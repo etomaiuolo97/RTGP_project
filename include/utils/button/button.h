@@ -50,6 +50,9 @@ private:
             case 1:
                 night = setNight(night);
                 break;
+            case 2:
+                cubeIndex = (cubeIndex + 1) % numCubes;
+                break;
 
         }    
     }

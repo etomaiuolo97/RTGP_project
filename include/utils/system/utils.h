@@ -24,6 +24,9 @@ GLuint textureCube;
 
 vector <GLuint> textures;
 
+int numCubes = 0;
+int cubeIndex = 0;
+
 typedef struct {
     glm::vec3 position;
     float water_height;
