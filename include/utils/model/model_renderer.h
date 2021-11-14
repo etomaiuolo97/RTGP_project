@@ -13,7 +13,7 @@ private:
 
 public:
 
-    ModelRenderer (glm::mat4 projection, bool night)
+    ModelRenderer (glm::mat4 projection)
         : Renderer(projection){
         
         light.position = glm::vec3(-10.0f, 20.0f, -60.0f);
