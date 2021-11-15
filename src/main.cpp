@@ -116,7 +116,7 @@ int main () {
     cubeTextures.push_back(LoadTextureCube("textures/skybox_night/skybox1/"));
     cubeTextures.push_back(LoadTextureCube("textures/skybox_night/skybox2/"));
     numCubeTextures = cubeTextures.size();
-    
+
     Texture model_texture;
     model_texture.id = LoadTexture("textures/fountain/fountain_tex.png", true);
     model_texture.shineDamper = 90.0f;
@@ -152,6 +152,7 @@ int main () {
 
         btn_handler.update();
 
+        // Change the night color w.r.t. day/night modality
         if(isNight)
             model_renderer.setLightColor(glm::vec3(0.6f, 0.6f, 0.6f));
         else

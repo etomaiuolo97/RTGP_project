@@ -20,8 +20,6 @@ private:
     // isHovering: True if the mouse pointer is on the button
     GLboolean isHovering;
     
-    
-    
     // buttonId: id to set the onClick function:
     //  - 0: model change
     //  - 1: day/night version
@@ -65,7 +63,9 @@ private:
 
                 break;
             case 2:
-                // Cycle on the cubemap vector index
+                // Cycle on the cubemap vector index:
+                //  - 0->2 day modality
+                //  - 3->5 night modality
                 if (isNight)
                     cubeTexIndex -= numCubeTextures / 2;
                 
