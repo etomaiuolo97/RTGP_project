@@ -24,9 +24,6 @@ GLuint textureCube;
 
 vector <GLuint> textures;
 
-int numCubes = 0;
-int cubeIndex = 0;
-
 typedef struct {
     glm::vec3 position;
     float water_height;
@@ -34,9 +31,14 @@ typedef struct {
     float life;
 } particle_prop_t;
 
+// fountainIndex: keep trace of the fountain is actually rendered 
+int fountainIndex;
 int numFountains = 0;
-// Index of the fountain visible on the screen
-int fountainIndex = 0;
+// cubeTexIndex: keep trace of the cubemap is actually rendered 
+int cubeTexIndex;
+int numCubeTextures = 0;
+
+bool isNight = false;
 
 // Discard all the errors found before
 void clearErrors() {
@@ -73,7 +75,7 @@ void LoadTextureCubeSide (string path, string side_img, GLuint side_name) {
     image = stbi_load(fullname.c_str(), &w, &h, 0, STBI_rgb);
     if (image == nullptr)
         std::cout << "Failed to load texture!" << std::endl;
-    
+
     glCall(glTexImage2D(side_name, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, image));
     stbi_image_free(image);
 }

@@ -40,7 +40,6 @@ using namespace std;
 
 #include <utils/button/button.h>
 #include <utils/button/button_handler.h>
-#include <utils/button/button_function.h>
 
 int main () {
     std::cout << "Starting GLFW context" << std::endl;
@@ -108,22 +107,15 @@ int main () {
     camera.setObjPosition(fountain_models[fountainIndex].getPosition());
 
     // Textures
-    //textureCube = LoadTextureCube("textures/skybox/");
-    // List of skyboxes
-    vector<GLint> textureCubeList;
-    GLint tmp = LoadTextureCube("textures/skybox/");
-    textureCubeList.push_back(tmp);
-    
-    tmp = LoadTextureCube("textures/skybox1/");
-    textureCubeList.push_back(tmp);
-
-    tmp = LoadTextureCube("textures/skyboxDay/");
-    textureCubeList.push_back(tmp);
-
-    tmp = LoadTextureCube("textures/skyboxNight/");
-    textureCubeList.push_back(tmp);
-
-    numCubes = textureCubeList.size();
+    // cubeTextures: list of cubemap textures
+    vector<GLint> cubeTextures;
+    cubeTextures.push_back(LoadTextureCube("textures/skybox_day/skybox0/"));
+    cubeTextures.push_back(LoadTextureCube("textures/skybox_day/skybox1/"));
+    cubeTextures.push_back(LoadTextureCube("textures/skybox_day/skybox2/"));
+    cubeTextures.push_back(LoadTextureCube("textures/skybox_night/skybox0/"));
+    cubeTextures.push_back(LoadTextureCube("textures/skybox_night/skybox1/"));
+    cubeTextures.push_back(LoadTextureCube("textures/skybox_night/skybox2/"));
+    numCubeTextures = cubeTextures.size();
     
     Texture model_texture;
     model_texture.id = LoadTexture("textures/fountain/fountain_tex.png", true);
@@ -160,12 +152,11 @@ int main () {
 
         btn_handler.update();
 
-        if(night){
-            cubeIndex = numCubes - 1;
+        if(isNight)
             model_renderer.setLightColor(glm::vec3(0.6f, 0.6f, 0.6f));
-        }else{
+        else
             model_renderer.setLightColor(glm::vec3(1.0f, 1.0f, 1.0f));
-        }
+
 
         // Render the reflection of the water
         water_renderer.bindReflectionFrameBuffer();
@@ -181,7 +172,7 @@ int main () {
         camera.setPosition(cameraPos);
         camera.setPitch(-camera.getPitch());
 
-        background_renderer.render(bgModel, textureCubeList[cubeIndex], camera);
+        background_renderer.render(bgModel, cubeTextures[cubeTexIndex], camera);
         model_renderer.render(fountain_models[fountainIndex], model_texture, camera, 
                 glm::vec4(0, 1, 0, -water_models[fountainIndex].getPosition().y));
 
@@ -196,7 +187,7 @@ int main () {
 
         model_renderer.render(fountain_models[fountainIndex], model_texture, camera, 
                 glm::vec4(0, -1, 0, water_models[fountainIndex].getPosition().y));
-        background_renderer.render(bgModel, textureCubeList[cubeIndex], camera);
+        background_renderer.render(bgModel, cubeTextures[cubeTexIndex], camera);
 
         water_renderer.unbindCurrentFrameBuffer();
 
@@ -213,7 +204,7 @@ int main () {
         objPosition.y += distance;
         camera.setPosition(objPosition);
         
-        background_renderer.render(bgModel, textureCubeList[cubeIndex], camera);
+        background_renderer.render(bgModel, cubeTextures[cubeTexIndex], camera);
 
         camera.setPitch(-camera.getPitch());
         camera.setYaw(camera.getYaw() - 180.0f);
@@ -225,7 +216,7 @@ int main () {
         glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         
         model_renderer.render(fountain_models[fountainIndex], model_texture, camera, glm::vec4(0, -1, 0, 100000));
-        background_renderer.render(bgModel, textureCubeList[cubeIndex], camera);
+        background_renderer.render(bgModel, cubeTextures[cubeTexIndex], camera);
         water_renderer.render(water_models[fountainIndex], camera, deltaTime, model_renderer.getLightPos(), model_renderer.getLightColor());
 
         particle_renderer.unbindCurrentFrameBuffer();
@@ -233,10 +224,10 @@ int main () {
         // Render the scene
         glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-        background_renderer.render(bgModel, textureCubeList[cubeIndex], camera);
+        background_renderer.render(bgModel, cubeTextures[cubeTexIndex], camera);
         model_renderer.render(fountain_models[fountainIndex], model_texture, camera, glm::vec4(0, -1, 0, 100000));
         water_renderer.render(water_models[fountainIndex], camera, deltaTime, model_renderer.getLightPos(), model_renderer.getLightColor());
-        particle_renderer.render(particle_props[fountainIndex], deltaTime, camera, model_renderer.getLight(), textureCubeList[cubeIndex]);
+        particle_renderer.render(particle_props[fountainIndex], deltaTime, camera, model_renderer.getLight(), cubeTextures[cubeTexIndex]);
         gui_renderer.render(btn_handler.getGuiTextures(), camera);
 
         glfwSwapBuffers(window);

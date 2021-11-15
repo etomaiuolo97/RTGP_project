@@ -19,12 +19,8 @@ private:
     glm::vec2 position, scale;
     // isHovering: True if the mouse pointer is on the button
     GLboolean isHovering;
-
-    // cubeTextures: list of cubemap textures
-    vector<GLint> cubeTextures;
     
-    // cubeTexIndex: keep trace of the cubemap is actually rendered 
-    int cubeTexIndex;
+    
     
     // buttonId: id to set the onClick function:
     //  - 0: model change
@@ -41,10 +37,16 @@ private:
         this->buttonId = buttonId;
 
         // Initialize the list of cubemaps and the index in case of scene-change button
-        if (buttonId == 2) {
-            this->cubeTexIndex = 0;
-            cubeTextures.push_back(LoadTextureCube("textures/skybox/"));
-            cubeTextures.push_back(LoadTextureCube("textures/skybox1/"));
+        switch (buttonId) {
+            case 0:
+                fountainIndex = 0;
+                break;
+            case 1:
+                isNight = false;
+                break;
+            case 2:
+                cubeTexIndex = 0;
+                break;
         }
     }
 
@@ -55,13 +57,22 @@ private:
                 fountainIndex = (fountainIndex + 1) % numFountains;
                 break;
             case 1:
-                night = setNight(night);
+                isNight = !isNight;
+                if (isNight)
+                    cubeTexIndex = numCubeTextures / 2;
+                else
+                    cubeTexIndex = 0;
+
                 break;
             case 2:
                 // Cycle on the cubemap vector index
-                cubeTexIndex = (cubeTexIndex + 1) % cubeTextures.size();
-                // Set the cubemap to render
-                textureCube = cubeTextures[cubeTexIndex];
+                if (isNight)
+                    cubeTexIndex -= numCubeTextures / 2;
+                
+                cubeTexIndex = (cubeTexIndex + 1) % (numCubeTextures / 2);
+
+                if (isNight)
+                    cubeTexIndex += numCubeTextures / 2;
                 break;
         }    
     }
@@ -90,7 +101,7 @@ public:
                 isHovering = true;
                 startHover();
             }
-            
+
             // Check if the mouse is clicked
             if (isClicked) {
                 playerClickAnimation(0.01f);
