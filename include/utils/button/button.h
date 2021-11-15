@@ -54,6 +54,9 @@ private:
                 // Cycle on the fountain vector index
                 fountainIndex = (fountainIndex + 1) % numFountains;
                 break;
+            case 1:
+                night = setNight(night);
+                break;
             case 2:
                 // Cycle on the cubemap vector index
                 cubeTexIndex = (cubeTexIndex + 1) % cubeTextures.size();

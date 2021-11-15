@@ -13,15 +13,12 @@ private:
 
 public:
 
-    ModelRenderer (glm::mat4 projection, bool night)
+    ModelRenderer (glm::mat4 projection)
         : Renderer(projection){
         
         light.position = glm::vec3(-10.0f, 20.0f, -60.0f);
 
-        if(night)
-            light.color = glm::vec3(0.6f, 0.6f, 0.6f);
-        else
-            light.color = glm::vec3(1.0f, 1.0f, 1.0f);
+        light.color = glm::vec3(1.0f, 1.0f, 1.0f);
 
         shader.start();
         shader.loadProjectionMatrix(this->projection);
@@ -64,6 +61,10 @@ public:
 
     Light getLight () {
         return this->light;
+    }
+
+    void setLightColor (glm::vec3 lighColor) {
+        this->light.color = lighColor;
     }
 
 };
